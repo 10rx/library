@@ -1,4 +1,4 @@
-{
+export default {
     "transform": {
       "^.+\\.(t|j)sx?$": "ts-jest"
     },
