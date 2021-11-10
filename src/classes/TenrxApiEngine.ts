@@ -23,6 +23,21 @@ export class TenrxApiEngine {
     }
 
     /**
+     * Gets all the visit types
+     *
+     * @return {*}  {Promise<any>} - All the visit types
+     * @memberof TenrxApiEngine
+     */
+    async GetVisitTypes(): Promise<any> {
+        const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
+        if (response.status === 200) {
+            return response.content;
+        } else {
+            return response.error;
+        }
+    }
+
+    /**
      * Performs a GET request to the specified url
      *
      * @param {string} url - The url to perform the GET request to
