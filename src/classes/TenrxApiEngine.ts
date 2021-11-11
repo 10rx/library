@@ -31,8 +31,7 @@ export class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async GetVisitTypes(): Promise<any> {
-        TenrxLogger.info('Getting all the visit types');
-        TenrxLogger.debug('GetVisitTypes() Start');
+        TenrxLogger.info('Getting all the visit types from API');        
         const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
         if (response.status === 200) {
             TenrxLogger.debug('GetVisitTypes() Response: ', response.content);
@@ -61,7 +60,7 @@ export class TenrxApiEngine {
                 internalurl.searchParams.append(key, params[key]);
             });
         }
-        TenrxLogger.silly('Real URL: ', internalurl.toString());
+        TenrxLogger.silly('Real GET URL: ', internalurl.toString());
         try {
             const response = await fetch(internalurl.toString(), {
                 'method': 'GET',
