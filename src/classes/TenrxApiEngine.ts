@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import { TenrxApiResult } from './TenrxApiResult';
 import { TenrxLogger } from "../includes/TenrxLogger";
+import { TenrxVisitType } from './TenrxVisitType';
 
 /**
  * Represents a Tenrx API engine.
@@ -27,18 +28,40 @@ export class TenrxApiEngine {
     /**
      * Gets all the visit types
      *
-     * @return {*}  {Promise<any>} - All the visit types
+     * @return {Promise<TenrxVisitType[]>}  {Promise<TenrxVisitType[]>} - All the visit types
      * @memberof TenrxApiEngine
      */
-    async GetVisitTypes(): Promise<any> {
-        TenrxLogger.info('Getting all the visit types from API');        
-        const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
-        if (response.status === 200) {
-            TenrxLogger.debug('GetVisitTypes() Response: ', response.content);
-            return response.content;
-        } else {
-            TenrxLogger.error('GetVisitTypes() Error: ', response.error);
-            return response.error;
+    async GetVisitTypes(): Promise<TenrxVisitType[] | null> {
+        TenrxLogger.info('Getting all the visit types from API');
+        try{
+            const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
+            if (response.status === 200) {
+                TenrxLogger.debug('GetVisitTypes() Response: ', response.content);
+                if (response.content) {
+                    if (response.content.data){
+                        TenrxLogger.info('Total Visit Types received from API: ', response.content.data.length);
+                        const result: TenrxVisitType[] = [];
+                        for (const visitType of response.content.data) {
+                            result.push(new TenrxVisitType(visitType));
+                        }                    
+                        return result;
+                    } else {
+                        TenrxLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
+                        return null;
+                    }
+                } else
+                {
+                    TenrxLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
+                    return null;
+                }
+                
+            } else {
+                TenrxLogger.error('GetVisitTypes() Error: ', response.error);
+                return null;
+            }
+        } catch (error) {
+            TenrxLogger.error('GetVisitTypes() Error: ', error);
+            return null;
         }
     }
 

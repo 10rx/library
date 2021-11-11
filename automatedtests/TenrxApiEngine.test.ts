@@ -7,7 +7,7 @@ Testlogger.setSettings({
 
 const tenrx = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
 
-test('GetVisitTypes Test Successful', async () => {
+test('GET Test Successful', async () => {
   const response = await tenrx.get(TEST_API_BASE_URL + '/Login/GetVisitTypes');
   expect(response.status).toBe(200);
 });
@@ -19,5 +19,6 @@ test('GET Test Not Found', async () => {
 
 test('GetVisitTypes Test Successful', async () => {
   const response = await tenrx.GetVisitTypes();
-  expect(response.statusCode).toBe(200);
+  expect(response).not.toBeNull();
+  expect(response!.length).toBeGreaterThan(0);
 });
