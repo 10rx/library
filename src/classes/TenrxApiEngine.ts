@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { TenrxApiResult } from './TenrxApiResult';
+import { TenrxLogger } from "../includes/TenrxLogger";
 
 /**
  * Represents a Tenrx API engine.
@@ -18,6 +19,7 @@ export class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     constructor(businesstoken: string, baseapi: string) {
+        TenrxLogger.debug('Creating a new TenrxApiEngine: ', { 'businesstoken': businesstoken, 'baseapi': baseapi });
         this._businesstoken = businesstoken;
         this._baseapi = baseapi;
     }
@@ -29,10 +31,14 @@ export class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async GetVisitTypes(): Promise<any> {
+        TenrxLogger.info('Getting all the visit types');
+        TenrxLogger.debug('GetVisitTypes() Start');
         const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
         if (response.status === 200) {
+            TenrxLogger.debug('GetVisitTypes() Response: ', response.content);
             return response.content;
         } else {
+            TenrxLogger.error('GetVisitTypes() Error: ', response.error);
             return response.error;
         }
     }
@@ -47,6 +53,7 @@ export class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Executing GET WebCall: ', { 'url': url, 'params': params, 'headers': headers });
         const internalurl: URL = new URL(url);
         const returnvalue: TenrxApiResult = new TenrxApiResult();
         if (params) {
@@ -54,6 +61,7 @@ export class TenrxApiEngine {
                 internalurl.searchParams.append(key, params[key]);
             });
         }
+        TenrxLogger.silly('Real URL: ', internalurl.toString());
         try {
             const response = await fetch(internalurl.toString(), {
                 'method': 'GET',
@@ -64,8 +72,10 @@ export class TenrxApiEngine {
             });
             returnvalue.status = response.status;
             returnvalue.content = await response.json();
+            TenrxLogger.silly('GET WebCall Response: ', returnvalue);
         } catch (error) {
             returnvalue.error = error;
+            TenrxLogger.silly('GET WebCall Error: ', error);
         }
         return returnvalue;
     }
@@ -80,6 +90,7 @@ export class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async post(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Executing POST WebCall: ', { 'url': url, 'params': params, 'headers': headers });
         const returnvalue: TenrxApiResult = new TenrxApiResult();
         try {
             const response = await fetch(url, {
@@ -93,8 +104,10 @@ export class TenrxApiEngine {
             });
             returnvalue.status = response.status;
             returnvalue.content = await response.json();
+            TenrxLogger.silly('POST WebCall Response: ', returnvalue);
         } catch (error) {
             returnvalue.error = error;
+            TenrxLogger.silly('POST WebCall Error: ', error);
         }
         return returnvalue;
     }

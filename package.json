@@ -42,6 +42,7 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.6",
+    "tslog": "^3.2.2"
   }
 }

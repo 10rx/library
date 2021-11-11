@@ -1,9 +1,13 @@
-import { BUSINESS_TOKEN, TEST_API_BASE_URL } from './includes/TexrxCommonInclude';
+import { BUSINESS_TOKEN, TEST_API_BASE_URL, Testlogger } from './includes/TexrxCommonInclude';
 import { TenrxApiEngine } from '../src/index';
+
+Testlogger.setSettings({
+  type: 'pretty',
+})
 
 const tenrx = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
 
-test('GET Test Successful', async () => {
+test('GetVisitTypes Test Successful', async () => {
   const response = await tenrx.get(TEST_API_BASE_URL + '/Login/GetVisitTypes');
   expect(response.status).toBe(200);
 });
