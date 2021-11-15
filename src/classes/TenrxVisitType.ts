@@ -1,3 +1,6 @@
+import { TenrxApiEngine } from "./TenrxApiEngine";
+import { TenrxLogger } from "../includes/TenrxLogger";
+
 /**
  * Represents a Tenrx visit type.
  *
@@ -117,5 +120,23 @@ export class TenrxVisitType {
         this.isVisitAlreadyExist = data.isVisitAlreadyExist;
         this.photoPath = data.photoPath;
         this.visitTypeListings = data.visitTypeListings;
+    }
+
+    /**
+     * Gets all the visit types
+     *
+     * @static
+     * @return {*}  {(Promise<TenrxVisitType[] | null>)}
+     * @memberof TenrxVisitType
+     */
+    public static async GetVisitTypes(): Promise<TenrxVisitType[] | null> {
+        TenrxLogger.silly('TenrxVisitType.GetVisitTypes() Started')
+        const apiEngine = TenrxApiEngine.Instance;
+        if (apiEngine == null) {
+            TenrxLogger.error("TenrxApiEngine is not initialized.");
+            return null;
+        }
+        TenrxLogger.info('Retrieving visit types.');
+        return apiEngine.GetVisitTypes();
     }
 }

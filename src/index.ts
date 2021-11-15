@@ -9,6 +9,6 @@ export const InitializeTenrx = (businesstoken: string, baseapi: string): void =>
     TenrxApiEngine.Initialize(businesstoken, baseapi);
 }
 
-export const useTenrx = (): TenrxApiEngine | null => {
+export const useTenrxApi = (): TenrxApiEngine => {
     return TenrxApiEngine.Instance;
 }

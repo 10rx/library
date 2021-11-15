@@ -140,13 +140,14 @@ export class TenrxApiEngine {
      *
      * @readonly
      * @static
-     * @type {(TenrxApiEngine | null)}
+     * @type {(TenrxApiEngine)}
      * @memberof TenrxApiEngine
+     * @returns {TenrxApiEngine} - The TenrxApiEngine instance
      */
-    public static get Instance(): TenrxApiEngine | null {
+    public static get Instance(): TenrxApiEngine {
         if (TenrxApiEngine._instance === null) {
             TenrxLogger.error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
-            return null;
+            throw new Error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
         }
         return TenrxApiEngine._instance;
     }
@@ -164,6 +165,17 @@ export class TenrxApiEngine {
             TenrxLogger.warn('TenrxApiEngine is already initialized. Call TenrxApiEngine.Initialize() only once.');
         }
         TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi);
+    }
+
+    /**
+     * Returns the status of initialization of the TenrxApiEngine singleton instance
+     *
+     * @static
+     * @return {*}  {boolean} - True if the TenrxApiEngine is initialized
+     * @memberof TenrxApiEngine
+     */
+    public static isInstanceInitialized(): boolean {
+        return TenrxApiEngine._instance !== null;
     }
 }
 

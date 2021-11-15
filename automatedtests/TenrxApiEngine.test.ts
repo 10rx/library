@@ -1,11 +1,12 @@
 import { BUSINESS_TOKEN, TEST_API_BASE_URL, Testlogger } from './includes/TexrxCommonInclude';
-import { TenrxApiEngine, useTenrx, InitializeTenrx } from '../src/index';
+import { TenrxApiEngine, useTenrxApi, InitializeTenrx } from '../src/index';
 
 Testlogger.setSettings({
   type: 'pretty',
 })
 
-const tenrx = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
+InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
+const tenrx = useTenrxApi();
 
 test('GET Test Successful', async () => {
   const response = await tenrx.get(TEST_API_BASE_URL + '/Login/GetVisitTypes');
@@ -13,6 +14,7 @@ test('GET Test Successful', async () => {
 });
 
 test('GET Test Not Found', async () => {
+  expect(tenrx).not.toBeNull();
   const response = await tenrx.get(TEST_API_BASE_URL + '/NONEXISTINGURL');
   expect(response.status).toBe(404);
 });
@@ -24,10 +26,9 @@ test('GetVisitTypes Test Successful', async () => {
 });
 
 test('Singleton Test', async () => {
-  InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
   const ApiEngine1 = TenrxApiEngine.Instance;
-  const ApiEngine2 = useTenrx();
-  const ApiEngine3 = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
-  expect(ApiEngine1).toBe(ApiEngine2);
-  expect(ApiEngine1).not.toBe(ApiEngine3);
+  const ApiEngine2 = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
+  expect(tenrx).not.toBeNull();
+  expect(ApiEngine1).toBe(tenrx);
+  expect(ApiEngine1).not.toBe(ApiEngine2);
 });
