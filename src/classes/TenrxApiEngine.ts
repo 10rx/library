@@ -12,6 +12,7 @@ import { TenrxVisitType } from './TenrxVisitType';
 export class TenrxApiEngine {
     private _businesstoken: string = '';
     private _baseapi: string = '';
+    private static _instance: TenrxApiEngine | null = null;
     
     /**
      * Creates an instance of TenrxApiEngine.
@@ -132,6 +133,49 @@ export class TenrxApiEngine {
             TenrxLogger.silly('POST WebCall Error: ', error);
         }
         return returnvalue;
+    }
+
+    /**
+     * Gets the TenrxApiEngine instance
+     *
+     * @readonly
+     * @static
+     * @type {(TenrxApiEngine)}
+     * @memberof TenrxApiEngine
+     * @returns {TenrxApiEngine} - The TenrxApiEngine instance
+     */
+    public static get Instance(): TenrxApiEngine {
+        if (TenrxApiEngine._instance === null) {
+            TenrxLogger.error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
+            throw new Error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
+        }
+        return TenrxApiEngine._instance;
+    }
+
+    /**
+     * Initializes the TenrxApiEngine singleton instance
+     *
+     * @static
+     * @param {string} businesstoken - The business token to use for the API engine
+     * @param {string} baseapi - The base api url to use for the API engine
+     * @memberof TenrxApiEngine
+     */
+    public static Initialize(businesstoken: string, baseapi: string): void {
+        if (TenrxApiEngine._instance !== null) {
+            TenrxLogger.warn('TenrxApiEngine is already initialized. Call TenrxApiEngine.Initialize() only once.');
+        }
+        TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi);
+    }
+
+    /**
+     * Returns the status of initialization of the TenrxApiEngine singleton instance
+     *
+     * @static
+     * @return {*}  {boolean} - True if the TenrxApiEngine is initialized
+     * @memberof TenrxApiEngine
+     */
+    public static isInstanceInitialized(): boolean {
+        return TenrxApiEngine._instance !== null;
     }
 }
 
