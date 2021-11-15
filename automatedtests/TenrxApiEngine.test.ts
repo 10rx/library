@@ -1,11 +1,10 @@
 import { BUSINESS_TOKEN, TEST_API_BASE_URL, Testlogger } from './includes/TexrxCommonInclude';
-import { TenrxApiEngine, useTenrxApi, InitializeTenrx } from '../src/index';
+import { TenrxApiEngine, useTenrxApi } from '../src/index';
 
 Testlogger.setSettings({
   type: 'pretty',
 })
 
-InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
 const tenrx = useTenrxApi();
 
 test('GET Test Successful', async () => {
