@@ -5,7 +5,7 @@ import bcryptjs from 'bcryptjs';
 import isaac from 'isaac';
 
 export { TenrxApiEngine } from "./classes/TenrxApiEngine";
-export { TenrxApiResult } from "./classes/TenrxApiResult";
+export { TenrxApiResult } from "./types/TenrxApiResult";
 export { TenrxVisitType } from "./classes/TenrxVisitType";
 export { TenrxLogger } from "./includes/TenrxLogger";
 

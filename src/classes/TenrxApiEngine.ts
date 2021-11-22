@@ -1,8 +1,7 @@
 import fetch from 'node-fetch';
-import { TenrxApiResult } from './TenrxApiResult';
 import { TenrxLogger } from "../includes/TenrxLogger";
 import { TenrxVisitType } from './TenrxVisitType';
-import { TenrxLoginResponseData } from '../types/TenrxLoginResponseData';
+import { TenrxApiResult } from '../types/TenrxApiResult';
 
 /**
  * Represents a Tenrx API engine.
@@ -42,6 +41,11 @@ export class TenrxApiEngine {
      */
     async Login(username: string, password: string, language: string = 'en', macaddress: string = 'up:da:te:la:te:rr'): Promise<TenrxApiResult> {
         TenrxLogger.debug('Logging in user to API: ', { 'username': username, 'password': password, 'language': language, 'macaddress': macaddress });
+        const response: TenrxApiResult = {
+            'status': 0,
+            'content': null,
+            'error': null
+        };
         try {
             const response:TenrxApiResult = await this.post(`${this._baseapi}/Login/PatientLogin`,
             {
@@ -75,7 +79,6 @@ export class TenrxApiEngine {
             return response;
         } catch (error) {
             TenrxLogger.error('Login() Error: ', error);
-            const response = new TenrxApiResult();
             response.error = error;
             return response;
         }
@@ -134,7 +137,11 @@ export class TenrxApiEngine {
     async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
         TenrxLogger.debug('Executing GET WebCall: ', { 'url': url, 'params': params, 'headers': headers });
         const internalurl: URL = new URL(url);
-        const returnvalue: TenrxApiResult = new TenrxApiResult();
+        const returnvalue: TenrxApiResult = {
+            'status': 0,
+            'content': null,
+            'error': null
+        };
         if (params) {
             Object.keys(params).forEach(key => {
                 internalurl.searchParams.append(key, params[key]);
@@ -170,7 +177,11 @@ export class TenrxApiEngine {
      */
     async post(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
         TenrxLogger.debug('Executing POST WebCall: ', { 'url': url, 'params': params, 'headers': headers });
-        const returnvalue: TenrxApiResult = new TenrxApiResult();
+        const returnvalue: TenrxApiResult = {
+            'status': 0,
+            'content': null,
+            'error': null
+        };
         try {
             const response = await fetch(url, {
                 'method': 'POST',
