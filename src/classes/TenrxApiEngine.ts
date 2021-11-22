@@ -13,7 +13,7 @@ export class TenrxApiEngine {
     private _businesstoken: string = '';
     private _baseapi: string = '';
     private _accesstoken: string = '';
-    private _expires_in: number = 0;
+    private _expiresIn: number = 0;
     
     private static _instance: TenrxApiEngine | null = null;
     
@@ -41,11 +41,6 @@ export class TenrxApiEngine {
      */
     async Login(username: string, password: string, language: string = 'en', macaddress: string = 'up:da:te:la:te:rr'): Promise<TenrxApiResult> {
         TenrxLogger.debug('Logging in user to API: ', { 'username': username, 'password': password, 'language': language, 'macaddress': macaddress });
-        const response: TenrxApiResult = {
-            'status': 0,
-            'content': null,
-            'error': null
-        };
         try {
             const response:TenrxApiResult = await this.post(`${this._baseapi}/Login/PatientLogin`,
             {
@@ -60,8 +55,8 @@ export class TenrxApiEngine {
                     if (response.content.data){
                         if (response.content.access_token) {
                             this._accesstoken = response.content.access_token;
-                            this._expires_in = response.content.expires_in;
-                            TenrxLogger.debug('Login() Updated Access Token in API Engine: ', this._accesstoken, ' Expires In: ', this._expires_in);
+                            this._expiresIn = response.content.expires_in;
+                            TenrxLogger.debug('Login() Updated Access Token in API Engine: ', this._accesstoken, ' Expires In: ', this._expiresIn);
                         } else {
                             TenrxLogger.debug('Login() No Access Token in API Response');
                         }
@@ -79,7 +74,11 @@ export class TenrxApiEngine {
             return response;
         } catch (error) {
             TenrxLogger.error('Login() Error: ', error);
-            response.error = error;
+            const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                'error': error
+            };
             return response;
         }
     }
