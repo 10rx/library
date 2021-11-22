@@ -18,6 +18,6 @@ TenrxLogger.setSettings({
     minLevel: 'warn'
 });
 
-(TenrxApiEngine.isInstanceInitialized) ? InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL) : null;
+if (!TenrxApiEngine.isInstanceInitialized()) InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
 
 export const Testlogger = TenrxLogger;
