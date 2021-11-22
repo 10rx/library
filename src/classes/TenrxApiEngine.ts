@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import { TenrxApiResult } from './TenrxApiResult';
 import { TenrxLogger } from "../includes/TenrxLogger";
 import { TenrxVisitType } from './TenrxVisitType';
+import { TenrxLoginResponseData } from '../types/TenrxLoginResponseData';
 
 /**
  * Represents a Tenrx API engine.
@@ -12,6 +13,9 @@ import { TenrxVisitType } from './TenrxVisitType';
 export class TenrxApiEngine {
     private _businesstoken: string = '';
     private _baseapi: string = '';
+    private _accesstoken: string = '';
+    private _expires_in: number = 0;
+    
     private static _instance: TenrxApiEngine | null = null;
     
     /**
@@ -25,6 +29,58 @@ export class TenrxApiEngine {
         this._businesstoken = businesstoken;
         this._baseapi = baseapi;
     }
+
+    /**
+     * Authenticates the TenrxApiEngine instance
+     *
+     * @param {string} username
+     * @param {string} password
+     * @param {string} [language='en']
+     * @param {string} [macaddress='up:da:te:la:te:rr']
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
+    async Login(username: string, password: string, language: string = 'en', macaddress: string = 'up:da:te:la:te:rr'): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Logging in user to API: ', { 'username': username, 'password': password, 'language': language, 'macaddress': macaddress });
+        try {
+            const response:TenrxApiResult = await this.post(`${this._baseapi}/Login/PatientLogin`,
+            {
+                'username': username,
+                'password': password,
+                'macaddress': macaddress,
+                'Language': language
+            });
+            if (response.status === 200) {
+                TenrxLogger.debug('Login() Response: ', response.content);
+                if (response.content) {
+                    if (response.content.data){
+                        if (response.content.access_token) {
+                            this._accesstoken = response.content.access_token;
+                            this._expires_in = response.content.expires_in;
+                            TenrxLogger.debug('Login() Updated Access Token in API Engine: ', this._accesstoken, ' Expires In: ', this._expires_in);
+                        } else {
+                            TenrxLogger.debug('Login() No Access Token in API Response');
+                        }
+                    } else {
+                        TenrxLogger.error('API returned data as null when logging in. Content of error is: ', response.error);
+                    }
+                } else
+                {
+                    TenrxLogger.error('API returned content as null when logging in. Content of error is: ', response.error);
+                }
+                
+            } else {
+                TenrxLogger.error('Login() Error: ', response.error);
+            }
+            return response;
+        } catch (error) {
+            TenrxLogger.error('Login() Error: ', error);
+            const response = new TenrxApiResult();
+            response.error = error;
+            return response;
+        }
+    }
+
 
     /**
      * Gets all the visit types

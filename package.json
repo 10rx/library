@@ -27,6 +27,8 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.16.0",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/isaac": "^0.0.0",
     "@types/jest": "^27.0.2",
     "@types/node-fetch": "^2.5.12",
     "jest": "^27.3.1",
@@ -42,6 +44,8 @@
     "dist/**/*"
   ],
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "isaac": "^0.0.5",
     "node-fetch": "^2.6.6",
     "tslog": "^3.2.2"
   }
