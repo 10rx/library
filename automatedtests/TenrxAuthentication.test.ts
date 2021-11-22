@@ -1,10 +1,8 @@
 import { TEST_USERNAME_EXISTS, TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_SUCCESS, TEST_PASSWORD_FAILED, Testlogger } from './includes/TexrxCommonInclude';
 import { AuthenticateTenrx, useTenrxApi } from '../src/index';
-import { TenrxLoginSecurityQuestion } from '../src/types/TenrxLoginSecurityQuestion';
 
 Testlogger.setSettings({
   type: 'pretty',
-  //minLevel: 'debug'
 })
 
 test('Authenticate Test Fail', async () => {
