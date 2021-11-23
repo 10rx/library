@@ -31,7 +31,7 @@ export class TenrxApiEngine {
     }
 
     /**
-     *
+     * Returns true of the Api engine is authenticated. Otherwise, it returns false.
      *
      * @readonly
      * @type {boolean}
