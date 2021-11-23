@@ -175,6 +175,22 @@ export class TenrxApiEngine {
     }
 
     /**
+     * Performs an authenticated GET request to the specified url.
+     *
+     * @param {string} url - The url to perform the GET request to.
+     * @param {Record<string, string>} [params={}] - The parameters to add to the url.
+     * @param {object} [headers={}] - The headers to add to the request.
+     * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
+     * @memberof TenrxApiEngine
+     */
+    async auth_get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+        this._ensureValidAccessToken();
+        const authHeaders = { ...headers, 'Authorization': `${this._accesstoken}` };
+        TenrxLogger.debug('Preparing to execute authenticated GET WebCall: ');
+        return await this.get(url, params, authHeaders);
+    }
+
+    /**
      * Performs a GET request to the specified url
      *
      * @param {string} url - The url to perform the GET request to
@@ -213,6 +229,22 @@ export class TenrxApiEngine {
             TenrxLogger.silly('GET WebCall Error: ', error);
         }
         return returnvalue;
+    }
+
+    /**
+     * Performs an authenticated POST request to the specified url.
+     *
+     * @param {string} url - The url to perform the POST request to.
+     * @param {object} params - The parameters to pass to the POST request.
+     * @param {object} [headers={}] - The headers to pass to the POST request.
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request.
+     * @memberof TenrxApiEngine
+     */
+    async auth_post(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
+        this._ensureValidAccessToken();
+        const authHeaders = { ...headers, 'Authorization': `${this._accesstoken}` };
+        TenrxLogger.debug('Preparing to execute authenticated POST WebCall: ');
+        return await this.post(url, params, authHeaders);
     }
 
     /**
