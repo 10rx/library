@@ -43,6 +43,7 @@ test('Login API Test Failure', async () => {
   expect(result.content.patientData).toBeNull();
   expect(result.content.data).toEqual({});
   expect(result.error).toBeNull();
+  expect(tenrx.IsAuthenticated).toBe(false);
 });
 
 test('Login API Test Security Question', async () => {
@@ -55,6 +56,7 @@ test('Login API Test Security Question', async () => {
   expect(result.content.message.length).toBeGreaterThan(0);
   expect(result.content.patientData).toBeNull();
   expect(result.error).toBeNull();
+  expect(tenrx.IsAuthenticated).toBe(false);
 });
 
 test('Login API Test Success', async () => {
@@ -69,4 +71,5 @@ test('Login API Test Success', async () => {
   expect(result.content.data.userName).toBe(TEST_USERNAME_EXISTS);
   expect(result.content.patientData).not.toBeNull();
   expect(result.error).toBeNull();
+  expect(tenrx.IsAuthenticated).toBe(true);
 });

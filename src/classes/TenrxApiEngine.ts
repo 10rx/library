@@ -13,7 +13,8 @@ export class TenrxApiEngine {
     private _businesstoken: string = '';
     private _baseapi: string = '';
     private _accesstoken: string = '';
-    private _expiresIn: number = 0;
+    private _expiresIn: number = -1;
+    private _expireDateStart: number = 0;
     
     private static _instance: TenrxApiEngine | null = null;
     
@@ -27,6 +28,54 @@ export class TenrxApiEngine {
         TenrxLogger.debug('Creating a new TenrxApiEngine: ', { 'businesstoken': businesstoken, 'baseapi': baseapi });
         this._businesstoken = businesstoken;
         this._baseapi = baseapi;
+    }
+
+    /**
+     *
+     *
+     * @readonly
+     * @type {boolean}
+     * @memberof TenrxApiEngine
+     */
+    public get IsAuthenticated(): boolean {
+        try {
+            this._ensureValidAccessToken();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * Ensures that the access token is valid
+     *
+     * @private
+     * @memberof TenrxApiEngine
+     */
+    private _ensureValidAccessToken(): void {
+        TenrxLogger.debug('Ensuring valid access token');
+        if (this._accesstoken === '') {
+            TenrxLogger.silly('Access Token is empty:', this._accesstoken);
+            throw new Error('Access Token is empty.');
+        }
+        if (this._expiresIn < 0) {
+            TenrxLogger.silly('Expires In is not valid:', this._expiresIn);
+            throw new Error('Expires In is not valid.');
+        }
+        if (this._expireDateStart === 0) {
+            TenrxLogger.silly('Expire Date Start is not valid:', this._expireDateStart);
+            throw new Error('Expire Date Start is not valid.');
+        }
+        const now: number = Date.now();
+        if (now > (this._expireDateStart + this._expiresIn * 1000)) {
+            TenrxLogger.silly('Access Token has expired:', {
+                'expireDateStart': this._expireDateStart,
+                'expiresIn': this._expiresIn,
+                'now': now
+            });
+            throw new Error('Access Token has expired.');
+        }
+        TenrxLogger.debug('Access Token is valid.');
     }
 
     /**
@@ -56,6 +105,7 @@ export class TenrxApiEngine {
                         if (response.content.access_token) {
                             this._accesstoken = response.content.access_token;
                             this._expiresIn = response.content.expires_in;
+                            this._expireDateStart = Date.now();
                             TenrxLogger.debug('Login() Updated Access Token in API Engine: ', this._accesstoken, ' Expires In: ', this._expiresIn);
                         } else {
                             TenrxLogger.debug('Login() No Access Token in API Response');
