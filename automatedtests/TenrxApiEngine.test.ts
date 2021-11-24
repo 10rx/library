@@ -73,3 +73,14 @@ test('Login API Test Success', async () => {
   expect(result.error).toBeNull();
   expect(tenrx.IsAuthenticated).toBe(true);
 });
+
+test('Auth GET Test Successful', async () => {
+  const logindata = await tenrx.Login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
+  Testlogger.info(logindata);
+  expect(tenrx.IsAuthenticated).toBe(true);
+  if (tenrx.IsAuthenticated) {
+    const response = await tenrx.auth_get(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', { 'patientId': logindata.content.data.id });
+    Testlogger.info(response);
+    expect(response.status).toBe(200);
+  }
+});
