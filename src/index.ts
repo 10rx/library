@@ -3,6 +3,7 @@ import { TenrxLogger } from "./includes/TenrxLogger";
 import { TenrxLoginResponseData } from './types/TenrxLoginResponseData';
 import bcryptjs from 'bcryptjs';
 import isaac from 'isaac';
+import { TenrxLoginSecurityQuestion } from './types/TenrxLoginSecurityQuestion';
 
 export { TenrxApiEngine } from "./classes/TenrxApiEngine";
 export { TenrxApiResult } from "./types/TenrxApiResult";
@@ -68,7 +69,15 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
                     TenrxLogger.info('Tenrx server is requesting more information: ', content.message);
                     if (content.data) {
                         if (Array.isArray(content.data) && content.data.length > 0) {
-                            loginresponse.security_questions = content.data;
+                            loginresponse.security_questions = [];
+                            for (const question of content.data) {
+                                let securityquestion: TenrxLoginSecurityQuestion = {} as TenrxLoginSecurityQuestion;
+                                securityquestion.Id = question.id;
+                                securityquestion.Question = question.question;
+                                securityquestion.Value = question.value;
+                                securityquestion.Active = question.isActive;
+                                loginresponse.security_questions.push(securityquestion);
+                            }
                         }
                     }
                 } else {
