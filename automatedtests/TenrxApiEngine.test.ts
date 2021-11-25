@@ -70,3 +70,8 @@ test('Login API Test Success', async () => {
   expect(result.content.patientData).not.toBeNull();
   expect(result.error).toBeNull();
 });
+
+test('ProductCategory Test', async () => {
+  const response = await tenrx.GetProductCatagory();
+  expect(response).not.toBeNull();
+});

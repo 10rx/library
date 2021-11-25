@@ -135,7 +135,7 @@ export class TenrxVisitType {
         if (apiEngine == null) {
             TenrxLogger.error("TenrxApiEngine is not initialized.");
             return null;
-        }
+            return apiEngine.GetVisitTypes();       }
         TenrxLogger.info('Retrieving visit types.');
         return apiEngine.GetVisitTypes();
     }

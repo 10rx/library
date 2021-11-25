@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import { TenrxLogger } from "../includes/TenrxLogger";
 import { TenrxVisitType } from './TenrxVisitType';
 import { TenrxApiResult } from '../types/TenrxApiResult';
+import { TenrxProductCatagory} from '../classes/TenrxProductCatagory'
 
 /**
  * Represents a Tenrx API engine.
@@ -124,6 +125,44 @@ export class TenrxApiEngine {
         }
     }
 
+
+
+    async GetProductCatagory(): Promise<TenrxProductCatagory[] | null> {
+        TenrxLogger.info('Getting all the product catagory from API');
+        try{
+            const response = await this.get(`${this._baseapi}/Login/GetProductCategory`, {
+                'Id': '1'
+              });
+            if (response.status === 200) {
+                TenrxLogger.debug('GetProductCatagory() Response: ', response.content);
+                if (response.content) {
+                    if (response.content.data){
+                        TenrxLogger.info('Total Product Catagory received from API: ', response.content.data.length);
+                        const result: TenrxProductCatagory[] = [];
+                        for (const productCatagory of response.content.data) {
+                            result.push(new TenrxProductCatagory(productCatagory));
+                        }                    
+                        return result;
+                    } else {
+                        TenrxLogger.error('API returned data as null when getting Product Catagory. Content of error is: ', response.error);
+                        return null;
+                    }
+                } else
+                {
+                    TenrxLogger.error('API returned content as null when getting Product Catagory. Content of error is: ', response.error);
+                    return null;
+                }
+                
+            } else {
+                TenrxLogger.error('GetProductCatagory() Error: ', response.error);
+                return null;
+            }
+        } catch (error) {
+            TenrxLogger.error('GetProductCatagory() Error: ', error);
+            return null;
+        }    
+    }
+    
     /**
      * Performs a GET request to the specified url
      *
