@@ -12,7 +12,7 @@ export interface TenrxLoginSecurityQuestion {
      * @type {number}
      * @memberof TenrxLoginSecurityQuestion
      */
-    Id: number;
+    id: number;
     
     /**
      * The actual security question text.
@@ -20,7 +20,7 @@ export interface TenrxLoginSecurityQuestion {
      * @type {string}
      * @memberof TenrxLoginSecurityQuestion
      */
-    Question: string;
+    question: string;
     
     /**
      * The possible answers to the security question or the actual security answer text.
@@ -28,7 +28,7 @@ export interface TenrxLoginSecurityQuestion {
      * @type {string}
      * @memberof TenrxLoginSecurityQuestion
      */
-    Value: string;
+    value: string;
     
     /**
      * True if the security question is active.
@@ -36,5 +36,5 @@ export interface TenrxLoginSecurityQuestion {
      * @type {boolean}
      * @memberof TenrxLoginSecurityQuestion
      */
-    Active: boolean;
+    active: boolean;
 }

@@ -74,10 +74,10 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
                             loginresponse.security_questions = [];
                             for (const question of content.data) {
                                 let securityquestion: TenrxLoginSecurityQuestion = {} as TenrxLoginSecurityQuestion;
-                                securityquestion.Id = question.id;
-                                securityquestion.Question = question.question;
-                                securityquestion.Value = question.value;
-                                securityquestion.Active = question.isActive;
+                                securityquestion.id = question.id;
+                                securityquestion.question = question.question;
+                                securityquestion.value = question.value;
+                                securityquestion.active = question.isActive;
                                 loginresponse.security_questions.push(securityquestion);
                             }
                         }
