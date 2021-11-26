@@ -113,11 +113,9 @@ export class TenrxApiEngine {
                     } else {
                         TenrxLogger.error('API returned data as null when logging in. Content of error is: ', response.error);
                     }
-                } else
-                {
+                } else {
                     TenrxLogger.error('API returned content as null when logging in. Content of error is: ', response.error);
                 }
-                
             } else {
                 TenrxLogger.error('Login() Error: ', response.error);
             }
@@ -142,7 +140,7 @@ export class TenrxApiEngine {
      */
     async GetVisitTypes(): Promise<TenrxApiResult> {
         TenrxLogger.silly('Getting all the visit types from API');
-        try{
+        try {
             const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
             return response;
         } catch (error) {
@@ -168,7 +166,7 @@ export class TenrxApiEngine {
     async auth_get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
         this._ensureValidAccessToken();
         const authHeaders = { ...headers, 'Authorization': `${this._accesstoken}` };
-        TenrxLogger.debug('Preparing to execute authenticated GET WebCall: ');
+        TenrxLogger.debug('Preparing to execute authenticated GET WebCall.');
         return await this.get(url, params, authHeaders);
     }
 

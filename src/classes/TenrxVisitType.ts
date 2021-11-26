@@ -117,7 +117,7 @@ export class TenrxVisitType {
             if (response.status === 200) {
                 TenrxLogger.debug('Response from API: ', response.content);
                 if (response.content) {
-                    if (response.content.data){
+                    if (response.content.data) {
                         TenrxLogger.info('Total Visit Types received: ', response.content.data.length);
                         for (const visitType of response.content.data) {
                             result.push(new TenrxVisitType(visitType, language));
@@ -127,12 +127,10 @@ export class TenrxVisitType {
                         TenrxLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
                         return null;
                     }
-                } else
-                {
+                } else {
                     TenrxLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
                     return null;
                 }
-                
             } else {
                 TenrxLogger.error('API returned error: ', response.error);
                 return null;
