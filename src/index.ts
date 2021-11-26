@@ -45,6 +45,7 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
         notifications: null,
         firstTimeLogin: false,
         message: null,
+        status: -1,
         error: null
     };
     TenrxLogger.info(`Authenticating to Tenrx with username: '${username}'...`);
@@ -54,6 +55,7 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
     TenrxLogger.debug('Authenticating with backend servers...');
     const result = await apiengine.Login(username, saltedpassword, language, macaddress);
     TenrxLogger.debug('Authentication Response: ', result);
+    loginresponse.status = (!(result.content == null)) ? ((!(result.content.statusCode == null)) ? result.content.statusCode : result.status) : result.status;
     if (result.status === 200) {
         if (result.content) {
             const content = result.content;
@@ -101,14 +103,28 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
  * Log outs from the Tenrx backend servers.
  *
  * @param {TenrxApiEngine} [apiengine=useTenrxApi()]
- * @return {*}  {Promise<void>}
+ * @return {*}  {Promise<TenrxLoginResponseData>}
  */
-export const LogoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<void> => {
+export const LogoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<any> => {
     TenrxLogger.info('Logging out of Tenrx...');
     const result = await apiengine.Logout();
+    const response: TenrxLoginResponseData = {
+        access_token: null,
+        expires_in: null,
+        accountdata: null,
+        security_questions: null,
+        patientdata: null,
+        notifications: null,
+        firstTimeLogin: false,
+        message: null,
+        status: -1,
+        error: null
+    };
     if (result.status === 200) {
         TenrxLogger.info('Logout successful.');
+        response.status = (!(result.content == null)) ? ((!(result.content.statusCode == null)) ? result.content.statusCode : result.status) : result.status;
     } else {
         TenrxLogger.error('Error occurred while logging out:', result.error);
     }
+    return result;
 }

@@ -1,5 +1,5 @@
 import { TEST_USERNAME_EXISTS, TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_SUCCESS, TEST_PASSWORD_FAILED, Testlogger } from './includes/TexrxCommonInclude';
-import { AuthenticateTenrx, useTenrxApi } from '../src/index';
+import { AuthenticateTenrx, LogoutTenrx, useTenrxApi } from '../src/index';
 
 Testlogger.setSettings({
   type: 'pretty',
@@ -32,7 +32,7 @@ test('Authenticate Test Security Questions', async () => {
     expect(result.error).toBeNull();
 });
 
-test('Authenticate Test Success', async () => {
+test('Authenticate/Logout Test Success', async () => {
     const result = await AuthenticateTenrx(TEST_USERNAME_EXISTS, TEST_PASSWORD_SUCCESS);
     expect(result).not.toBeNull();
     expect(result.access_token).not.toBeNull();
@@ -44,4 +44,7 @@ test('Authenticate Test Success', async () => {
     expect(result.patientdata.emailAddress).toBe(TEST_USERNAME_EXISTS);
     expect(result.security_questions).toBeNull();
     expect(result.error).toBeNull();
+    const result2 = await LogoutTenrx();
+    expect(result2).not.toBeNull();
+    expect(result2.status).toBe(200);
 });
