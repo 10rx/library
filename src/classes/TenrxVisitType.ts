@@ -1,5 +1,6 @@
 import { TenrxApiEngine } from "./TenrxApiEngine";
 import { TenrxLogger } from "../includes/TenrxLogger";
+import { useTenrxApi } from "..";
 
 /**
  * Represents a Tenrx visit type.
@@ -32,22 +33,6 @@ export class TenrxVisitType {
     visitType: string;
     
     /**
-     * The name of the visit type in Spanish.
-     *
-     * @type {string}
-     * @memberof TenrxVisitType
-     */
-    visitTypeEs: string;
-    
-    /**
-     * The short name of the visit type in Spanish.
-     *
-     * @type {string}
-     * @memberof TenrxVisitType
-     */
-    shortVisitTypeEs: string;
-    
-    /**
      * The display order of the visit type.
      *
      * @type {number}
@@ -70,14 +55,6 @@ export class TenrxVisitType {
      * @memberof TenrxVisitType
      */
     level: number;
-    
-    /**
-     * Indicates if the visit type is already exist.
-     *
-     * @type {boolean}
-     * @memberof TenrxVisitType
-     */
-    isVisitAlreadyExist: boolean;
     
     /**
      * The photo path of the visit type.
@@ -109,17 +86,19 @@ export class TenrxVisitType {
      * @param {TenrxVisitType[]} visitTypeListings - The list of sub visit types.
      * @memberof TenrxVisitType
      */
-    constructor(data: any) {
+    constructor(data: any, language: string = 'en') {
         this.id = data.id;
-        this.visitType = data.visitType;
-        this.visitTypeEs = data.visitTypeEs;
-        this.shortVisitTypeEs = data.shortVisitTypeEs;
+        this.visitType = (language === 'en' ) ? data.visitType : ((language === 'es') ? data.visitTypeEs : data.visitType);
         this.displayOrder = data.displayOrder;
         this.parentVisitTypeId = data.parentVisitTypeId;
         this.level = data.level;
-        this.isVisitAlreadyExist = data.isVisitAlreadyExist;
         this.photoPath = data.photoPath;
-        this.visitTypeListings = data.visitTypeListings;
+        this.visitTypeListings = [];
+        if (data.visitTypeListings) {
+            for (const visitTypeListing of data.visitTypeListings) {
+                this.visitTypeListings.push(new TenrxVisitType(visitTypeListing, language));
+            }
+        }
     }
 
     /**
@@ -129,14 +108,38 @@ export class TenrxVisitType {
      * @return {*}  {(Promise<TenrxVisitType[] | null>)}
      * @memberof TenrxVisitType
      */
-    public static async GetVisitTypes(): Promise<TenrxVisitType[] | null> {
+    public static async GetVisitTypes(language: string = 'en', apiEngine: TenrxApiEngine = useTenrxApi()): Promise<TenrxVisitType[] | null> {
         TenrxLogger.silly('TenrxVisitType.GetVisitTypes() Started')
-        const apiEngine = TenrxApiEngine.Instance;
-        if (apiEngine == null) {
-            TenrxLogger.error("TenrxApiEngine is not initialized.");
+        if (apiEngine) {
+            const result: TenrxVisitType[] = [];
+            TenrxLogger.info('Retrieving visit types.');
+            const response = await apiEngine.GetVisitTypes();
+            if (response.status === 200) {
+                TenrxLogger.debug('Response from API: ', response.content);
+                if (response.content) {
+                    if (response.content.data){
+                        TenrxLogger.info('Total Visit Types received: ', response.content.data.length);
+                        for (const visitType of response.content.data) {
+                            result.push(new TenrxVisitType(visitType, language));
+                        }                    
+                        return result;
+                    } else {
+                        TenrxLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
+                        return null;
+                    }
+                } else
+                {
+                    TenrxLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
+                    return null;
+                }
+                
+            } else {
+                TenrxLogger.error('API returned error: ', response.error);
+                return null;
+            }
+        } else {
+            TenrxLogger.fatal("TenrxApiEngine is not initialized.");
             return null;
         }
-        TenrxLogger.info('Retrieving visit types.');
-        return apiEngine.GetVisitTypes();
     }
 }

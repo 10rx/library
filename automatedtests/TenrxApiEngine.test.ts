@@ -23,7 +23,7 @@ test('GET Test Not Found', async () => {
 test('GetVisitTypes Test Successful', async () => {
   const response = await tenrx.GetVisitTypes();
   expect(response).not.toBeNull();
-  expect(response!.length).toBeGreaterThan(0);
+  expect(response.content).not.toBeNull();
 });
 
 test('Singleton Test', async () => {

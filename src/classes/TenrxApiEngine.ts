@@ -137,40 +137,22 @@ export class TenrxApiEngine {
     /**
      * Gets all the visit types
      *
-     * @return {Promise<TenrxVisitType[]>}  {Promise<TenrxVisitType[]>} - All the visit types
+     * @return {*}  {Promise<TenrxApiResult>} - All the visit types
      * @memberof TenrxApiEngine
      */
-    async GetVisitTypes(): Promise<TenrxVisitType[] | null> {
-        TenrxLogger.info('Getting all the visit types from API');
+    async GetVisitTypes(): Promise<TenrxApiResult> {
+        TenrxLogger.silly('Getting all the visit types from API');
         try{
             const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
-            if (response.status === 200) {
-                TenrxLogger.debug('GetVisitTypes() Response: ', response.content);
-                if (response.content) {
-                    if (response.content.data){
-                        TenrxLogger.info('Total Visit Types received from API: ', response.content.data.length);
-                        const result: TenrxVisitType[] = [];
-                        for (const visitType of response.content.data) {
-                            result.push(new TenrxVisitType(visitType));
-                        }                    
-                        return result;
-                    } else {
-                        TenrxLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
-                        return null;
-                    }
-                } else
-                {
-                    TenrxLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
-                    return null;
-                }
-                
-            } else {
-                TenrxLogger.error('GetVisitTypes() Error: ', response.error);
-                return null;
-            }
+            return response;
         } catch (error) {
             TenrxLogger.error('GetVisitTypes() Error: ', error);
-            return null;
+            const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                'error': error
+            };
+            return response;
         }
     }
 
