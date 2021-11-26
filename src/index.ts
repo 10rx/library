@@ -96,3 +96,19 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
     }
     return loginresponse;
 }
+
+/**
+ * Log outs from the Tenrx backend servers.
+ *
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()]
+ * @return {*}  {Promise<void>}
+ */
+export const LogoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<void> => {
+    TenrxLogger.info('Logging out of Tenrx...');
+    const result = await apiengine.Logout();
+    if (result.status === 200) {
+        TenrxLogger.info('Logout successful.');
+    } else {
+        TenrxLogger.error('Error occurred while logging out:', result.error);
+    }
+}
