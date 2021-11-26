@@ -74,6 +74,11 @@ test('Login API Test Success', async () => {
   expect(tenrx.IsAuthenticated).toBe(true);
 });
 
+test('ProductCategory Test', async () => {
+  const response = await tenrx.GetProductCatagory();
+  expect(response).not.toBeNull();
+});
+
 test('Auth GET Test Successful', async () => {
   const logindata = await tenrx.Login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
   Testlogger.info(logindata);
