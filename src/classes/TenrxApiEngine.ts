@@ -14,7 +14,8 @@ export class TenrxApiEngine {
     private _businesstoken: string = '';
     private _baseapi: string = '';
     private _accesstoken: string = '';
-    private _expiresIn: number = 0;
+    private _expiresIn: number = -1;
+    private _expireDateStart: number = 0;
     
     private static _instance: TenrxApiEngine | null = null;
     
@@ -28,6 +29,54 @@ export class TenrxApiEngine {
         TenrxLogger.debug('Creating a new TenrxApiEngine: ', { 'businesstoken': businesstoken, 'baseapi': baseapi });
         this._businesstoken = businesstoken;
         this._baseapi = baseapi;
+    }
+
+    /**
+     * Returns true of the Api engine is authenticated. Otherwise, it returns false.
+     *
+     * @readonly
+     * @type {boolean}
+     * @memberof TenrxApiEngine
+     */
+    public get IsAuthenticated(): boolean {
+        try {
+            this._ensureValidAccessToken();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * Ensures that the access token is valid
+     *
+     * @private
+     * @memberof TenrxApiEngine
+     */
+    private _ensureValidAccessToken(): void {
+        TenrxLogger.debug('Ensuring valid access token');
+        if (this._accesstoken === '') {
+            TenrxLogger.silly('Access Token is empty:', this._accesstoken);
+            throw new Error('Access Token is empty.');
+        }
+        if (this._expiresIn < 0) {
+            TenrxLogger.silly('Expires In is not valid:', this._expiresIn);
+            throw new Error('Expires In is not valid.');
+        }
+        if (this._expireDateStart === 0) {
+            TenrxLogger.silly('Expire Date Start is not valid:', this._expireDateStart);
+            throw new Error('Expire Date Start is not valid.');
+        }
+        const now: number = Date.now();
+        if (now > (this._expireDateStart + this._expiresIn * 1000)) {
+            TenrxLogger.silly('Access Token has expired:', {
+                'expireDateStart': this._expireDateStart,
+                'expiresIn': this._expiresIn,
+                'now': now
+            });
+            throw new Error('Access Token has expired.');
+        }
+        TenrxLogger.debug('Access Token is valid.');
     }
 
     /**
@@ -57,6 +106,7 @@ export class TenrxApiEngine {
                         if (response.content.access_token) {
                             this._accesstoken = response.content.access_token;
                             this._expiresIn = response.content.expires_in;
+                            this._expireDateStart = Date.now();
                             TenrxLogger.debug('Login() Updated Access Token in API Engine: ', this._accesstoken, ' Expires In: ', this._expiresIn);
                         } else {
                             TenrxLogger.debug('Login() No Access Token in API Response');
@@ -64,11 +114,9 @@ export class TenrxApiEngine {
                     } else {
                         TenrxLogger.error('API returned data as null when logging in. Content of error is: ', response.error);
                     }
-                } else
-                {
+                } else {
                     TenrxLogger.error('API returned content as null when logging in. Content of error is: ', response.error);
                 }
-                
             } else {
                 TenrxLogger.error('Login() Error: ', response.error);
             }
@@ -88,40 +136,22 @@ export class TenrxApiEngine {
     /**
      * Gets all the visit types
      *
-     * @return {Promise<TenrxVisitType[]>}  {Promise<TenrxVisitType[]>} - All the visit types
+     * @return {*}  {Promise<TenrxApiResult>} - All the visit types
      * @memberof TenrxApiEngine
      */
-    async GetVisitTypes(): Promise<TenrxVisitType[] | null> {
-        TenrxLogger.info('Getting all the visit types from API');
-        try{
+    async GetVisitTypes(): Promise<TenrxApiResult> {
+        TenrxLogger.silly('Getting all the visit types from API');
+        try {
             const response = await this.get(`${this._baseapi}/Login/GetVisitTypes`);
-            if (response.status === 200) {
-                TenrxLogger.debug('GetVisitTypes() Response: ', response.content);
-                if (response.content) {
-                    if (response.content.data){
-                        TenrxLogger.info('Total Visit Types received from API: ', response.content.data.length);
-                        const result: TenrxVisitType[] = [];
-                        for (const visitType of response.content.data) {
-                            result.push(new TenrxVisitType(visitType));
-                        }                    
-                        return result;
-                    } else {
-                        TenrxLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
-                        return null;
-                    }
-                } else
-                {
-                    TenrxLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
-                    return null;
-                }
-                
-            } else {
-                TenrxLogger.error('GetVisitTypes() Error: ', response.error);
-                return null;
-            }
+            return response;
         } catch (error) {
             TenrxLogger.error('GetVisitTypes() Error: ', error);
-            return null;
+            const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                'error': error
+            };
+            return response;
         }
     }
 
@@ -164,6 +194,22 @@ export class TenrxApiEngine {
     }
     
     /**
+     * Performs an authenticated GET request to the specified url.
+     *
+     * @param {string} url - The url to perform the GET request to.
+     * @param {Record<string, string>} [params={}] - The parameters to add to the url.
+     * @param {object} [headers={}] - The headers to add to the request.
+     * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
+     * @memberof TenrxApiEngine
+     */
+    async auth_get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+        this._ensureValidAccessToken();
+        const authHeaders = { ...headers, 'Authorization': `${this._accesstoken}` };
+        TenrxLogger.debug('Preparing to execute authenticated GET WebCall.');
+        return await this.get(url, params, authHeaders);
+    }
+
+    /**
      * Performs a GET request to the specified url
      *
      * @param {string} url - The url to perform the GET request to
@@ -202,6 +248,22 @@ export class TenrxApiEngine {
             TenrxLogger.silly('GET WebCall Error: ', error);
         }
         return returnvalue;
+    }
+
+    /**
+     * Performs an authenticated POST request to the specified url.
+     *
+     * @param {string} url - The url to perform the POST request to.
+     * @param {object} params - The parameters to pass to the POST request.
+     * @param {object} [headers={}] - The headers to pass to the POST request.
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request.
+     * @memberof TenrxApiEngine
+     */
+    async auth_post(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
+        this._ensureValidAccessToken();
+        const authHeaders = { ...headers, 'Authorization': `${this._accesstoken}` };
+        TenrxLogger.debug('Preparing to execute authenticated POST WebCall: ');
+        return await this.post(url, params, authHeaders);
     }
 
     /**

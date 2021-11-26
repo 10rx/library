@@ -23,7 +23,7 @@ test('GET Test Not Found', async () => {
 test('GetVisitTypes Test Successful', async () => {
   const response = await tenrx.GetVisitTypes();
   expect(response).not.toBeNull();
-  expect(response!.length).toBeGreaterThan(0);
+  expect(response.content).not.toBeNull();
 });
 
 test('Singleton Test', async () => {
@@ -43,6 +43,7 @@ test('Login API Test Failure', async () => {
   expect(result.content.patientData).toBeNull();
   expect(result.content.data).toEqual({});
   expect(result.error).toBeNull();
+  expect(tenrx.IsAuthenticated).toBe(false);
 });
 
 test('Login API Test Security Question', async () => {
@@ -55,6 +56,7 @@ test('Login API Test Security Question', async () => {
   expect(result.content.message.length).toBeGreaterThan(0);
   expect(result.content.patientData).toBeNull();
   expect(result.error).toBeNull();
+  expect(tenrx.IsAuthenticated).toBe(false);
 });
 
 test('Login API Test Success', async () => {
@@ -69,9 +71,21 @@ test('Login API Test Success', async () => {
   expect(result.content.data.userName).toBe(TEST_USERNAME_EXISTS);
   expect(result.content.patientData).not.toBeNull();
   expect(result.error).toBeNull();
+  expect(tenrx.IsAuthenticated).toBe(true);
 });
 
 test('ProductCategory Test', async () => {
   const response = await tenrx.GetProductCatagory();
   expect(response).not.toBeNull();
+});
+
+test('Auth GET Test Successful', async () => {
+  const logindata = await tenrx.Login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
+  Testlogger.info(logindata);
+  expect(tenrx.IsAuthenticated).toBe(true);
+  if (tenrx.IsAuthenticated) {
+    const response = await tenrx.auth_get(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', { 'patientId': logindata.content.data.id });
+    Testlogger.info(response);
+    expect(response.status).toBe(200);
+  }
 });

@@ -27,7 +27,7 @@ test('Authenticate Test Security Questions', async () => {
     if (result.security_questions) {
         expect(result.security_questions).not.toBeNull();
         expect(result.security_questions.length).toBeGreaterThan(0);
-        expect(result.security_questions[0].question.length).toBeGreaterThan(0);
+        expect(result.security_questions[0].Question.length).toBeGreaterThan(0);
     }
     expect(result.error).toBeNull();
 });
