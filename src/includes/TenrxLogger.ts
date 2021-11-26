@@ -4,6 +4,6 @@ export const TenrxLogger = new Logger({
     name: "TenrxLibrary",
     minLevel: "warn",
     type: "hidden",
-    maskValuesOfKeys: ["access_token", "authorization", "password"],
+    maskValuesOfKeys: ["access_token", "authorization", "password", "Authorization"],
     maskPlaceholder: "********"
 });
