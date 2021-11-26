@@ -15,7 +15,7 @@ export const TEST_PASSWORD_HASHED_FAILED = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkR
 
 TenrxLogger.setSettings({
     type: 'pretty',
-    minLevel: 'info'
+    minLevel: 'warn'
 });
 
 if (!TenrxApiEngine.isInstanceInitialized()) InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
