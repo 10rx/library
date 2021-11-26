@@ -105,6 +105,8 @@ export class TenrxVisitType {
      * Gets all the visit types
      *
      * @static
+     * @param {string} [language='en']
+     * @param {TenrxApiEngine} [apiEngine=useTenrxApi()]
      * @return {*}  {(Promise<TenrxVisitType[] | null>)}
      * @memberof TenrxVisitType
      */

@@ -71,6 +71,14 @@ export interface TenrxLoginResponseData {
     message: string | null;
     
     /**
+     * Represents the status code of the login request.
+     *
+     * @type {number}
+     * @memberof TenrxLoginResponseData
+     */
+    status: number;
+
+    /**
      * Contains information in case of an error.
      *
      * @type {*}

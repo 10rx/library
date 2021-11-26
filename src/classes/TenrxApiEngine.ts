@@ -31,6 +31,31 @@ export class TenrxApiEngine {
     }
 
     /**
+     * Logs out the TenrxApiEngine instance
+     *
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
+    public async Logout(): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Logging out user from API');
+        try {
+            const response = await this.auth_patch(`${this._baseapi}/Login/Logout`);
+            this._accesstoken = '';
+            this._expiresIn = -1;
+            this._expireDateStart = 0;
+            return response;
+        } catch (error) {
+            TenrxLogger.error('Logout() Error: ', error);
+            const response: TenrxApiResult = {
+                status: -1,
+                content: null,
+                error: error
+            };
+            return response;
+        }
+    }
+
+    /**
      * Returns true of the Api engine is authenticated. Otherwise, it returns false.
      *
      * @readonly
