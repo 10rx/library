@@ -78,7 +78,7 @@ constructor(data: any, language: string = 'en') {
             TenrxLogger.error("TenrxApiEngine is not initialized.");
             return null;
             return apiEngine.GetGenderCategory();       }
-        TenrxLogger.info('Retrieving visit types.');
+        TenrxLogger.info('Retrieving gender types.');
         return apiEngine.GetGenderCategory();
     }
 }
