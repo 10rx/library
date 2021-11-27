@@ -31,6 +31,31 @@ export class TenrxApiEngine {
     }
 
     /**
+     * Check to see if email exists in the API.
+     *
+     * @param {string} email - The email to check
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the API call
+     * @memberof TenrxApiEngine
+     */
+    public async CheckIsEmailExists(email: string): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Checking if email exists: ', email);
+        try {
+            // API is missing the S in the URL. Therefore it is CheckIsEmailExist instead of CheckIsEmailExists.
+            // Also, for some reason, this is a post request instead of a get request.
+            const response = await this.post(`${this._baseapi}/Login/CheckIsEmailExist`, {}, {}, { 'email': email });
+            return response;
+        } catch (error) {
+            TenrxLogger.error('CheckIsEmailExists() Error: ', error);
+            const response: TenrxApiResult = {
+                status: 500,
+                content: null,
+                error: error
+            };
+            return response;
+        }
+    }
+
+    /**
      * Logs out the TenrxApiEngine instance
      *
      * @return {*}  {Promise<TenrxApiResult>}
@@ -264,9 +289,9 @@ export class TenrxApiEngine {
                     ...headers
                 },
             });
+            TenrxLogger.silly('GET WebCall Response: ', response);
             returnvalue.status = response.status;
             returnvalue.content = await response.json();
-            TenrxLogger.silly('GET WebCall Response: ', returnvalue);
         } catch (error) {
             returnvalue.error = error;
             TenrxLogger.silly('GET WebCall Error: ', error);
@@ -283,11 +308,11 @@ export class TenrxApiEngine {
      * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request.
      * @memberof TenrxApiEngine
      */
-    async auth_post(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
+    async auth_post(url: string, params: object, headers: object = {}, queryparams: Record<string, string> = {}): Promise<TenrxApiResult> {
         this._ensureValidAccessToken();
         const authHeaders = { ...headers, 'Authorization': `${this._accesstoken}` };
         TenrxLogger.debug('Preparing to execute authenticated POST WebCall: ');
-        return await this.post(url, params, authHeaders);
+        return await this.post(url, params, authHeaders, queryparams);
     }
 
     /**
@@ -299,15 +324,22 @@ export class TenrxApiEngine {
      * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request
      * @memberof TenrxApiEngine
      */
-    async post(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Executing POST WebCall: ', { 'url': url, 'params': params, 'headers': headers });
+    async post(url: string, params: object = {}, headers: object = {}, queryparams: Record<string, string> = {}): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Executing POST WebCall: ', { 'url': url, 'params': params, 'headers': headers, 'queryparams': queryparams });
         const returnvalue: TenrxApiResult = {
             'status': 0,
             'content': null,
             'error': null
         };
+        const internalurl: URL = new URL(url);
+        if (queryparams) {
+            Object.keys(queryparams).forEach(key => {
+                internalurl.searchParams.append(key, queryparams[key]);
+            });
+        }
+        TenrxLogger.silly('Real POST URL: ', internalurl.toString());
         try {
-            const response = await fetch(url, {
+            const response = await fetch(internalurl, {
                 'method': 'POST',
                 'headers': {
                     'businessToken': this._businesstoken,
@@ -316,9 +348,9 @@ export class TenrxApiEngine {
                 },
                 'body': JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
             });
+            TenrxLogger.silly('POST WebCall Response: ', response);
             returnvalue.status = response.status;
             returnvalue.content = await response.json();
-            TenrxLogger.silly('POST WebCall Response: ', returnvalue);
         } catch (error) {
             returnvalue.error = error;
             TenrxLogger.silly('POST WebCall Error: ', error);
@@ -368,9 +400,9 @@ export class TenrxApiEngine {
                 },
                 'body': JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
             });
+            TenrxLogger.silly('PUT WebCall Response: ', response);
             returnvalue.status = response.status;
-            returnvalue.content = await response.json();
-            TenrxLogger.silly('PUT WebCall Response: ', returnvalue);
+            returnvalue.content = await response.json();            
         } catch (error) {
             returnvalue.error = error;
             TenrxLogger.silly('PUT WebCall Error: ', error);
@@ -418,6 +450,7 @@ export class TenrxApiEngine {
                 internalurl.searchParams.append(key, queryparams[key]);
             });
         }
+        TenrxLogger.silly('Real PATCH URL: ', internalurl.toString());
         try {
             const response = await fetch(internalurl.toString(), {
                 'method': 'PATCH',
@@ -428,9 +461,9 @@ export class TenrxApiEngine {
                 },
                 'body': JSON.stringify(bodyparams), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
             });
+            TenrxLogger.silly('PATCH WebCall Response: ', response);
             returnvalue.status = response.status;
             returnvalue.content = await response.json();
-            TenrxLogger.silly('PATCH WebCall Response: ', returnvalue);
         } catch (error) {
             returnvalue.error = error;
             TenrxLogger.silly('PATCH WebCall Error: ', error);

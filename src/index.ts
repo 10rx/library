@@ -100,6 +100,42 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
 }
 
 /**
+ * Checks to see if email exists in Tenrx.
+ *
+ * @param {string} email - The email to check.
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
+ * @return {*}  {Promise<boolean>} - Returns true if email exists, false otherwise.
+ * @throws {Error} - Throws an error if an error occurred while checking if email exists.
+ */
+export const CheckIfEmailExists = async (email: string, apiengine:TenrxApiEngine = useTenrxApi()): Promise<boolean> => {
+    TenrxLogger.info(`Checking if email '${email}' exists...`);
+    const result = await apiengine.CheckIsEmailExists(email);
+    TenrxLogger.debug('CheckIfEmailExists Response: ', result);
+    if (result.status === 200) {
+        if (!(result.content == null)) {
+            if (result.content.statusCode === 200) {
+                TenrxLogger.info(`Email '${email}' exists.`);
+                return true;
+            } else {
+                if (result.content.statusCode === 404) {
+                    TenrxLogger.info(`Email '${email}' does not exist.`);
+                    return false;
+                } else {
+                    TenrxLogger.error(`Error occurred while checking if email '${email}' exists:`, result.content.message);
+                    throw new Error(result.content.message);
+                }
+            }
+        } else {
+            TenrxLogger.error(`Error occurred while checking if email '${email}' exists:`, result.error);
+            throw new Error(result.error);
+        }
+    } else {
+        TenrxLogger.error('Error occurred while checking if email exists: ', result.error);
+        throw new Error('Error occurred while checking if email exists.');
+    }
+}
+
+/**
  * Log outs from the Tenrx backend servers.
  *
  * @param {TenrxApiEngine} [apiengine=useTenrxApi()]

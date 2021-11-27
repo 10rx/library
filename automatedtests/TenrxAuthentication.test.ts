@@ -7,7 +7,6 @@ Testlogger.setSettings({
 
 test('Authenticate Test Fail', async () => {
     const result = await AuthenticateTenrx(TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_FAILED);
-    Testlogger.info(result);
     expect(result).not.toBeNull();
     expect(result.access_token).toBeNull();
     expect(result.expires_in).toBeNull();
