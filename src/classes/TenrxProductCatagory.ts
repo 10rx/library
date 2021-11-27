@@ -32,10 +32,33 @@ export class TenrxProductCatagory{
      * @memberof TenrxProductCatagory
      */
     treatmentTypeId: number;
-        visitTypeCategoryId: null;
-        
+    /**
+     *
+     *
+     * @type {null}
+     * @memberof TenrxProductCatagory
+     */
+    visitTypeCategoryId: null;
+        /**
+         *
+         *
+         * @type {boolean}
+         * @memberof TenrxProductCatagory
+         */
         Active: boolean;
+        /**
+         *
+         *
+         * @type {string}
+         * @memberof TenrxProductCatagory
+         */
         photoPath: string;
+      /**
+       *
+       *
+       * @type {TenrxProductCatagory[]}
+       * @memberof TenrxProductCatagory
+       */
       productCatagories : TenrxProductCatagory[]
 
         constructor(data: any, language: string = 'en') {

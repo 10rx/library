@@ -2,7 +2,8 @@ import fetch from 'node-fetch';
 import { TenrxLogger } from "../includes/TenrxLogger";
 import { TenrxVisitType } from './TenrxVisitType';
 import { TenrxApiResult } from '../types/TenrxApiResult';
-import { TenrxProductCatagory} from '../classes/TenrxProductCatagory'
+import { TenrxProductCatagory} from '../classes/TenrxProductCatagory';
+import { TenrxGenderCategory} from '../classes/TenrxGenderCategory';
 
 /**
  * Represents a Tenrx API engine.
@@ -193,6 +194,43 @@ export class TenrxApiEngine {
         }    
     }
     
+
+    async GetGenderCategory(): Promise<TenrxGenderCategory[] | null> {
+        TenrxLogger.info('Getting all the Gender catagory from API');
+        try{
+            const response = await this.get(`${this._baseapi}/Login/GetGenderCategory`, {
+                'Id': '3'
+              });
+            if (response.status === 200) {
+                TenrxLogger.debug('GetGenderCategory() Response: ', response.content);
+                if (response.content) {
+                    if (response.content.data){
+                        TenrxLogger.info('Total Gender catagory received from API: ', response.content.data.length);
+                        const result: TenrxGenderCategory[] = [];
+                        for (const genderCategory of response.content.data) {
+                            result.push(new TenrxGenderCategory(genderCategory));
+                        }                    
+                        return result;
+                    } else {
+                        TenrxLogger.error('API returned data as null when getting Gender Catagory. Content of error is: ', response.error);
+                        return null;
+                    }
+                } else
+                {
+                    TenrxLogger.error('API returned content as null when getting Gender Catagory. Content of error is: ', response.error);
+                    return null;
+                }
+                
+            } else {
+                TenrxLogger.error('GetGenderCategory() Error: ', response.error);
+                return null;
+            }
+        } catch (error) {
+            TenrxLogger.error('GetGenderCategory() Error: ', error);
+            return null;
+        }    
+    }
+
     /**
      * Performs an authenticated GET request to the specified url.
      *
