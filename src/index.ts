@@ -8,7 +8,7 @@ import { TenrxApiEngine } from './classes/TenrxApiEngine';
 import TenrxLoginResponseData from './types/TenrxLoginResponseData';
 import TenrxLoginSecurityQuestion from './types/TenrxLoginSecurityQuestion';
 
-
+import TenrxServerError from './exceptions/TenrxServerError';
 
 
 
@@ -23,6 +23,11 @@ export { TenrxProductCategory } from "./classes/TenrxProductCategory";
 export { default as TenrxApiResult } from "./types/TenrxApiResult";
 export { default as TenrxLoginResponseData } from "./types/TenrxLoginResponseData";
 export { default as TenrxLoginSecurityQuestion } from "./types/TenrxLoginSecurityQuestion";
+
+export { default as TenrxServerError } from "./exceptions/TenrxServerError";
+export { default as TenrxNotInitialized } from "./exceptions/TenrxNotInitialized";
+export { default as TenrxAccessTokenExpired } from "./exceptions/TenrxAccessTokenExpired";
+export { default as TenrxAccessTokenInvalid } from "./exceptions/TenrxAccessTokenInvalid";
 
 
 export const InitializeTenrx = (businesstoken: string, baseapi: string): void => {
@@ -120,7 +125,7 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
  * @param {string} email - The email to check.
  * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
  * @return {*}  {Promise<boolean>} - Returns true if email exists, false otherwise.
- * @throws {Error} - Throws an error if an error occurred while checking if email exists.
+ * @throws {TenrxServerError} - Throws an error if an error occurred while checking if email exists.
  */
 export const CheckIfEmailExists = async (email: string, apiengine:TenrxApiEngine = useTenrxApi()): Promise<boolean> => {
     TenrxLogger.info(`Checking if email '${email}' exists...`);
@@ -137,16 +142,17 @@ export const CheckIfEmailExists = async (email: string, apiengine:TenrxApiEngine
                     return false;
                 } else {
                     TenrxLogger.error(`Error occurred while checking if email '${email}' exists:`, result.content.message);
-                    throw new Error(result.content.message);
+                    throw new TenrxServerError(result.content.message, result.content.statusCode, result.error);
                 }
             }
         } else {
             TenrxLogger.error(`Error occurred while checking if email '${email}' exists:`, result.error);
-            throw new Error(result.error);
+            // Status code is 200, but content is null. Therefore, we can't tell if email exists or not. So we need to throw an error with status code -1.
+            throw new TenrxServerError(`Error occurred while checking if email '${email}' exists.`, -1, result.error);
         }
     } else {
         TenrxLogger.error('Error occurred while checking if email exists: ', result.error);
-        throw new Error('Error occurred while checking if email exists.');
+        throw new TenrxServerError('Error occurred while checking if email exists.', result.status, result.error);
     }
 }
 
