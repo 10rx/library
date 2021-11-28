@@ -4,7 +4,7 @@
  * @export
  * @interface TenrxApiResult
  */
-export interface TenrxApiResult {
+export default interface TenrxApiResult {
     
     /**
      * The status code of the API call.

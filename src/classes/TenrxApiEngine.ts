@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { TenrxLogger } from "../includes/TenrxLogger";
-import { TenrxApiResult } from '../types/TenrxApiResult';
-import { TenrxProductCatagory} from '../classes/TenrxProductCatagory'
+import TenrxApiResult from '../types/TenrxApiResult';
+import { TenrxProductCategory} from './TenrxProductCategory'
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
 import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
 import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
@@ -211,7 +211,7 @@ export class TenrxApiEngine {
 
 
 
-    async GetProductCatagory(): Promise<TenrxProductCatagory[] | null> {
+    async GetProductCatagory(): Promise<TenrxProductCategory[] | null> {
         TenrxLogger.info('Getting all the product catagory from API');
         try{
             const response = await this.get(`${this._baseapi}/Login/GetProductCategory`, {
@@ -222,9 +222,9 @@ export class TenrxApiEngine {
                 if (response.content) {
                     if (response.content.data){
                         TenrxLogger.info('Total Product Catagory received from API: ', response.content.data.length);
-                        const result: TenrxProductCatagory[] = [];
+                        const result: TenrxProductCategory[] = [];
                         for (const productCatagory of response.content.data) {
-                            result.push(new TenrxProductCatagory(productCatagory));
+                            result.push(new TenrxProductCategory(productCatagory));
                         }                    
                         return result;
                     } else {

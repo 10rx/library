@@ -6,7 +6,7 @@ import { TenrxLogger } from "../includes/TenrxLogger";
  * @export
  * @class TenrxProductCatagory
  */
-export class TenrxProductCatagory{
+export class TenrxProductCategory{
 
 
     /**
@@ -36,7 +36,7 @@ export class TenrxProductCatagory{
         
         Active: boolean;
         photoPath: string;
-      productCatagories : TenrxProductCatagory[]
+      productCatagories : TenrxProductCategory[]
 
         constructor(data: any, language: string = 'en') {
             this.id = data.id;
@@ -49,7 +49,7 @@ export class TenrxProductCatagory{
             this.productCatagories = data.productCatagories;
         }
 
-        public static async GetProductCatagory(): Promise<TenrxProductCatagory[] | null> {
+        public static async GetProductCatagory(): Promise<TenrxProductCategory[] | null> {
             TenrxLogger.silly('TenrxVisitType.GetProductCatagory() Started')
             const apiEngine = TenrxApiEngine.Instance;
             if (apiEngine == null) {

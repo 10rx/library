@@ -1,14 +1,29 @@
-import { TenrxApiEngine } from './classes/TenrxApiEngine';
-import { TenrxLogger } from "./includes/TenrxLogger";
-import { TenrxLoginResponseData } from './types/TenrxLoginResponseData';
 import bcryptjs from 'bcryptjs';
 import isaac from 'isaac';
-import { TenrxLoginSecurityQuestion } from './types/TenrxLoginSecurityQuestion';
+
+import { TenrxLogger } from "./includes/TenrxLogger";
+
+import { TenrxApiEngine } from './classes/TenrxApiEngine';
+
+import TenrxLoginResponseData from './types/TenrxLoginResponseData';
+import TenrxLoginSecurityQuestion from './types/TenrxLoginSecurityQuestion';
+
+
+
+
+
+
+
+export { TenrxLogger } from "./includes/TenrxLogger";
 
 export { TenrxApiEngine } from "./classes/TenrxApiEngine";
-export { TenrxApiResult } from "./types/TenrxApiResult";
 export { TenrxVisitType } from "./classes/TenrxVisitType";
-export { TenrxLogger } from "./includes/TenrxLogger";
+export { TenrxProductCategory } from "./classes/TenrxProductCategory";
+
+export { default as TenrxApiResult } from "./types/TenrxApiResult";
+export { default as TenrxLoginResponseData } from "./types/TenrxLoginResponseData";
+export { default as TenrxLoginSecurityQuestion } from "./types/TenrxLoginSecurityQuestion";
+
 
 export const InitializeTenrx = (businesstoken: string, baseapi: string): void => {
     TenrxLogger.info('Initializing Tenrx...');

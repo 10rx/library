@@ -4,7 +4,7 @@
  * @export
  * @interface TenrxLoginSecurityQuestion
  */
-export interface TenrxLoginSecurityQuestion {
+export default interface TenrxLoginSecurityQuestion {
     
     /**
      * The security question id.

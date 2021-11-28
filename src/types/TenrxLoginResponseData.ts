@@ -1,11 +1,11 @@
-import { TenrxLoginSecurityQuestion } from './TenrxLoginSecurityQuestion';
+import TenrxLoginSecurityQuestion from './TenrxLoginSecurityQuestion';
 /**
  * Representation of the Tenrx login response data.
  *
  * @export
  * @interface TenrxLoginResponseData
  */
-export interface TenrxLoginResponseData {
+export default interface TenrxLoginResponseData {
     /**
      * The access token of the user.
      *
