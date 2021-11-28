@@ -49,7 +49,7 @@ export class TenrxProductCategory{
             this.productCatagories = data.productCatagories;
         }
 
-        public static async GetProductCatagory(): Promise<TenrxProductCategory[] | null> {
+        public static async GetProductCategory(): Promise<TenrxProductCategory[] | null> {
             TenrxLogger.silly('TenrxVisitType.GetProductCatagory() Started')
             const apiEngine = TenrxApiEngine.Instance;
             if (apiEngine == null) {
