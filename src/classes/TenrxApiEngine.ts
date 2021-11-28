@@ -1,7 +1,10 @@
 import fetch from 'node-fetch';
 import { TenrxLogger } from "../includes/TenrxLogger";
-import { TenrxApiResult } from '../types/TenrxApiResult';
-import { TenrxProductCatagory} from '../classes/TenrxProductCatagory'
+import TenrxApiResult from '../types/TenrxApiResult';
+import { TenrxProductCategory} from './TenrxProductCategory'
+import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
+import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
+import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
 
 /**
  * Represents a Tenrx API engine.
@@ -101,20 +104,22 @@ export class TenrxApiEngine {
      *
      * @private
      * @memberof TenrxApiEngine
+     * @throws {TenrxAccessTokenInvalid} - Throws an exception if the access token is invalid. The invalid value is contained in the exception.
+     * @throws {TenrxAccessTokenExpired} - Throws an exception if the access token is expired. The expired values are contained in the exception.
      */
     private _ensureValidAccessToken(): void {
         TenrxLogger.debug('Ensuring valid access token');
         if (this._accesstoken === '') {
             TenrxLogger.silly('Access Token is empty:', this._accesstoken);
-            throw new Error('Access Token is empty.');
+            throw new TenrxAccessTokenInvalid('Access Token is empty.', this._accesstoken);
         }
         if (this._expiresIn < 0) {
             TenrxLogger.silly('Expires In is not valid:', this._expiresIn);
-            throw new Error('Expires In is not valid.');
+            throw new TenrxAccessTokenInvalid('Expires In is not valid.', this._expiresIn);
         }
         if (this._expireDateStart === 0) {
             TenrxLogger.silly('Expire Date Start is not valid:', this._expireDateStart);
-            throw new Error('Expire Date Start is not valid.');
+            throw new TenrxAccessTokenInvalid('Expire Date Start is not valid.', this._expireDateStart);
         }
         const now: number = Date.now();
         if (now > (this._expireDateStart + this._expiresIn * 1000)) {
@@ -123,7 +128,7 @@ export class TenrxApiEngine {
                 'expiresIn': this._expiresIn,
                 'now': now
             });
-            throw new Error('Access Token has expired.');
+            throw new TenrxAccessTokenExpired('Access Token has expired.', this._expireDateStart, this._expiresIn, now);
         }
         TenrxLogger.debug('Access Token is valid.');
     }
@@ -206,7 +211,7 @@ export class TenrxApiEngine {
 
 
 
-    async GetProductCatagory(): Promise<TenrxProductCatagory[] | null> {
+    async GetProductCatagory(): Promise<TenrxProductCategory[] | null> {
         TenrxLogger.info('Getting all the product catagory from API');
         try{
             const response = await this.get(`${this._baseapi}/Login/GetProductCategory`, {
@@ -217,9 +222,9 @@ export class TenrxApiEngine {
                 if (response.content) {
                     if (response.content.data){
                         TenrxLogger.info('Total Product Catagory received from API: ', response.content.data.length);
-                        const result: TenrxProductCatagory[] = [];
+                        const result: TenrxProductCategory[] = [];
                         for (const productCatagory of response.content.data) {
-                            result.push(new TenrxProductCatagory(productCatagory));
+                            result.push(new TenrxProductCategory(productCatagory));
                         }                    
                         return result;
                     } else {
@@ -479,11 +484,12 @@ export class TenrxApiEngine {
      * @type {(TenrxApiEngine)}
      * @memberof TenrxApiEngine
      * @returns {TenrxApiEngine} - The TenrxApiEngine instance
+     * @throws {TenrxNotInitialized} - If the TenrxApiEngine instance is not initialized.
      */
     public static get Instance(): TenrxApiEngine {
         if (TenrxApiEngine._instance === null) {
             TenrxLogger.error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
-            throw new Error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
+            throw new TenrxNotInitialized('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.', 'TenrxApiEngine');
         }
         return TenrxApiEngine._instance;
     }
