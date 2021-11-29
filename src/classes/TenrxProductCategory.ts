@@ -93,12 +93,13 @@ export class TenrxProductCategory {
      * Gets the product categories by id.
      *
      * @static
+     * @param {number} id - The id of the product category.
      * @param {string} [language='en'] - The language to be used to create the instance.
      * @param {*} [apiEngine=useTenrxApi()] - The api engine to be used to create the instance.
      * @return {*}  {(Promise<TenrxProductCategory[] | null>)} - The product categories by id.
      * @memberof TenrxProductCategory
      */
-    public static async getProductCategory(language = 'en', apiEngine = useTenrxApi()): Promise<TenrxProductCategory[] | null> {
+    public static async getProductCategory(id: number, language = 'en', apiEngine = useTenrxApi()): Promise<TenrxProductCategory[] | null> {
         TenrxLogger.silly('TenrxVisitType.GetProductCatagory() Started')            
         if (apiEngine == null) {
             TenrxLogger.fatal("TenrxApiEngine is not initialized.");
@@ -106,7 +107,7 @@ export class TenrxProductCategory {
         }
         const result: TenrxProductCategory[] = [];
         TenrxLogger.info('Retrieving product categories types.');
-        const response = await apiEngine.getProductCategory();
+        const response = await apiEngine.getProductCategory(id);
         if (response.status === 200) {
             TenrxLogger.debug('GetProductCategory() Response: ', response.content);
             const content = response.content as { data: TenrxProductCategoryAPIModel[] };
