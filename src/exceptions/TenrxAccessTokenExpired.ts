@@ -33,6 +33,7 @@ export default class TenrxAccessTokenExpired extends Error {
 
     /**
      * Creates an instance of TenrxAccessTokenExpired.
+     * 
      * @param {string} message - The error message.
      * @param {number} tokenStartDate - The date when the token was created.
      * @param {number} tokenExpiresIn - The valid duration in seconds of the token after the start date.

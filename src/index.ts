@@ -3,12 +3,13 @@ import isaac from 'isaac';
 
 import { TenrxLogger } from "./includes/TenrxLogger";
 
-import { TenrxApiEngine } from './classes/TenrxApiEngine';
+import TenrxApiEngine from './classes/TenrxApiEngine';
 
 import TenrxLoginResponseData from './types/TenrxLoginResponseData';
 import TenrxLoginSecurityQuestion from './types/TenrxLoginSecurityQuestion';
 
 import TenrxServerError from './exceptions/TenrxServerError';
+import TenrxLoginAPIModel from './apiModel/TenrxLoginAPIModel';
 
 
 
@@ -16,8 +17,8 @@ import TenrxServerError from './exceptions/TenrxServerError';
 
 export { TenrxLogger } from "./includes/TenrxLogger";
 
-export { TenrxApiEngine } from "./classes/TenrxApiEngine";
-export { TenrxVisitType } from "./classes/TenrxVisitType";
+export { default as TenrxApiEngine } from "./classes/TenrxApiEngine";
+export { default as TenrxVisitType } from "./classes/TenrxVisitType";
 export { TenrxProductCategory } from "./classes/TenrxProductCategory";
 
 export { default as TenrxApiResult } from "./types/TenrxApiResult";
@@ -30,9 +31,9 @@ export { default as TenrxAccessTokenExpired } from "./exceptions/TenrxAccessToke
 export { default as TenrxAccessTokenInvalid } from "./exceptions/TenrxAccessTokenInvalid";
 
 
-export const InitializeTenrx = (businesstoken: string, baseapi: string): void => {
+export const initializeTenrx = (businesstoken: string, baseapi: string): void => {
     TenrxLogger.info('Initializing Tenrx...');
-    TenrxApiEngine.Initialize(businesstoken, baseapi);
+    TenrxApiEngine.initialize(businesstoken, baseapi);
     bcryptjs.setRandomFallback((len: number) => {
         return Array.from((new Uint8Array(len)).map(() => Math.floor(isaac.random() * 256)));
     });
@@ -40,7 +41,7 @@ export const InitializeTenrx = (businesstoken: string, baseapi: string): void =>
 }
 
 export const useTenrxApi = (): TenrxApiEngine => {
-    return TenrxApiEngine.Instance;
+    return TenrxApiEngine.instance;
 }
 
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
@@ -55,13 +56,13 @@ const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
  * @param {string} [macaddress='up:da:te:la:te:rr'] - The mac address of the device.
  * @return {*}  {Promise<TenrxLoginResponseData>}
  */
-export const AuthenticateTenrx = async (username: string, password: string, language: string = 'en', apiengine: TenrxApiEngine = useTenrxApi(), macaddress: string = 'up:da:te:la:te:rr'): Promise<TenrxLoginResponseData> => {
+export const authenticateTenrx = async (username: string, password: string, language = 'en', apiengine: TenrxApiEngine = useTenrxApi(), macaddress = 'up:da:te:la:te:rr'): Promise<TenrxLoginResponseData> => {
     const loginresponse: TenrxLoginResponseData = {
-        access_token: null,
-        expires_in: null,
-        accountdata: null,
-        security_questions: null,
-        patientdata: null,
+        accessToken: null,
+        expiresIn: null,
+        accountData: null,
+        securityQuestions: null,
+        patientData: null,
         notifications: null,
         firstTimeLogin: false,
         message: null,
@@ -73,17 +74,17 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
     const saltedpassword = await bcryptjs.hash(password, SALT);
     TenrxLogger.silly('Hashing password successful');
     TenrxLogger.debug('Authenticating with backend servers...');
-    const result = await apiengine.Login(username, saltedpassword, language, macaddress);
+    const result = await apiengine.login(username, saltedpassword, language, macaddress);
     TenrxLogger.debug('Authentication Response: ', result);
-    loginresponse.status = (!(result.content == null)) ? ((!(result.content.statusCode == null)) ? result.content.statusCode : result.status) : result.status;
+    const content = result.content as TenrxLoginAPIModel;
+    loginresponse.status = (!(result.content == null)) ? ((!(content.statusCode == null)) ? content.statusCode : result.status) : result.status;
     if (result.status === 200) {
         if (result.content) {
-            const content = result.content;
             if (content.access_token) {
-                loginresponse.access_token = content.access_token;
-                loginresponse.expires_in = content.expires_in;
-                loginresponse.accountdata = content.data;
-                loginresponse.patientdata = content.patientData;
+                loginresponse.accessToken = content.access_token;
+                loginresponse.expiresIn = content.expires_in;
+                loginresponse.accountData = content.data;
+                loginresponse.patientData = content.patientData;
                 loginresponse.notifications = content.notifications;
                 TenrxLogger.info('Authentication successful.');
             } else {
@@ -91,14 +92,14 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
                     TenrxLogger.info('Tenrx server is requesting more information: ', content.message);
                     if (content.data) {
                         if (Array.isArray(content.data) && content.data.length > 0) {
-                            loginresponse.security_questions = [];
+                            loginresponse.securityQuestions = [];
                             for (const question of content.data) {
-                                let securityquestion: TenrxLoginSecurityQuestion = {} as TenrxLoginSecurityQuestion;
+                                const securityquestion: TenrxLoginSecurityQuestion = {} as TenrxLoginSecurityQuestion;
                                 securityquestion.id = question.id;
                                 securityquestion.question = question.question;
                                 securityquestion.value = question.value;
                                 securityquestion.active = question.isActive;
-                                loginresponse.security_questions.push(securityquestion);
+                                loginresponse.securityQuestions.push(securityquestion);
                             }
                         }
                     }
@@ -127,9 +128,9 @@ export const AuthenticateTenrx = async (username: string, password: string, lang
  * @return {*}  {Promise<boolean>} - Returns true if email exists, false otherwise.
  * @throws {TenrxServerError} - Throws an error if an error occurred while checking if email exists.
  */
-export const CheckIfEmailExists = async (email: string, apiengine:TenrxApiEngine = useTenrxApi()): Promise<boolean> => {
+export const checkIfEmailExists = async (email: string, apiengine:TenrxApiEngine = useTenrxApi()): Promise<boolean> => {
     TenrxLogger.info(`Checking if email '${email}' exists...`);
-    const result = await apiengine.CheckIsEmailExists(email);
+    const result = await apiengine.checkIsEmailExists(email);
     TenrxLogger.debug('CheckIfEmailExists Response: ', result);
     if (result.status === 200) {
         if (!(result.content == null)) {
@@ -162,15 +163,15 @@ export const CheckIfEmailExists = async (email: string, apiengine:TenrxApiEngine
  * @param {TenrxApiEngine} [apiengine=useTenrxApi()]
  * @return {*}  {Promise<TenrxLoginResponseData>}
  */
-export const LogoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<any> => {
+export const logoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<any> => {
     TenrxLogger.info('Logging out of Tenrx...');
-    const result = await apiengine.Logout();
+    const result = await apiengine.logout();
     const response: TenrxLoginResponseData = {
-        access_token: null,
-        expires_in: null,
-        accountdata: null,
-        security_questions: null,
-        patientdata: null,
+        accessToken: null,
+        expiresIn: null,
+        accountData: null,
+        securityQuestions: null,
+        patientData: null,
         notifications: null,
         firstTimeLogin: false,
         message: null,

@@ -1,4 +1,4 @@
-import { TenrxApiEngine } from "./TenrxApiEngine";
+import TenrxApiEngine from "./TenrxApiEngine";
 import { TenrxLogger } from "../includes/TenrxLogger";
 /**
  *
@@ -51,12 +51,12 @@ export class TenrxProductCategory{
 
         public static async GetProductCategory(): Promise<TenrxProductCategory[] | null> {
             TenrxLogger.silly('TenrxVisitType.GetProductCatagory() Started')
-            const apiEngine = TenrxApiEngine.Instance;
+            const apiEngine = TenrxApiEngine.instance;
             if (apiEngine == null) {
                 TenrxLogger.error("TenrxApiEngine is not initialized.");
                 return null;
-                return apiEngine.GetProductCatagory();       }
+                return apiEngine.getProductCategory();       }
             TenrxLogger.info('Retrieving visit types.');
-            return apiEngine.GetProductCatagory();
+            return apiEngine.getProductCategory();
         }
 }

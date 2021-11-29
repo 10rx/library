@@ -24,11 +24,12 @@ export default class TenrxServerError extends Error {
 
     /**
      * Creates an instance of TenrxServerError.
+     * 
      * @param {string} message - The error message.
      * @param {number} statusCode - The status code of the error.
      * @memberof TenrxServerError
      */
-    constructor(message: string, statusCode: number, innerException: any = null) {
+    constructor(message: string, statusCode: number, innerException: Error | null = null) {
         super(message);
         Object.setPrototypeOf(this, TenrxServerError.prototype);
         this.name = "TenrxServerError";

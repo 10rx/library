@@ -17,6 +17,7 @@ export default class TenrxNotInitialized extends Error {
 
     /**
      * Creates an instance of TenrxNotInitialized.
+     * 
      * @param {string} message - The error message.
      * @param {string} objectName - The name of the object that has not been initialized.
      * @memberof TenrxNotInitialized

@@ -21,13 +21,13 @@ test('GET Test Not Found', async () => {
 });
 
 test('GetVisitTypes Test Successful', async () => {
-  const response = await tenrx.GetVisitTypes();
+  const response = await tenrx.getVisitTypes();
   expect(response).not.toBeNull();
   expect(response.content).not.toBeNull();
 });
 
 test('Singleton Test', async () => {
-  const ApiEngine1 = TenrxApiEngine.Instance;
+  const ApiEngine1 = TenrxApiEngine.instance;
   const ApiEngine2 = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
   expect(tenrx).not.toBeNull();
   expect(ApiEngine1).toBe(tenrx);
@@ -36,18 +36,18 @@ test('Singleton Test', async () => {
 
 
 test('Login API Test Failure', async () => {
-  const result = await tenrx.Login(TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_HASHED_FAILED,'en');
+  const result = await tenrx.login(TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_HASHED_FAILED,'en');
   expect(result.content.statusCode).toBe(401);
   expect(result.content.access_token).toBeNull();
   expect(result.content.message).toBe('Invalid username or password.');
   expect(result.content.patientData).toBeNull();
   expect(result.content.data).toEqual({});
   expect(result.error).toBeNull();
-  expect(tenrx.IsAuthenticated).toBe(false);
+  expect(tenrx.isAuthenticated).toBe(false);
 });
 
 test('Login API Test Security Question', async () => {
-  const result = await tenrx.Login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:is');
+  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:is');
   expect(result.content.statusCode).toBe(200);
   expect(result.content.access_token).toBeNull();
   expect(result.content.data).not.toBeNull();
@@ -56,11 +56,11 @@ test('Login API Test Security Question', async () => {
   expect(result.content.message.length).toBeGreaterThan(0);
   expect(result.content.patientData).toBeNull();
   expect(result.error).toBeNull();
-  expect(tenrx.IsAuthenticated).toBe(false);
+  expect(tenrx.isAuthenticated).toBe(false);
 });
 
 test('Login API Test Success', async () => {
-  const result = await tenrx.Login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
+  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
   expect(result.content.statusCode).toBe(200);
   expect(result.content.access_token).not.toBeNull();
   expect(result.content.access_token).not.toBe('');
@@ -71,20 +71,20 @@ test('Login API Test Success', async () => {
   expect(result.content.data.userName).toBe(TEST_USERNAME_EXISTS);
   expect(result.content.patientData).not.toBeNull();
   expect(result.error).toBeNull();
-  expect(tenrx.IsAuthenticated).toBe(true);
+  expect(tenrx.isAuthenticated).toBe(true);
 });
 
 test('ProductCategory Test', async () => {
-  const response = await tenrx.GetProductCatagory();
+  const response = await tenrx.getProductCategory();
   expect(response).not.toBeNull();
 });
 
 test('Auth GET Test Successful', async () => {
-  const logindata = await tenrx.Login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
+  const logindata = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
   Testlogger.info(logindata);
-  expect(tenrx.IsAuthenticated).toBe(true);
-  if (tenrx.IsAuthenticated) {
-    const response = await tenrx.auth_get(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', { 'patientId': logindata.content.data.id });
+  expect(tenrx.isAuthenticated).toBe(true);
+  if (tenrx.isAuthenticated) {
+    const response = await tenrx.authGet(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', { 'patientId': logindata.content.data.id });
     Testlogger.info(response);
     expect(response.status).toBe(200);
   }
