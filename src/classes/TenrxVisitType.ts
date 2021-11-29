@@ -99,8 +99,8 @@ export default class TenrxVisitType {
      * Gets all the visit types
      *
      * @static
-     * @param {string} [language='en']
-     * @param {TenrxApiEngine} [apiEngine=useTenrxApi()]
+     * @param {string} [language='en'] - The language to be used when creating the instance.
+     * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to be used when creating the instance.
      * @return {*}  {(Promise<TenrxVisitType[] | null>)}
      * @memberof TenrxVisitType
      */
