@@ -214,8 +214,12 @@ export default class TenrxApiEngine {
         }
     }
 
-
-
+    /**
+     * Gets the product category by id.
+     *
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
     async getProductCategory(): Promise<TenrxApiResult> {
         TenrxLogger.info('Getting all the product category from API');
         try{
