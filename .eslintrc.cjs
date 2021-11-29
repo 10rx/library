@@ -230,5 +230,8 @@ module.exports = {
         "use-isnan": "error",
         "valid-typeof": "off"
     },
-    "ignorePatterns": ['.eslintrc.cjs']
+    "ignorePatterns": [
+        '.eslintrc.cjs',
+        'automatedtests/**/*'
+    ]
 };

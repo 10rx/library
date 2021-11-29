@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import { TenrxLogger } from "../includes/TenrxLogger";
 import TenrxApiResult from '../types/TenrxApiResult';
-import { TenrxProductCategory} from './TenrxProductCategory'
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
 import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
 import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
