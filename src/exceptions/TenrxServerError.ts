@@ -17,10 +17,10 @@ export default class TenrxServerError extends Error {
     /**
      * Contains the underlying exception that caused the error. This is usually the original error that was thrown.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxServerError
      */
-    innerException: any
+    innerException: unknown
 
     /**
      * Creates an instance of TenrxServerError.
@@ -29,7 +29,7 @@ export default class TenrxServerError extends Error {
      * @param {number} statusCode - The status code of the error.
      * @memberof TenrxServerError
      */
-    constructor(message: string, statusCode: number, innerException: Error | null = null) {
+    constructor(message: string, statusCode: number, innerException: unknown = null) {
         super(message);
         Object.setPrototypeOf(this, TenrxServerError.prototype);
         this.name = "TenrxServerError";

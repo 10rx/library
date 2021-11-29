@@ -37,10 +37,12 @@ test('Authenticate/Logout Test Success', async () => {
     expect(result.accessToken).not.toBeNull();
     expect(result.expiresIn).toBeGreaterThan(0);
     expect(result.accountData).not.toBeNull();
-    expect(result.accountData.id).toBeGreaterThan(0);
-    expect(result.accountData.userName).toBe(TEST_USERNAME_EXISTS);
+    const accountData = result.accountData as any;
+    expect(accountData.id).toBeGreaterThan(0);
+    expect(accountData.userName).toBe(TEST_USERNAME_EXISTS);
     expect(result.patientData).not.toBeNull();
-    expect(result.patientData.emailAddress).toBe(TEST_USERNAME_EXISTS);
+    const patientData = result.patientData as any;
+    expect(patientData.emailAddress).toBe(TEST_USERNAME_EXISTS);
     expect(result.securityQuestions).toBeNull();
     expect(result.error).toBeNull();
     const result2 = await logoutTenrx();

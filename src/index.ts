@@ -10,6 +10,8 @@ import TenrxLoginSecurityQuestion from './types/TenrxLoginSecurityQuestion';
 
 import TenrxServerError from './exceptions/TenrxServerError';
 import TenrxLoginAPIModel from './apiModel/TenrxLoginAPIModel';
+import TenrxCheckIfEmailExistAPIModel from './apiModel/TenrxCheckIfEmailExistAPIModel';
+import TenrxQuestionAPIModel from './apiModel/TenrxQuestionAPIModel';
 
 
 
@@ -93,8 +95,9 @@ export const authenticateTenrx = async (username: string, password: string, lang
                     if (content.data) {
                         if (Array.isArray(content.data) && content.data.length > 0) {
                             loginresponse.securityQuestions = [];
-                            for (const question of content.data) {
+                            for (const rawquestion of content.data) {
                                 const securityquestion: TenrxLoginSecurityQuestion = {} as TenrxLoginSecurityQuestion;
+                                const question = rawquestion as TenrxQuestionAPIModel;
                                 securityquestion.id = question.id;
                                 securityquestion.question = question.question;
                                 securityquestion.value = question.value;
@@ -134,16 +137,17 @@ export const checkIfEmailExists = async (email: string, apiengine:TenrxApiEngine
     TenrxLogger.debug('CheckIfEmailExists Response: ', result);
     if (result.status === 200) {
         if (!(result.content == null)) {
-            if (result.content.statusCode === 200) {
+            const content = result.content as TenrxCheckIfEmailExistAPIModel
+            if (content.statusCode === 200) {
                 TenrxLogger.info(`Email '${email}' exists.`);
                 return true;
             } else {
-                if (result.content.statusCode === 404) {
+                if (content.statusCode === 404) {
                     TenrxLogger.info(`Email '${email}' does not exist.`);
                     return false;
                 } else {
-                    TenrxLogger.error(`Error occurred while checking if email '${email}' exists:`, result.content.message);
-                    throw new TenrxServerError(result.content.message, result.content.statusCode, result.error);
+                    TenrxLogger.error(`Error occurred while checking if email '${email}' exists:`, content.message);
+                    throw new TenrxServerError(content.message, content.statusCode, result.error);
                 }
             }
         } else {
@@ -180,7 +184,8 @@ export const logoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Pr
     };
     if (result.status === 200) {
         TenrxLogger.info('Logout successful.');
-        response.status = (!(result.content == null)) ? ((!(result.content.statusCode == null)) ? result.content.statusCode : result.status) : result.status;
+        const content = result.content as TenrxLoginAPIModel;
+        response.status = (!(content == null)) ? ((!(content.statusCode == null)) ? content.statusCode : result.status) : result.status;
     } else {
         TenrxLogger.error('Error occurred while logging out:', result.error);
     }

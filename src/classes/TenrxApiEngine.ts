@@ -217,7 +217,7 @@ export default class TenrxApiEngine {
 
 
 
-    async getProductCategory(): Promise<TenrxProductCategory[] | null> {
+    async getProductCategory(): Promise<TenrxApiResult> {
         TenrxLogger.info('Getting all the product category from API');
         try{
             const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
@@ -225,33 +225,15 @@ export default class TenrxApiEngine {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 'Id': '1'
               });
-            if (response.status === 200) {
-                TenrxLogger.debug('GetProductCategory() Response: ', response.content);
-                if (response.content) {
-                    if (response.content.data){
-                        TenrxLogger.info('Total Product Catagory received from API: ', response.content.data.length);
-                        const result: TenrxProductCategory[] = [];
-                        for (const productCategory of response.content.data) {
-                            result.push(new TenrxProductCategory(productCategory));
-                        }                    
-                        return result;
-                    } else {
-                        TenrxLogger.error('API returned data as null when getting Product Category. Content of error is: ', response.error);
-                        return null;
-                    }
-                } else
-                {
-                    TenrxLogger.error('API returned content as null when getting Product Category. Content of error is: ', response.error);
-                    return null;
-                }
-                
-            } else {
-                TenrxLogger.error('GetProductCategory() Error: ', response.error);
-                return null;
-            }
+            return response;
         } catch (error) {
             TenrxLogger.error('GetProductCategory() Error: ', error);
-            return null;
+            const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                error
+            };
+            return response;
         }    
     }
     

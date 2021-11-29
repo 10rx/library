@@ -25,10 +25,10 @@ export default interface TenrxLoginResponseData {
     /**
      * The account information of the user.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    accountData: any;
+    accountData: unknown;
 
     /**
      * 
@@ -41,10 +41,10 @@ export default interface TenrxLoginResponseData {
     /**
      * The data of the patient.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    patientData: any;
+    patientData: unknown;
 
     /**
      * Represents any notifications that the user needs to be aware of.
@@ -81,8 +81,8 @@ export default interface TenrxLoginResponseData {
     /**
      * Contains information in case of an error.
      *
-     * @type {(Error | string | null)}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    error: Error | string | null;
+    error: unknown;
 }
