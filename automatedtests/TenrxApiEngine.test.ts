@@ -81,7 +81,7 @@ test('Login API Test Success', async () => {
 });
 
 test('ProductCategory Test', async () => {
-  const response = await tenrx.getProductCategory();
+  const response = await tenrx.getProductCategory(1);
   expect(response).not.toBeNull();
 });
 

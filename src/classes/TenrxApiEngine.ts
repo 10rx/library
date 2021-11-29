@@ -214,15 +214,20 @@ export default class TenrxApiEngine {
         }
     }
 
-
-
-    async getProductCategory(): Promise<TenrxApiResult> {
+    /**
+     * Gets the product category by id.
+     *
+     * @param {number} id - The id of the product category
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the product category API call.
+     * @memberof TenrxApiEngine
+     */
+    async getProductCategory(id: number): Promise<TenrxApiResult> {
         TenrxLogger.info('Getting all the product category from API');
         try{
             const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
                 // This is due to the API requiring this value to be like this.
                 // eslint-disable-next-line @typescript-eslint/naming-convention
-                'Id': '1'
+                'Id': id.toString()
               });
             return response;
         } catch (error) {
