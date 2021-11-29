@@ -12,7 +12,7 @@ export default interface TenrxLoginResponseData {
      * @type {string}
      * @memberof TenrxLoginResponseData
      */
-    access_token: string | null;
+    accessToken: string | null;
     
     /**
      * The expiration time of the access token in seconds.
@@ -20,15 +20,15 @@ export default interface TenrxLoginResponseData {
      * @type {number}
      * @memberof TenrxLoginResponseData
      */
-    expires_in: number | null;
+    expiresIn: number | null;
 
     /**
      * The account information of the user.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    accountdata: any;
+    accountData: unknown;
 
     /**
      * 
@@ -36,15 +36,15 @@ export default interface TenrxLoginResponseData {
      * @type {TenrxLoginSecurityQuestion[]}
      * @memberof TenrxLoginResponseData
      */
-    security_questions: TenrxLoginSecurityQuestion[] | null;
+    securityQuestions: TenrxLoginSecurityQuestion[] | null;
 
     /**
      * The data of the patient.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    patientdata: any;
+    patientData: unknown;
 
     /**
      * Represents any notifications that the user needs to be aware of.
@@ -77,12 +77,12 @@ export default interface TenrxLoginResponseData {
      * @memberof TenrxLoginResponseData
      */
     status: number;
-
+    
     /**
      * Contains information in case of an error.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    error: any;
+    error: unknown;
 }

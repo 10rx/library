@@ -6,7 +6,7 @@ Testlogger.setSettings({
 })
 
 test('Product Category Test Successful', async () => {
-    const response = await TenrxProductCategory.GetProductCategory();
+    const response = await TenrxProductCategory.getProductCategory();
     expect(response).not.toBeNull();
     expect(response!.length).toBeGreaterThan(0);
   });
