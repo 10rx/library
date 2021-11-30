@@ -34,6 +34,12 @@ export { default as TenrxAccessTokenExpired } from "./exceptions/TenrxAccessToke
 export { default as TenrxAccessTokenInvalid } from "./exceptions/TenrxAccessTokenInvalid";
 
 
+/**
+ * Initialize the TenrxApiEngine single instance.
+ *
+ * @param {string} businesstoken - The business token to be used when creating the instance.
+ * @param {string} baseapi - The base api to be used when creating the instance.
+ */
 export const initializeTenrx = (businesstoken: string, baseapi: string): void => {
     TenrxLogger.info('Initializing Tenrx...');
     TenrxApiEngine.initialize(businesstoken, baseapi);
@@ -43,10 +49,16 @@ export const initializeTenrx = (businesstoken: string, baseapi: string): void =>
     TenrxLogger.info('Initialization successful.');
 }
 
+/**
+ * This function retrieves the Tenrx API engine single instance. It is used when there is no need to have multiple instances of the API engine.
+ *
+ * @return {*}  {TenrxApiEngine} - The Tenrx API engine single instance.
+ */
 export const useTenrxApi = (): TenrxApiEngine => {
     return TenrxApiEngine.instance;
 }
 
+// This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
 
 /**
@@ -165,7 +177,7 @@ export const checkIfEmailExists = async (email: string, apiengine:TenrxApiEngine
 /**
  * Log outs from the Tenrx backend servers.
  *
- * @param {TenrxApiEngine} [apiengine=useTenrxApi()]
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
  * @return {*}  {Promise<TenrxLoginResponseData>}
  */
 export const logoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<any> => {
