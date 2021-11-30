@@ -26,6 +26,7 @@ export { TenrxProductCategory } from "./classes/TenrxProductCategory";
 export { default as TenrxApiResult } from "./types/TenrxApiResult";
 export { default as TenrxLoginResponseData } from "./types/TenrxLoginResponseData";
 export { default as TenrxLoginSecurityQuestion } from "./types/TenrxLoginSecurityQuestion";
+export { default as TenrxLoginSecurityQuestionAnswer } from "./types/TenrxLoginSecurityQuestionAnswer";
 
 export { default as TenrxServerError } from "./exceptions/TenrxServerError";
 export { default as TenrxNotInitialized } from "./exceptions/TenrxNotInitialized";

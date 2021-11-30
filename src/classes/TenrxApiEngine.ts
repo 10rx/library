@@ -5,6 +5,7 @@ import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
 import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
 import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
+import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel';
 
 /**
  * Represents a Tenrx API engine.
@@ -35,6 +36,23 @@ export default class TenrxApiEngine {
         this.accesstoken = '';
         this.expiresIn = -1;
         this.expireDateStart = 0;
+    }
+
+
+    public async saveSecurityQuestionAnswers(securityQuestionAnswers: TenrxSaveUserSecurityQuestionAPIModel): Promise<TenrxApiResult> {
+        TenrxLogger.silly('Saving security question answers to API');
+        try {
+            const response = await this.post(`${this.baseapi}/Login/SaveUserSecurityQuestion`, securityQuestionAnswers);
+            return response;
+        } catch (error) {
+            TenrxLogger.error('SaveSecurityQuestionAnswers() Error: ', error);
+            const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                error
+            };
+            return response;
+        }
     }
 
     /**

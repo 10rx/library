@@ -97,3 +97,39 @@ test('Auth GET Test Successful', async () => {
     expect(response.status).toBe(200);
   }
 });
+
+test('saveUserSecurityQuestion Test Success', async () => {
+  const result = await tenrx.saveSecurityQuestionAnswers( {
+    userName: TEST_USERNAME_EXISTS,
+    password: TEST_PASSWORD_HASHED_SUCCESS,
+    macAddress: 'mu:st:fa:il:th:is',
+    securityQuestionList: [
+      {
+        id: 0,
+        questionID: 19,
+        answer: 'Test',
+      }
+    ]
+  });
+  expect(result).not.toBeNull();
+  const content = result.content as any;
+  expect(content.statusCode).toBe(200);
+});
+
+test('saveUserSecurityQuestion Test Fail', async () => {
+  const result = await tenrx.saveSecurityQuestionAnswers( {
+    userName: TEST_USERNAME_EXISTS,
+    password: TEST_PASSWORD_HASHED_SUCCESS,
+    macAddress: 'mu:st:fa:il:th:is',
+    securityQuestionList: [
+      {
+        id: 0,
+        questionID: 1,
+        answer: 'Test',
+      }
+    ]
+  });
+  expect(result).not.toBeNull();
+  const content = result.content as any;
+  expect(content.statusCode).toBe(401);
+});
