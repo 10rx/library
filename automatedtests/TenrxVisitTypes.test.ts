@@ -6,7 +6,7 @@ Testlogger.setSettings({
 })
 
 test('VisitTypes Test Successful', async () => {
-    const response = await TenrxVisitType.GetVisitTypes();
+    const response = await TenrxVisitType.getVisitTypes();
     expect(response).not.toBeNull();
     expect(response!.length).toBeGreaterThan(0);
   });

@@ -1,18 +1,18 @@
-import { TenrxLoginSecurityQuestion } from './TenrxLoginSecurityQuestion';
+import TenrxLoginSecurityQuestion from './TenrxLoginSecurityQuestion';
 /**
  * Representation of the Tenrx login response data.
  *
  * @export
  * @interface TenrxLoginResponseData
  */
-export interface TenrxLoginResponseData {
+export default interface TenrxLoginResponseData {
     /**
      * The access token of the user.
      *
      * @type {string}
      * @memberof TenrxLoginResponseData
      */
-    access_token: string | null;
+    accessToken: string | null;
     
     /**
      * The expiration time of the access token in seconds.
@@ -20,15 +20,15 @@ export interface TenrxLoginResponseData {
      * @type {number}
      * @memberof TenrxLoginResponseData
      */
-    expires_in: number | null;
+    expiresIn: number | null;
 
     /**
      * The account information of the user.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    accountdata: any;
+    accountData: unknown;
 
     /**
      * 
@@ -36,15 +36,15 @@ export interface TenrxLoginResponseData {
      * @type {TenrxLoginSecurityQuestion[]}
      * @memberof TenrxLoginResponseData
      */
-    security_questions: TenrxLoginSecurityQuestion[] | null;
+    securityQuestions: TenrxLoginSecurityQuestion[] | null;
 
     /**
      * The data of the patient.
      *
-     * @type {*}
+     * @type {unknown}
      * @memberof TenrxLoginResponseData
      */
-    patientdata: any;
+    patientData: unknown;
 
     /**
      * Represents any notifications that the user needs to be aware of.
@@ -71,10 +71,18 @@ export interface TenrxLoginResponseData {
     message: string | null;
     
     /**
-     * Contains information in case of an error.
+     * Represents the status code of the login request.
      *
-     * @type {*}
+     * @type {number}
      * @memberof TenrxLoginResponseData
      */
-    error: any;
+    status: number;
+    
+    /**
+     * Contains information in case of an error.
+     *
+     * @type {unknown}
+     * @memberof TenrxLoginResponseData
+     */
+    error: unknown;
 }

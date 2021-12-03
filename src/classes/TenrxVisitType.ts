@@ -1,6 +1,7 @@
-import { TenrxApiEngine } from "./TenrxApiEngine";
+import TenrxApiEngine from "./TenrxApiEngine";
 import { TenrxLogger } from "../includes/TenrxLogger";
 import { useTenrxApi } from "..";
+import TenrxVisitTypeAPIModel from "../apiModel/TenrxVisitTypeAPIModel";
 
 /**
  * Represents a Tenrx visit type.
@@ -8,7 +9,7 @@ import { useTenrxApi } from "..";
  * @export
  * @class TenrxVisitType
  */
-export class TenrxVisitType {
+export default class TenrxVisitType {
     /**
      * The id of the visit type.
      *
@@ -74,19 +75,12 @@ export class TenrxVisitType {
 
     /**
      * Creates an instance of TenrxVisitType.
-     * @param {number} id - The id of the visit type.
-     * @param {string} visitType - The name of the visit type.
-     * @param {string} visitTypeEs - The name of the visit type in Spanish.
-     * @param {string} shortVisitTypeEs - The short name of the visit type in Spanish.
-     * @param {number} displayOrder - The display order of the visit type.
-     * @param {number} parentVisitTypeId - The id of the parent visit type.
-     * @param {number} level - The level of the visit type.
-     * @param {boolean} isVisitAlreadyExist - Indicates if the visit type is already exist.
-     * @param {string} photoPath - The photo path of the visit type.
-     * @param {TenrxVisitType[]} visitTypeListings - The list of sub visit types.
+     * 
+     * @param {TenrxVisitTypeAPIModel} data
+     * @param {string} [language='en']
      * @memberof TenrxVisitType
      */
-    constructor(data: any, language: string = 'en') {
+    constructor(data: TenrxVisitTypeAPIModel, language = 'en') {
         this.id = data.id;
         this.visitType = (language === 'en' ) ? data.visitType : ((language === 'es') ? data.visitTypeEs : data.visitType);
         this.displayOrder = data.displayOrder;
@@ -105,21 +99,24 @@ export class TenrxVisitType {
      * Gets all the visit types
      *
      * @static
+     * @param {string} [language='en'] - The language to be used when creating the instance.
+     * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to be used when creating the instance.
      * @return {*}  {(Promise<TenrxVisitType[] | null>)}
      * @memberof TenrxVisitType
      */
-    public static async GetVisitTypes(language: string = 'en', apiEngine: TenrxApiEngine = useTenrxApi()): Promise<TenrxVisitType[] | null> {
+    public static async getVisitTypes(language = 'en', apiEngine: TenrxApiEngine = useTenrxApi()): Promise<TenrxVisitType[] | null> {
         TenrxLogger.silly('TenrxVisitType.GetVisitTypes() Started')
         if (apiEngine) {
             const result: TenrxVisitType[] = [];
             TenrxLogger.info('Retrieving visit types.');
-            const response = await apiEngine.GetVisitTypes();
+            const response = await apiEngine.getVisitTypes();
             if (response.status === 200) {
                 TenrxLogger.debug('Response from API: ', response.content);
                 if (response.content) {
-                    if (response.content.data) {
-                        TenrxLogger.info('Total Visit Types received: ', response.content.data.length);
-                        for (const visitType of response.content.data) {
+                    const content = response.content as { data:TenrxVisitTypeAPIModel[] };
+                    if (content.data) {
+                        TenrxLogger.info('Total Visit Types received: ', content.data.length);
+                        for (const visitType of content.data) {
                             result.push(new TenrxVisitType(visitType, language));
                         }                    
                         return result;

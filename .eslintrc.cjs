@@ -19,13 +19,13 @@ module.exports = {
     "extends": [
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "prettier",
-        "prettier/@typescript-eslint"
+        "prettier"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "project": "tsconfig.json",
-        "sourceType": "module"
+        "sourceType": "module",
+        "extraFileExtensions": [".cjs"]
     },
     "plugins": [
         "eslint-plugin-jsdoc",
@@ -229,5 +229,9 @@ module.exports = {
         ],
         "use-isnan": "error",
         "valid-typeof": "off"
-    }
+    },
+    "ignorePatterns": [
+        '.eslintrc.cjs',
+        'automatedtests/**/*'
+    ]
 };

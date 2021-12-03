@@ -4,7 +4,7 @@
  * @export
  * @interface TenrxApiResult
  */
-export interface TenrxApiResult {
+export default interface TenrxApiResult {
     
     /**
      * The status code of the API call.
@@ -17,17 +17,16 @@ export interface TenrxApiResult {
     /**
      * The content of the API call.
      *
-     * @type {*} - The content of the API call.
+     * @type {unknown}
      * @memberof TenrxApiResult
      */
-    content: any;
-    
+    content: unknown;
     
     /**
      * The error of the API call.
      *
-     * @type {*} - The error of the API call.
+     * @type {(unknown | null)}
      * @memberof TenrxApiResult
      */
-    error: any; 
+    error: unknown | null; 
 }

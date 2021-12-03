@@ -1,5 +1,5 @@
 import { TenrxLogger } from "../../src";
-import { InitializeTenrx, TenrxApiEngine } from '../../src/';
+import { initializeTenrx, TenrxApiEngine } from '../../src/';
 
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
 export const TEST_API_BASE_URL = 'https://10rxapi.csscloudservices.com';
@@ -15,9 +15,9 @@ export const TEST_PASSWORD_HASHED_FAILED = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkR
 
 TenrxLogger.setSettings({
     type: 'pretty',
-    minLevel: 'info'
+    minLevel: 'warn'
 });
 
-if (!TenrxApiEngine.isInstanceInitialized()) InitializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
+if (!TenrxApiEngine.isInstanceInitialized()) initializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
 
 export const Testlogger = TenrxLogger;

@@ -8,7 +8,7 @@
     "test": "jest",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "eslint -c .eslintrc.js --ext .ts ./src",
+    "lint": "eslint -c .eslintrc.cjs --ext .ts ./src",
     "docs": "typedoc --out docs ./src",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
