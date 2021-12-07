@@ -31,6 +31,10 @@ export { default as TenrxNotInitialized } from "./exceptions/TenrxNotInitialized
 export { default as TenrxAccessTokenExpired } from "./exceptions/TenrxAccessTokenExpired";
 export { default as TenrxAccessTokenInvalid } from "./exceptions/TenrxAccessTokenInvalid";
 
+// The following is needed to get rid of warnings when creating documentation. The following are documented in swagger. TODO: add links to swagger.
+export { default as TenrxVisitTypeAPIModel } from "./apiModel/TenrxVisitTypeAPIModel";
+export { default as TenrxProductCategoryAPIModel } from "./apiModel/TenrxProductCategoryAPIModel";
+export { default as TenrxSaveUserSecurityQuestionAPIModel } from "./apiModel/TenrxSaveUserSecurityQuestionAPIModel";
 
 /**
  * Initialize the TenrxApiEngine single instance.
