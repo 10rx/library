@@ -203,7 +203,16 @@ export const logoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Pr
     return result;
 }
 
-
+/**
+ * Saves the security questions answers for the user.
+ *
+ * @param {string} username - The username of the user.
+ * @param {string} password - The password of the user.
+ * @param {TenrxLoginSecurityQuestionAnswer[]} securityQuestionAnswers - The security questions and answers to save.
+ * @param {string} [macaddress='up:da:te:la:te:rr'] - The mac address of the user.
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
+ * @return {*}  {Promise<TenrxLoginResponseData>} - Returns the login response data.
+ */
 export const saveSecurityQuestionAnswers = async (username: string, password: string, securityQuestionAnswers: TenrxLoginSecurityQuestionAnswer[], macaddress ='up:da:te:la:te:rr', apiengine: TenrxApiEngine = useTenrxApi()): Promise<TenrxLoginResponseData> => {
     const loginresponse: TenrxLoginResponseData = {
         accessToken: null,

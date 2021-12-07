@@ -38,7 +38,13 @@ export default class TenrxApiEngine {
         this.expireDateStart = 0;
     }
 
-
+    /**
+     * Saves the security question answers for the user.
+     *
+     * @param {TenrxSaveUserSecurityQuestionAPIModel} securityQuestionAnswers - The security question answers to save
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the API call
+     * @memberof TenrxApiEngine
+     */
     public async saveSecurityQuestionAnswers(securityQuestionAnswers: TenrxSaveUserSecurityQuestionAPIModel): Promise<TenrxApiResult> {
         TenrxLogger.silly('Saving security question answers to API');
         try {
