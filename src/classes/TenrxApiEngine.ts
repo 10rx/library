@@ -1,18 +1,11 @@
 import fetch from 'node-fetch';
 import { TenrxLogger } from "../includes/TenrxLogger";
-<<<<<<< HEAD
-import { TenrxVisitType } from './TenrxVisitType';
-import { TenrxApiResult } from '../types/TenrxApiResult';
-import { TenrxProductCatagory} from '../classes/TenrxProductCatagory';
-import { TenrxGenderCategory} from '../classes/TenrxGenderCategory';
-import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
-=======
 import TenrxApiResult from '../types/TenrxApiResult';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
 import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
 import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
->>>>>>> master
+import { TenrxGenderCategory} from '../classes/TenrxGenderCategory';
 
 /**
  * Represents a Tenrx API engine.
@@ -250,39 +243,24 @@ export default class TenrxApiEngine {
     }
     
 
-    async GetGenderCategory(): Promise<TenrxGenderCategory[] | null> {
+    async getGenderCategory(id: number): Promise<TenrxApiResult> {
         TenrxLogger.info('Getting all the Gender catagory from API');
         try{
-            const response = await this.get(`${this._baseapi}/Login/GetGenderCategory`, {
-                'Id': '3'
+            const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
+                 // This is due to the API requiring this value to be like this.
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                'Id': id.toString()
               });
-            if (response.status === 200) {
-                TenrxLogger.debug('GetGenderCategory() Response: ', response.content);
-                if (response.content) {
-                    if (response.content.data){
-                        TenrxLogger.info('Total Gender catagory received from API: ', response.content.data.length);
-                        const result: TenrxGenderCategory[] = [];
-                        for (const genderCategory of response.content.data) {
-                            result.push(new TenrxGenderCategory(genderCategory));
-                        }                    
-                        return result;
-                    } else {
-                        TenrxLogger.error('API returned data as null when getting Gender Catagory. Content of error is: ', response.error);
-                        return null;
-                    }
-                } else
-                {
-                    TenrxLogger.error('API returned content as null when getting Gender Catagory. Content of error is: ', response.error);
-                    return null;
-                }
-                
-            } else {
-                TenrxLogger.error('GetGenderCategory() Error: ', response.error);
-                return null;
-            }
+           return response;
+            
         } catch (error) {
             TenrxLogger.error('GetGenderCategory() Error: ', error);
-            return null;
+           const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                error
+            };
+            return response;
         }    
     }
 

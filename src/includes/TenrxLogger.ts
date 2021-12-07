@@ -4,8 +4,8 @@ import { Logger } from "tslog";
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const TenrxLogger = new Logger({
     name: "TenrxLibrary",
-    minLevel: "info",
-    type: "pretty",
+    minLevel: "warn",
+    type: "hidden",
     maskValuesOfKeys: ["access_token", "authorization", "password", "Authorization"],
     maskPlaceholder: "********"
 });

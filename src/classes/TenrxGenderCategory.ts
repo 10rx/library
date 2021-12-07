@@ -1,5 +1,6 @@
-import { TenrxApiEngine } from "./TenrxApiEngine";
 import { TenrxLogger } from "../includes/TenrxLogger";
+import { useTenrxApi } from "..";
+import TenrxGenderCategoryAPIModel from "../apiModel/TenrxGenderCategoryAPIModel";
 
 /**
  *
@@ -46,24 +47,24 @@ photoPath: string;
  * @type {TenrxGenderCategory[]}
  * @memberof TenrxGenderCategory
  */
-genderCatagory : TenrxGenderCategory[];
+ genderCategories : TenrxGenderCategory[];
 
 
-/**
- * Creates an instance of TenrxGenderCategory.
- * @param {*} data
- * @param {string} [language='en']
- * @memberof TenrxGenderCategory
- */
-constructor(data: any, language: string = 'en') {
+
+  constructor(data: TenrxGenderCategoryAPIModel, language = 'en') {
         this.id = data.id;
         this.name = (language === 'en') ? data.name : ((language === 'es') ? data.nameEs : data.name);
         this.treatmentTypeId = data.treatmentTypeId;
        
+      
         this.photoPath= data.photoPath;
-        this.genderCatagory = data.genderCatagory;
+        this.genderCategories = [];
+        if (data.genderCategories) {
+            data.genderCategories.forEach(element => {
+                this.genderCategories.push(new TenrxGenderCategory(element, language));
+            });
+        }
     }
-
     /**
      *
      *
@@ -71,14 +72,36 @@ constructor(data: any, language: string = 'en') {
      * @return {*}  {(Promise<TenrxGenderCategory[] | null>)}
      * @memberof TenrxGenderCategory
      */
-    public static async GetProductCatagory(): Promise<TenrxGenderCategory[] | null> {
-        TenrxLogger.silly('TenrxVisitType.GetGenderCatagory() Started')
-        const apiEngine = TenrxApiEngine.Instance;
+     public static async getGenderCategory(id: number, language = 'en', apiEngine = useTenrxApi()): Promise<TenrxGenderCategory[] | null> {
+        TenrxLogger.silly('TenrxVisitType.GetGenderCatagory() Started')            
         if (apiEngine == null) {
-            TenrxLogger.error("TenrxApiEngine is not initialized.");
+            TenrxLogger.fatal("TenrxApiEngine is not initialized.");
             return null;
-            return apiEngine.GetGenderCategory();       }
-        TenrxLogger.info('Retrieving gender types.');
-        return apiEngine.GetGenderCategory();
+        }
+        const result: TenrxGenderCategory[] = [];
+        TenrxLogger.info('Retrieving Gender categories types.');
+        const response = await apiEngine.getGenderCategory(id);
+        if (response.status === 200) {
+            TenrxLogger.debug('GetGenderCategory() Response: ', response.content);
+            const content = response.content as { data: TenrxGenderCategoryAPIModel[] };
+            if (content) {
+                if (content.data) {
+                    TenrxLogger.info('Total Gender Catagory received from API: ', content.data.length);
+                    for (const genderCategory of content.data) {
+                        result.push(new TenrxGenderCategory(genderCategory, language));
+                    }                    
+                    return result;
+                } else {
+                    TenrxLogger.error('API returned data as null when getting Gender Category. Content of error is: ', response.error);
+                    return null;
+                }
+            } else {
+                TenrxLogger.error('API returned content as null when getting Gender Category. Content of error is: ', response.error);
+                return null;
+            }
+        } else {
+            TenrxLogger.error('GetGenderCategory() Error: ', response.error);
+            return null;
+        }
     }
 }
