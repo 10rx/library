@@ -7,14 +7,12 @@ import TenrxApiEngine from './classes/TenrxApiEngine';
 
 import TenrxLoginResponseData from './types/TenrxLoginResponseData';
 import TenrxLoginSecurityQuestion from './types/TenrxLoginSecurityQuestion';
+import TenrxLoginSecurityQuestionAnswer from './types/TenrxLoginSecurityQuestionAnswer';
 
 import TenrxServerError from './exceptions/TenrxServerError';
 import TenrxLoginAPIModel from './apiModel/TenrxLoginAPIModel';
 import TenrxCheckIfEmailExistAPIModel from './apiModel/TenrxCheckIfEmailExistAPIModel';
 import TenrxQuestionAPIModel from './apiModel/TenrxQuestionAPIModel';
-
-
-
 
 
 export { TenrxLogger } from "./includes/TenrxLogger";
@@ -203,4 +201,48 @@ export const logoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Pr
         TenrxLogger.error('Error occurred while logging out:', result.error);
     }
     return result;
+}
+
+
+export const saveSecurityQuestionAnswers = async (username: string, password: string, securityQuestionAnswers: TenrxLoginSecurityQuestionAnswer[], macaddress ='up:da:te:la:te:rr', apiengine: TenrxApiEngine = useTenrxApi()): Promise<TenrxLoginResponseData> => {
+    const loginresponse: TenrxLoginResponseData = {
+        accessToken: null,
+        expiresIn: null,
+        accountData: null,
+        securityQuestions: null,
+        patientData: null,
+        notifications: null,
+        firstTimeLogin: false,
+        message: null,
+        status: -1,
+        error: null
+    };
+    TenrxLogger.info('Saving security question answers...');
+    TenrxLogger.silly('Hashing password...');
+    const saltedpassword = await bcryptjs.hash(password, SALT);
+    TenrxLogger.silly('Hashing password successful');
+    TenrxLogger.debug('Security Question Answers Info: ', username, password, macaddress, securityQuestionAnswers);
+    const result = await apiengine.saveSecurityQuestionAnswers({
+        username,
+        password: saltedpassword,
+        macaddress,
+        securityQuestionList: securityQuestionAnswers
+    });
+    TenrxLogger.debug('Authentication Response: ', result);
+    const content = result.content as TenrxLoginAPIModel;
+    loginresponse.status = (!(result.content == null)) ? ((!(content.statusCode == null)) ? content.statusCode : result.status) : result.status;
+    if (result.status === 200) {
+        if (result.content) {
+            loginresponse.message = content.message;
+            if (content.statusCode === 200) {
+                loginresponse.accessToken = content.access_token;
+                loginresponse.expiresIn = content.expires_in;
+                loginresponse.accountData = content.data;
+                loginresponse.patientData = content.patientData;
+                loginresponse.notifications = content.notifications;
+                TenrxLogger.info('Security question answers were saved successfully.');
+            }
+        }
+    }
+    return loginresponse;
 }

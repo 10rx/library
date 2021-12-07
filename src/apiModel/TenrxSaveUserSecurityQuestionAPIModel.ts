@@ -1,7 +1,7 @@
 import TenrxLoginSecurityQuestionAnswer from "../types/TenrxLoginSecurityQuestionAnswer";
 export default interface TenrxSaveUserSecurityQuestionAPIModel {
-    userName: string;
+    username: string;
     password: string;
-    macAddress: string;
+    macaddress: string;
     securityQuestionList: TenrxLoginSecurityQuestionAnswer[];
 }

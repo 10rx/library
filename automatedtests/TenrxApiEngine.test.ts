@@ -49,7 +49,7 @@ test('Login API Test Failure', async () => {
 });
 
 test('Login API Test Security Question', async () => {
-  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:is');
+  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:iz');
   const content = result.content as TenrxLoginAPIModel;
   expect(content.statusCode).toBe(200);
   expect(content.access_token).toBeNull();
@@ -100,9 +100,9 @@ test('Auth GET Test Successful', async () => {
 
 test('saveUserSecurityQuestion Test Success', async () => {
   const result = await tenrx.saveSecurityQuestionAnswers( {
-    userName: TEST_USERNAME_EXISTS,
+    username: TEST_USERNAME_EXISTS,
     password: TEST_PASSWORD_HASHED_SUCCESS,
-    macAddress: 'mu:st:fa:il:th:is',
+    macaddress: 'mu:st:fa:il:th:is',
     securityQuestionList: [
       {
         id: 0,
@@ -118,9 +118,9 @@ test('saveUserSecurityQuestion Test Success', async () => {
 
 test('saveUserSecurityQuestion Test Fail', async () => {
   const result = await tenrx.saveSecurityQuestionAnswers( {
-    userName: TEST_USERNAME_EXISTS,
+    username: TEST_USERNAME_EXISTS,
     password: TEST_PASSWORD_HASHED_SUCCESS,
-    macAddress: 'mu:st:fa:il:th:is',
+    macaddress: 'mu:st:fa:il:th:is',
     securityQuestionList: [
       {
         id: 0,
