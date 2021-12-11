@@ -1,0 +1,34 @@
+export default interface TenrxRegisterUserAPIModel {
+  id: number;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  dob: string;
+  age: number;
+  gender: number;
+  password: string;
+  ssn: string;
+  mrn: string;
+  status: string;
+  phone: string;
+  email: string;
+  address1: string;
+  address2: string;
+  city: string;
+  countryId: number;
+  stateId: number;
+  zip: string;
+  userName: string;
+  phoneNumber: string;
+  photoBase64: string;
+  isContactMethodCall: boolean;
+  isContactMethodVideo: boolean;
+  isContactMethodText: boolean;
+  photoPath: string;
+  photoThumbnailPath: string;
+  extensionId: number;
+  visitTypesId: number;
+  userId: number;
+  customerId: string;
+  isFaceImage: boolean;
+}

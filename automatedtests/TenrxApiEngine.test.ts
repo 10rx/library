@@ -133,3 +133,42 @@ test('saveUserSecurityQuestion Test Fail', async () => {
   const content = result.content as any;
   expect(content.statusCode).toBe(401);
 });
+
+//Need to expand this test. Right now it is not checking if call was successful.
+test('RegisterUser Test Success', async () => {
+  const result = await tenrx.registerUser({
+    id: 0,
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    dob: '',
+    age: 0,
+    gender: 0,
+    password: '',
+    ssn: '',
+    mrn: '',
+    status: '',
+    phone: '',
+    email: '',
+    address1: '',
+    address2: '',
+    city: '',
+    countryId: 0,
+    stateId: 0,
+    zip: '',
+    userName: '',
+    phoneNumber: '',
+    photoBase64: '',
+    isContactMethodCall: false,
+    isContactMethodVideo: false,
+    isContactMethodText: false,
+    photoPath: '',
+    photoThumbnailPath: '',
+    extensionId: 0,
+    visitTypesId: 0,
+    userId: 0,
+    customerId: '',
+    isFaceImage: false
+  });
+  expect(result).not.toBeNull();
+});
