@@ -42,7 +42,7 @@ export default class TenrxApiEngine {
     /**
      * Registers a new user to Tenrx
      *
-     * @param {TenrxRegisterUserAPIModel} registrationData - Contains the registration information
+     * @param {TenrxRegisterUserParameterAPIModel} registrationData - Contains the registration information
      * @return {*}  {Promise<TenrxApiResult>} - The result of the API call
      * @memberof TenrxApiEngine
      */
