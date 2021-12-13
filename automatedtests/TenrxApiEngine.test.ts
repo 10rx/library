@@ -86,7 +86,7 @@ test('ProductCategory Test', async () => {
 });
 
 test('Gender Category Test', async () => {
-  const response = await tenrx.GetGenderCategory();
+  const response = await tenrx.getGenderCategory(3);
   expect(response).not.toBeNull();
 });
 

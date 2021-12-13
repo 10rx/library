@@ -3,14 +3,14 @@ import { useTenrxApi } from "..";
 import TenrxGenderCategoryAPIModel from "../apiModel/TenrxGenderCategoryAPIModel";
 
 /**
- *
+ * Represents a Tenrx Gender Category
  *
  * @export
  * @class TenrxGenderCategory
  */
 export class TenrxGenderCategory{
 /**
- *
+ * The id of the gender category.
  *
  * @type {number}
  * @memberof TenrxGenderCategory
@@ -18,7 +18,7 @@ export class TenrxGenderCategory{
 id: number;
 
 /**
- *
+ * The name of gender category.
  *
  * @type {string}
  * @memberof TenrxGenderCategory
@@ -26,7 +26,7 @@ id: number;
 name: string;
 
 /**
- *
+ * Treatment type id.
  *
  * @type {number}
  * @memberof TenrxGenderCategory
@@ -34,7 +34,7 @@ name: string;
 treatmentTypeId: number;
    
 /**
- *
+ * The path of the photo for the category.
  *
  * @type {string}
  * @memberof TenrxGenderCategory
@@ -42,7 +42,7 @@ treatmentTypeId: number;
 photoPath: string;
 
 /**
- *
+ * Contains the list of sub categories.
  *
  * @type {TenrxGenderCategory[]}
  * @memberof TenrxGenderCategory
@@ -50,13 +50,18 @@ photoPath: string;
  genderCategories : TenrxGenderCategory[];
 
 
-
+  
+  /**
+   * Creates an instance of TenrxGenderCategory.
+   * 
+   * @param {TenrxGenderCategoryAPIModel} data - The data to be used to create the instance.
+   * @param {string} [language='en'] - The language to be used to create the instance.
+   * @memberof TenrxGenderCategory
+   */
   constructor(data: TenrxGenderCategoryAPIModel, language = 'en') {
         this.id = data.id;
         this.name = (language === 'en') ? data.name : ((language === 'es') ? data.nameEs : data.name);
         this.treatmentTypeId = data.treatmentTypeId;
-       
-      
         this.photoPath= data.photoPath;
         this.genderCategories = [];
         if (data.genderCategories) {
@@ -66,9 +71,13 @@ photoPath: string;
         }
     }
     /**
-     *
+     * Gets the gender categories by id.
      *
      * @static
+     * 
+     * @param {number} id - The id of the gender category.
+     * @param {string} [language='en'] - The language to be used to create the instance.
+     * @param {*} [apiEngine=useTenrxApi()] - The api engine to be used to create the instance.
      * @return {*}  {(Promise<TenrxGenderCategory[] | null>)}
      * @memberof TenrxGenderCategory
      */
