@@ -5,6 +5,8 @@ import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
 import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
 import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
+import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel';
+import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
 
 /**
  * Represents a Tenrx API engine.
@@ -35,6 +37,52 @@ export default class TenrxApiEngine {
         this.accesstoken = '';
         this.expiresIn = -1;
         this.expireDateStart = 0;
+    }
+
+    /**
+     * Registers a new user to Tenrx
+     *
+     * @param {TenrxRegisterUserParameterAPIModel} registrationData - Contains the registration information
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the API call
+     * @memberof TenrxApiEngine
+     */
+    public async registerUser(registrationData: TenrxRegisterUserParameterAPIModel): Promise<TenrxApiResult> {
+        TenrxLogger.debug('Registering user with backend servers');
+        try {
+            const response = await this.post(`${this.baseapi}/Login/RegisterPatient`, registrationData);
+            return response;
+        } catch (error) {
+            TenrxLogger.error('RegisterUser() Error: ', error);
+            const response: TenrxApiResult = {
+                status: 500,
+                content: null,
+                error
+            };
+            return response;
+        }
+    }
+
+    /**
+     * Saves the security question answers for the user.
+     *
+     * @param {TenrxSaveUserSecurityQuestionAPIModel} securityQuestionAnswers - The security question answers to save
+     * @return {*}  {Promise<TenrxApiResult>} - The result of the API call
+     * @memberof TenrxApiEngine
+     */
+    public async saveSecurityQuestionAnswers(securityQuestionAnswers: TenrxSaveUserSecurityQuestionAPIModel): Promise<TenrxApiResult> {
+        TenrxLogger.silly('Saving security question answers to API');
+        try {
+            const response = await this.post(`${this.baseapi}/Login/SaveUserSecurityQuestion`, securityQuestionAnswers);
+            return response;
+        } catch (error) {
+            TenrxLogger.error('SaveSecurityQuestionAnswers() Error: ', error);
+            const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                error
+            };
+            return response;
+        }
     }
 
     /**
