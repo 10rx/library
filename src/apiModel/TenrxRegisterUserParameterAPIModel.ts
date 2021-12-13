@@ -1,4 +1,4 @@
-export default interface TenrxRegisterUserAPIModel {
+export default interface TenrxRegisterUserParameterAPIModel {
   id: number;
   firstName: string;
   lastName: string;

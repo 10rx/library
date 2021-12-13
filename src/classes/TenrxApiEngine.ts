@@ -6,7 +6,7 @@ import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
 import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
 import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel';
-import TenrxRegisterUserAPIModel from '../apiModel/TenrxRegisterUserAPIModel';
+import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
 
 /**
  * Represents a Tenrx API engine.
@@ -46,7 +46,7 @@ export default class TenrxApiEngine {
      * @return {*}  {Promise<TenrxApiResult>} - The result of the API call
      * @memberof TenrxApiEngine
      */
-    public async registerUser(registrationData: TenrxRegisterUserAPIModel): Promise<TenrxApiResult> {
+    public async registerUser(registrationData: TenrxRegisterUserParameterAPIModel): Promise<TenrxApiResult> {
         TenrxLogger.debug('Registering user with backend servers');
         try {
             const response = await this.post(`${this.baseapi}/Login/RegisterPatient`, registrationData);
