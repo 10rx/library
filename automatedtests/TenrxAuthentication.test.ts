@@ -17,7 +17,7 @@ test('Authenticate Test Fail', async () => {
 });
 
 test('Authenticate Test Security Questions', async () => {
-    const result = await authenticateTenrx(TEST_USERNAME_EXISTS, TEST_PASSWORD_SUCCESS, 'en', useTenrxApi(), 'mu:st:fa:il:th:is');
+    const result = await authenticateTenrx(TEST_USERNAME_EXISTS, TEST_PASSWORD_SUCCESS, 'en', useTenrxApi(), 'mu:st:fa:il:th:iz');
     expect(result).not.toBeNull();
     expect(result.accessToken).toBeNull();
     expect(result.expiresIn).toBeNull();
