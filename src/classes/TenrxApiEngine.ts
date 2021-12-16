@@ -8,6 +8,7 @@ import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
 import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
 
+
 /**
  * Represents a Tenrx API engine.
  *
@@ -289,7 +290,13 @@ export default class TenrxApiEngine {
         }    
     }
     
-
+    /**
+     * Gets the gender category by id.
+     *
+     * @param {number} id
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
     async getGenderCategory(id: number): Promise<TenrxApiResult> {
         TenrxLogger.info('Getting all the Gender catagory from API');
         try{
