@@ -28,4 +28,4 @@ export { default as TenrxSaveUserSecurityQuestionAPIModel } from "./apiModel/Ten
 export { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from "./includes/TenrxEnums";
 
 // Functions
-export { initializeTenrx, useTenrxApi, authenticateTenrx, checkIfEmailExists, logoutTenrx, saveSecurityQuestionAnswers } from "./includes/TenrxFunctions";
+export { initializeTenrx, useTenrxApi, authenticateTenrx, checkIfEmailExists, logoutTenrx, saveSecurityQuestionAnswers, registerUser } from "./includes/TenrxFunctions";

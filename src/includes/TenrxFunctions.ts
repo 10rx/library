@@ -1,5 +1,6 @@
 import bcryptjs from 'bcryptjs';
 import isaac from 'isaac';
+import { DateTime } from 'luxon';
 
 import { TenrxLogger } from "./TenrxLogger";
 
@@ -8,11 +9,14 @@ import TenrxApiEngine from '../classes/TenrxApiEngine';
 import TenrxLoginResponseData from '../types/TenrxLoginResponseData';
 import TenrxLoginSecurityQuestion from '../types/TenrxLoginSecurityQuestion';
 import TenrxLoginSecurityQuestionAnswer from '../types/TenrxLoginSecurityQuestionAnswer';
+import TenrxRegistrationFormData from '../types/TenrxRegistrationFormData';
 
 import TenrxServerError from '../exceptions/TenrxServerError';
+
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
 import TenrxCheckIfEmailExistAPIModel from '../apiModel/TenrxCheckIfEmailExistAPIModel';
 import TenrxQuestionAPIModel from '../apiModel/TenrxQuestionAPIModel';
+import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -232,6 +236,75 @@ export const saveSecurityQuestionAnswers = async (username: string, password: st
                 loginresponse.patientData = content.patientData;
                 loginresponse.notifications = content.notifications;
                 TenrxLogger.info('Security question answers were saved successfully.');
+            }
+        }
+    }
+    return loginresponse;
+}
+
+export const registerUser = async (registrationData: TenrxRegistrationFormData, apiengine: TenrxApiEngine = useTenrxApi()): Promise<TenrxLoginResponseData> => {
+    TenrxLogger.info('Registering user...');
+    const loginresponse: TenrxLoginResponseData = {
+        accessToken: null,
+        expiresIn: null,
+        accountData: null,
+        securityQuestions: null,
+        patientData: null,
+        notifications: null,
+        firstTimeLogin: false,
+        message: null,
+        status: -1,
+        error: null
+    };
+    TenrxLogger.silly('Initial registration data: ', registrationData);
+    const registerAPIData: TenrxRegisterUserParameterAPIModel = {
+        id: 0,
+        firstName: registrationData.firstName,
+        lastName: registrationData.lastName,
+        middleName: registrationData.middleName,
+        dob: DateTime.fromJSDate(registrationData.dob).toUTC().toISO({ suppressMilliseconds : true }),
+        age: 0,
+        gender: registrationData.gender,
+        password: registrationData.password,
+        ssn: '',
+        mrn: '',
+        status: '',
+        phone: registrationData.phoneNumber,
+        email: registrationData.email,
+        address1: registrationData.address1,
+        address2: registrationData.address2,
+        city: registrationData.city,
+        countryId: registrationData.countryId,
+        stateId: registrationData.stateId,
+        zip: registrationData.zip,
+        userName: registrationData.email,
+        phoneNumber: registrationData.phoneNumber,
+        photoBase64: registrationData.photoBase64,
+        isContactMethodCall: false,
+        isContactMethodVideo: false,
+        isContactMethodText: false,
+        photoPath: '',
+        photoThumbnailPath: '',
+        extensionId: 0,
+        visitTypesId: 0,
+        userId: 0,
+        customerId: '',
+        isFaceImage: false
+    }
+    TenrxLogger.debug('Registering user with data: ', registerAPIData);
+    const result = await apiengine.registerUser(registerAPIData);
+    const content = result.content as TenrxLoginAPIModel;
+    loginresponse.status = (!(result.content == null)) ? ((!(content.statusCode == null)) ? content.statusCode : result.status) : result.status;
+    if (result.status === 200) {
+        if (result.content) {
+            loginresponse.message = content.message;
+            if (content.statusCode === 200) {
+                loginresponse.accessToken = content.access_token;
+                loginresponse.expiresIn = content.expires_in;
+                loginresponse.accountData = content.data;
+                loginresponse.patientData = content.patientData;
+                loginresponse.notifications = content.notifications;
+                TenrxLogger.info('Registration was successful.');
             }
         }
     }
