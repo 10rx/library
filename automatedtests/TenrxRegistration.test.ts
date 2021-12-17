@@ -40,10 +40,11 @@ test('SaveSecurityAnswers Test Success', async () => {
 test('Registration Test Success', async () => {
   jest.setTimeout(60000);
   const accountName = "unittest_" + MakeRandomString(12) + "@yopmail.com";
+  const password = TEST_PASSWORD_SUCCESS;
   const dob: Date = new Date(new Date().getFullYear() - 18, 0, 1);
   const registrationInfo: TenrxRegistrationFormData = {
     email: accountName,
-    password: "Password1!",
+    password: password,
     firstName: "Unit",
     lastName: "Test",
     middleName: "Registration",
