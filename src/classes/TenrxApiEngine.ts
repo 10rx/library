@@ -8,6 +8,7 @@ import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
 import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
 
+
 /**
  * Represents a Tenrx API engine.
  *
@@ -289,6 +290,34 @@ export default class TenrxApiEngine {
         }    
     }
     
+    /**
+     * Gets the gender category by id.
+     *
+     * @param {number} id
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
+    async getGenderCategory(id: number): Promise<TenrxApiResult> {
+        TenrxLogger.info('Getting all the Gender catagory from API');
+        try{
+            const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
+                 // This is due to the API requiring this value to be like this.
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                'Id': id.toString()
+              });
+           return response;
+            
+        } catch (error) {
+            TenrxLogger.error('GetGenderCategory() Error: ', error);
+           const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                error
+            };
+            return response;
+        }    
+    }
+
     /**
      * Performs an authenticated GET request to the specified url.
      *

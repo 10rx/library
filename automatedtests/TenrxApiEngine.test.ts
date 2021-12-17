@@ -85,6 +85,11 @@ test('ProductCategory Test', async () => {
   expect(response).not.toBeNull();
 });
 
+test('Gender Category Test', async () => {
+  const response = await tenrx.getGenderCategory(3);
+  expect(response).not.toBeNull();
+});
+
 test('Auth GET Test Successful', async () => {
   const logindata = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
   Testlogger.info(logindata);
