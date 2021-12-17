@@ -257,6 +257,9 @@ export const registerUser = async (registrationData: TenrxRegistrationFormData, 
         error: null
     };
     TenrxLogger.silly('Initial registration data: ', registrationData);
+    TenrxLogger.silly('Hashing password...');
+    const saltedpassword = await bcryptjs.hash(registrationData.password, SALT);
+    TenrxLogger.silly('Hashing password successful');
     const registerAPIData: TenrxRegisterUserParameterAPIModel = {
         id: 0,
         firstName: registrationData.firstName,
@@ -265,7 +268,7 @@ export const registerUser = async (registrationData: TenrxRegistrationFormData, 
         dob: DateTime.fromJSDate(registrationData.dob).toUTC().toISO({ suppressMilliseconds : true }),
         age: 0,
         gender: registrationData.gender,
-        password: registrationData.password,
+        password: saltedpassword,
         ssn: '',
         mrn: '',
         status: '',
