@@ -23,6 +23,7 @@ export { default as TenrxAccessTokenInvalid } from "./exceptions/TenrxAccessToke
 export { default as TenrxVisitTypeAPIModel } from "./apiModel/TenrxVisitTypeAPIModel";
 export { default as TenrxProductCategoryAPIModel } from "./apiModel/TenrxProductCategoryAPIModel";
 export { default as TenrxSaveUserSecurityQuestionAPIModel } from "./apiModel/TenrxSaveUserSecurityQuestionAPIModel";
+export { default as TenrxRegisterUserParameterAPIModel } from "./apiModel/TenrxRegisterUserParameterAPIModel";
 
 // Enums
 export { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from "./includes/TenrxEnums";
