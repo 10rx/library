@@ -60,5 +60,7 @@ test('Registration Test Success', async () => {
   };
   const result = await registerUser(registrationInfo,);
   expect(result).not.toBeNull();
-  console.warn(result);
+  expect(result.error).toBeNull();
+  expect(result.status).toBe(200);
+  expect(result.accountData).not.toBeNull();
 });
