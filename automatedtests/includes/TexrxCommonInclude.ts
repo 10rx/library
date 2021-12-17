@@ -1,4 +1,4 @@
-import { TenrxLogger } from "../../src";
+import { TenrxLogger } from '../../src';
 import { initializeTenrx, TenrxApiEngine } from '../../src/';
 
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
@@ -14,10 +14,20 @@ export const TEST_PASSWORD_HASHED_SUCCESS = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvk
 export const TEST_PASSWORD_HASHED_FAILED = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkRvwEBleya7YQ4iVNllXCxQc8a';
 
 TenrxLogger.setSettings({
-    type: 'pretty',
-    minLevel: 'warn'
+  type: 'pretty',
+  minLevel: 'warn',
 });
 
 if (!TenrxApiEngine.isInstanceInitialized()) initializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
 
 export const Testlogger = TenrxLogger;
+
+export const MakeRandomString = (length: number): string => {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
