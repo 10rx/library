@@ -49,7 +49,7 @@ test('Login API Test Failure', async () => {
 });
 
 test('Login API Test Security Question', async () => {
-  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:is');
+  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:iz');
   const content = result.content as TenrxLoginAPIModel;
   expect(content.statusCode).toBe(200);
   expect(content.access_token).toBeNull();
@@ -85,6 +85,11 @@ test('ProductCategory Test', async () => {
   expect(response).not.toBeNull();
 });
 
+test('Gender Category Test', async () => {
+  const response = await tenrx.getGenderCategory(3);
+  expect(response).not.toBeNull();
+});
+
 test('Auth GET Test Successful', async () => {
   const logindata = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
   Testlogger.info(logindata);
@@ -96,4 +101,79 @@ test('Auth GET Test Successful', async () => {
     Testlogger.info(response);
     expect(response.status).toBe(200);
   }
+});
+
+test('saveUserSecurityQuestion Test Success', async () => {
+  const result = await tenrx.saveSecurityQuestionAnswers( {
+    username: TEST_USERNAME_EXISTS,
+    password: TEST_PASSWORD_HASHED_SUCCESS,
+    macaddress: 'mu:st:fa:il:th:is',
+    securityQuestionList: [
+      {
+        id: 0,
+        questionID: 19,
+        answer: 'Test',
+      }
+    ]
+  });
+  expect(result).not.toBeNull();
+  const content = result.content as any;
+  expect(content.statusCode).toBe(200);
+});
+
+test('saveUserSecurityQuestion Test Fail', async () => {
+  const result = await tenrx.saveSecurityQuestionAnswers( {
+    username: TEST_USERNAME_EXISTS,
+    password: TEST_PASSWORD_HASHED_SUCCESS,
+    macaddress: 'mu:st:fa:il:th:is',
+    securityQuestionList: [
+      {
+        id: 0,
+        questionID: 1,
+        answer: 'Test',
+      }
+    ]
+  });
+  expect(result).not.toBeNull();
+  const content = result.content as any;
+  expect(content.statusCode).toBe(401);
+});
+
+//Need to expand this test. Right now it is not checking if call was successful.
+test('RegisterUser Test Success', async () => {
+  const result = await tenrx.registerUser({
+    id: 0,
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    dob: '',
+    age: 0,
+    gender: 0,
+    password: '',
+    ssn: '',
+    mrn: '',
+    status: '',
+    phone: '',
+    email: '',
+    address1: '',
+    address2: '',
+    city: '',
+    countryId: 0,
+    stateId: 0,
+    zip: '',
+    userName: '',
+    phoneNumber: '',
+    photoBase64: '',
+    isContactMethodCall: false,
+    isContactMethodVideo: false,
+    isContactMethodText: false,
+    photoPath: '',
+    photoThumbnailPath: '',
+    extensionId: 0,
+    visitTypesId: 0,
+    userId: 0,
+    customerId: '',
+    isFaceImage: false
+  });
+  expect(result).not.toBeNull();
 });
