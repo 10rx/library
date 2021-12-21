@@ -318,6 +318,22 @@ export default class TenrxApiEngine {
         }    
     }
 
+
+    /**
+     *
+     * 
+     * @param {number} treatmentTypeId
+     * @param {number} productId
+     * @param {number} genderId
+     * @param {string} searchKey
+     * @param {boolean} isWebRequest
+     * @param {number} pageNumber
+     * @param {number} pageSize
+     * @param {string} sortColumn
+     * @param {string} sortOrder
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
     async getTreatmentProductList(treatmentTypeId:number,productId : number, genderId : number,
          searchKey : string, isWebRequest : boolean,pageNumber : number,
           pageSize : number,sortColumn : string, sortOrder : string): Promise<TenrxApiResult> {
@@ -341,6 +357,36 @@ export default class TenrxApiEngine {
             
         } catch (error) {
             TenrxLogger.error('getTreatmentProductList() Error: ', error);
+           const response: TenrxApiResult = {
+                'status': 0,
+                'content': null,
+                error
+            };
+            return response;
+        }    
+    }
+
+
+
+    /**
+     *
+     *
+     * @param {number} id
+     * @return {*}  {Promise<TenrxApiResult>}
+     * @memberof TenrxApiEngine
+     */
+    async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
+        TenrxLogger.info('Getting all the Medication Product Detail from API');
+        try{
+            const response = await this.get(`${this.baseapi}/Login/GetMedicationProductDetails`, {
+                 // This is due to the API requiring this value to be like this.
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                'Id': id.toString()
+              });
+           return response;
+            
+        } catch (error) {
+            TenrxLogger.error('GetMedicationProductDetails() Error: ', error);
            const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
