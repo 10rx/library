@@ -30,6 +30,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/isaac": "^0.0.0",
     "@types/jest": "^27.0.2",
+    "@types/luxon": "^2.0.8",
     "@types/node-fetch": "^2.5.12",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
@@ -51,6 +52,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "isaac": "^0.0.5",
+    "luxon": "^2.2.0",
     "node-fetch": "^2.6.6",
     "tslog": "^3.2.2"
   }
