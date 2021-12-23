@@ -2,12 +2,14 @@
   "name": "@10rx/10rx-library",
   "version": "0.0.1",
   "description": "Javascript Library for 10rx product",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "type": "module",
+  "source": "src/index",
   "scripts": {
     "test": "jest",
-    "build": "tsc",
+    "build": "shx rm -rf -fr dist/* && tsc -p tsconfig.json && tsc -p tsconfig-commonjs.json && shx cp -f package-esm.json ./dist/esm/package.json && shx cp -f package-commonjs.json ./dist/commonjs/package.json",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "eslint -c .eslintrc.cjs --ext .ts ./src",
     "docs": "typedoc --out docs ./src",
@@ -42,6 +44,7 @@
     "eslint-plugin-react": "^7.27.1",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
+    "shx": "^0.3.3",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
     "typedoc": "^0.22.8",
@@ -56,5 +59,11 @@
     "luxon": "^2.2.0",
     "node-fetch": "^2.6.6",
     "tslog": "^3.2.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/commonjs/index.js"
+    }
   }
 }

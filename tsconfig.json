@@ -1,15 +1,8 @@
 {
-    "compilerOptions": {
-      "target": "es2015",
-      "module": "commonjs",
-      "declaration": true,
-      "outDir": "./dist",
-      "strict": true,
-      "esModuleInterop": true,
-      "sourceMap": true,
-      "allowSyntheticDefaultImports": true,
-      "moduleResolution": "node"
-    },
-    "include": ["src"],
-    "exclude": ["node_modules", "automatedtests/*"]
+  "extends": "./tsconfig-base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "outDir": "dist/esm",
+  },
 }
