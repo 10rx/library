@@ -1,6 +1,6 @@
-import { TenrxLogger } from "../includes/TenrxLogger";
-import { useTenrxApi } from "..";
-import TenrxProductCategoryAPIModel from "../apiModel/TenrxProductCategoryAPIModel";
+import { TenrxLogger } from "../includes/TenrxLogger.js";
+import { useTenrxApi } from "../includes/TenrxFunctions.js";
+import TenrxProductCategoryAPIModel from "../apiModel/TenrxProductCategoryAPIModel.js";
 
 /**
  * Represents a Tenrx Product Category

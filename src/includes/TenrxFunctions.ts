@@ -27,7 +27,9 @@ import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserPar
  export const initializeTenrx = (businesstoken: string, baseapi: string): void => {
     TenrxLogger.info('Initializing Tenrx...');
     TenrxApiEngine.initialize(businesstoken, baseapi);
+    // eslint-disable-next-line import/no-named-as-default-member
     bcryptjs.setRandomFallback((len: number) => {
+        // eslint-disable-next-line import/no-named-as-default-member
         return Array.from((new Uint8Array(len)).map(() => Math.floor(isaac.random() * 256)));
     });
     TenrxLogger.info('Initialization successful.');
@@ -70,6 +72,7 @@ export const authenticateTenrx = async (username: string, password: string, lang
     };
     TenrxLogger.info(`Authenticating to Tenrx with username: '${username}'...`);
     TenrxLogger.silly('Hashing password...');
+    // eslint-disable-next-line import/no-named-as-default-member
     const saltedpassword = await bcryptjs.hash(password, SALT);
     TenrxLogger.silly('Hashing password successful');
     TenrxLogger.debug('Authenticating with backend servers...');
@@ -214,6 +217,7 @@ export const saveSecurityQuestionAnswers = async (username: string, password: st
     };
     TenrxLogger.info('Saving security question answers...');
     TenrxLogger.silly('Hashing password...');
+    // eslint-disable-next-line import/no-named-as-default-member
     const saltedpassword = await bcryptjs.hash(password, SALT);
     TenrxLogger.silly('Hashing password successful');
     TenrxLogger.debug('Security Question Answers Info: ', username, password, macaddress, securityQuestionAnswers);
@@ -258,6 +262,7 @@ export const registerUser = async (registrationData: TenrxRegistrationFormData, 
     };
     TenrxLogger.silly('Initial registration data: ', registrationData);
     TenrxLogger.silly('Hashing password...');
+    // eslint-disable-next-line import/no-named-as-default-member
     const saltedpassword = await bcryptjs.hash(registrationData.password, SALT);
     TenrxLogger.silly('Hashing password successful');
     const registerAPIData: TenrxRegisterUserParameterAPIModel = {

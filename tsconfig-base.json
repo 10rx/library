@@ -9,5 +9,8 @@
       "rootDir": "src",
     },
     "include": ["src/**/*"],
-    "exclude": ["node_modules", "automatedtests/*","dist"]
+    "exclude": ["node_modules", "automatedtests/*","dist"],
+    "paths": {
+      "@includes/*": ["includes/*"],
+    }
 }

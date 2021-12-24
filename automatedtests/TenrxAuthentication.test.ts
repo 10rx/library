@@ -1,5 +1,5 @@
 import { TEST_USERNAME_EXISTS, TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_SUCCESS, TEST_PASSWORD_FAILED, Testlogger } from './includes/TexrxCommonInclude';
-import { authenticateTenrx, logoutTenrx, useTenrxApi } from '../src/index';
+import { authenticateTenrx, logoutTenrx, useTenrxApi } from '../dist/commonjs/index.js';
 
 Testlogger.setSettings({
   type: 'pretty',

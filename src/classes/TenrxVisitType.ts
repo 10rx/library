@@ -1,7 +1,7 @@
-import TenrxApiEngine from "./TenrxApiEngine";
-import { TenrxLogger } from "../includes/TenrxLogger";
-import { useTenrxApi } from "..";
-import TenrxVisitTypeAPIModel from "../apiModel/TenrxVisitTypeAPIModel";
+import TenrxApiEngine from "./TenrxApiEngine.js";
+import { TenrxLogger } from "../includes/TenrxLogger.js";
+import { useTenrxApi } from "../includes/TenrxFunctions.js";
+import TenrxVisitTypeAPIModel from "../apiModel/TenrxVisitTypeAPIModel.js";
 
 /**
  * Represents a Tenrx visit type.
