@@ -2,21 +2,21 @@ import bcryptjs from 'bcryptjs';
 import isaac from 'isaac';
 import { DateTime } from 'luxon';
 
-import { TenrxLogger } from "./TenrxLogger";
+import { TenrxLogger } from "./TenrxLogger.js";
 
-import TenrxApiEngine from '../classes/TenrxApiEngine';
+import TenrxApiEngine from '../classes/TenrxApiEngine.js';
 
-import TenrxLoginResponseData from '../types/TenrxLoginResponseData';
-import TenrxLoginSecurityQuestion from '../types/TenrxLoginSecurityQuestion';
-import TenrxLoginSecurityQuestionAnswer from '../types/TenrxLoginSecurityQuestionAnswer';
-import TenrxRegistrationFormData from '../types/TenrxRegistrationFormData';
+import TenrxLoginResponseData from '../types/TenrxLoginResponseData.js';
+import TenrxLoginSecurityQuestion from '../types/TenrxLoginSecurityQuestion.js';
+import TenrxLoginSecurityQuestionAnswer from '../types/TenrxLoginSecurityQuestionAnswer.js';
+import TenrxRegistrationFormData from '../types/TenrxRegistrationFormData.js';
 
-import TenrxServerError from '../exceptions/TenrxServerError';
+import TenrxServerError from '../exceptions/TenrxServerError.js';
 
-import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
-import TenrxCheckIfEmailExistAPIModel from '../apiModel/TenrxCheckIfEmailExistAPIModel';
-import TenrxQuestionAPIModel from '../apiModel/TenrxQuestionAPIModel';
-import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
+import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
+import TenrxCheckIfEmailExistAPIModel from '../apiModel/TenrxCheckIfEmailExistAPIModel.js';
+import TenrxQuestionAPIModel from '../apiModel/TenrxQuestionAPIModel.js';
+import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
