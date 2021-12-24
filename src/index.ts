@@ -4,7 +4,8 @@ export { TenrxLogger } from "./includes/TenrxLogger";
 // Classes
 export { default as TenrxApiEngine } from "./classes/TenrxApiEngine";
 export { default as TenrxVisitType } from "./classes/TenrxVisitType";
-export { TenrxProductCategory } from "./classes/TenrxProductCategory";
+export { default as TenrxProductCategory } from "./classes/TenrxProductCategory";
+export { default as TenrxProduct } from "./classes/TenrxProduct"
 
 // Types
 export { default as TenrxApiResult } from "./types/TenrxApiResult";
