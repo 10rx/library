@@ -1,1 +1,3 @@
 automatedtests/**/*
+babel.config.cjs
+jest.config.js
