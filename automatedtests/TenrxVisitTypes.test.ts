@@ -1,5 +1,5 @@
 import { Testlogger } from './includes/TexrxCommonInclude';
-import { TenrxVisitType } from '../dist/commonjs/index.js';
+import { TenrxVisitType } from '../src/index.js';
 
 Testlogger.setSettings({
   type: 'pretty',
