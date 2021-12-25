@@ -246,6 +246,13 @@ export const saveSecurityQuestionAnswers = async (username: string, password: st
     return loginresponse;
 }
 
+/**
+ * Register user with Tenrx.
+ *
+ * @param {TenrxRegistrationFormData} registrationData
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()]
+ * @return {*}  {Promise<TenrxLoginResponseData>}
+ */
 export const registerUser = async (registrationData: TenrxRegistrationFormData, apiengine: TenrxApiEngine = useTenrxApi()): Promise<TenrxLoginResponseData> => {
     TenrxLogger.info('Registering user...');
     const loginresponse: TenrxLoginResponseData = {
@@ -318,3 +325,31 @@ export const registerUser = async (registrationData: TenrxRegistrationFormData, 
     }
     return loginresponse;
 }
+
+/**
+ * Returns true if this script is being executed in the browser. Otherwise, it returns false.
+ * 
+ * @type {boolean} 
+ */
+export const isBrowser:boolean = (typeof window !== "undefined" && typeof window.document !== "undefined");
+
+/**
+ * Returns true if this script is being executed in node. Otherwise, it returns false.
+ * 
+ * @type {boolean} 
+ */
+export const isNode:boolean = (typeof process !== "undefined" && process.versions != null && process.versions.node != null);
+
+/**
+ * Returns true if this script is being executed in a Web Worker. Otherwise, it returns false.
+ * 
+ * @type {boolean} 
+ */
+export const isWebWorker:boolean = (typeof self === "object" && self.constructor && self.constructor.name === "DedicatedWorkerGlobalScope");
+
+/**
+ * Returns true if this script is being executed in JSDOM. Otherwise, it returns false.
+ * 
+ * @type {boolean} 
+ */
+export const isJsDom:boolean = ((typeof window !== "undefined" && window.name === "nodejs") || (typeof navigator !== "undefined" && (navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom"))));
