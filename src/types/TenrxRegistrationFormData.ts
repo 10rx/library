@@ -1,4 +1,4 @@
-import { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from "../includes/TenrxEnums";
+import { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from "../includes/TenrxEnums.js";
 
 /**
  * Represents the necessary information to register a patient in Tenrx.

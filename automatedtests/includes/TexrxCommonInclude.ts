@@ -1,5 +1,4 @@
-import { TenrxLogger } from '../../src';
-import { initializeTenrx, TenrxApiEngine } from '../../src/';
+import { initializeTenrx, TenrxApiEngine, TenrxLogger } from '../../dist/commonjs/index.js';
 
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
 export const TEST_API_BASE_URL = 'https://10rxapi.csscloudservices.com';

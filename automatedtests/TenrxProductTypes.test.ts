@@ -1,5 +1,5 @@
 import { Testlogger } from './includes/TexrxCommonInclude';
-import { TenrxProductCategory } from '../src/classes/TenrxProductCategory';
+import { TenrxProductCategory } from '../dist/commonjs/classes/TenrxProductCategory';
 
 Testlogger.setSettings({
   type: 'pretty',
