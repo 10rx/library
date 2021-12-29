@@ -8,11 +8,12 @@ export default {
     globals: {
       'ts-jest': {
         tsconfig: 'tsconfig-commonjs.json',
+        useESM: true,
       }
     },
-    preset: 'ts-jest/presets/js-with-ts',
+    preset: 'ts-jest/presets/default',
     moduleDirectories: ['node_modules', 'src'],
     moduleNameMapper: {
-      "@includes/(.*)": "<rootDir>/src/includes/$1",
+      '^(\\.{1,2}/.*)\\.js$': '$1',
   }
 }

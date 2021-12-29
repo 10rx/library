@@ -93,6 +93,14 @@ module.exports = {
       },
     ],
     'import/no-unresolved': 'error',
+    "import/extensions": [
+        'error',"always", {
+            ignorePackages: true,
+            pattern: {
+                "ts": "never",
+            }
+        }
+    ],
     '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'error',

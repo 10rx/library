@@ -1,5 +1,5 @@
 import { TEST_USERNAME_EXISTS, TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_SUCCESS, Testlogger, MakeRandomString } from './includes/TexrxCommonInclude';
-import { checkIfEmailExists, saveSecurityQuestionAnswers, registerUser, TenrxRegistrationFormData, TenrxEnumGender, TenrxEnumState, TenrxEnumCountry } from '../dist/commonjs/index.js';
+import { checkIfEmailExists, saveSecurityQuestionAnswers, registerUser, TenrxRegistrationFormData, TenrxEnumGender, TenrxEnumState, TenrxEnumCountry } from '../src/index.js';
 
 Testlogger.setSettings({
   type: 'pretty',
