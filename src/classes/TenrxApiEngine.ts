@@ -1,12 +1,12 @@
 import fetch from 'node-fetch';
-import { TenrxLogger } from "../includes/TenrxLogger";
-import TenrxApiResult from '../types/TenrxApiResult';
-import TenrxNotInitialized from '../exceptions/TenrxNotInitialized';
-import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid';
-import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired';
-import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel';
-import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel';
-import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel';
+import { TenrxLogger } from "../includes/TenrxLogger.js";
+import TenrxApiResult from '../types/TenrxApiResult.js';
+import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
+import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid.js';
+import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired.js';
+import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
+import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
+import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 
 
 /**

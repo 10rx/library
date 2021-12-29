@@ -1,6 +1,6 @@
-import { TenrxLogger } from "../includes/TenrxLogger";
-import { useTenrxApi } from "..";
-import TenrxGenderCategoryAPIModel from "../apiModel/TenrxGenderCategoryAPIModel";
+import { TenrxLogger } from "../includes/TenrxLogger.js";
+import { useTenrxApi } from "../includes/TenrxFunctions.js";
+import TenrxGenderCategoryAPIModel from "../apiModel/TenrxGenderCategoryAPIModel.js";
 
 /**
  * Represents a Tenrx Gender Category

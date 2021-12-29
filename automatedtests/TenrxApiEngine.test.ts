@@ -1,6 +1,6 @@
 import { BUSINESS_TOKEN, TEST_API_BASE_URL, TEST_USERNAME_EXISTS, TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, TEST_PASSWORD_HASHED_FAILED, Testlogger } from './includes/TexrxCommonInclude';
-import { TenrxApiEngine, useTenrxApi } from '../src/index';
-import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel';
+import { TenrxApiEngine, useTenrxApi } from '../src/index.js';
+import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel.js';
 
 Testlogger.setSettings({
   type: 'pretty',

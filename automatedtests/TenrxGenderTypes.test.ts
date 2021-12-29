@@ -1,5 +1,5 @@
 import { Testlogger } from './includes/TexrxCommonInclude';
-import { TenrxGenderCategory } from '../src/classes/TenrxGenderCategory';
+import { TenrxGenderCategory } from '../src/classes/TenrxGenderCategory.js';
 
 Testlogger.setSettings({
   type: 'pretty',
