@@ -8,7 +8,7 @@ import TenrxProductCategoryAPIModel from "../apiModel/TenrxProductCategoryAPIMod
  * @export
  * @class TenrxProductCatagory
  */
-export class TenrxProductCategory {
+export default class TenrxProductCategory {
 
 
     /**
