@@ -337,7 +337,7 @@ export default class TenrxApiEngine {
     async getTreatmentProductList(treatmentTypeId:number,productId : number, genderId : number,
          searchKey : string, isWebRequest : boolean,pageNumber : number,
           pageSize : number,sortColumn : string, sortOrder : string): Promise<TenrxApiResult> {
-        TenrxLogger.info('Getting all the Treatment ProductList from API');
+        TenrxLibraryLogger.info('Getting all the Treatment ProductList from API');
         try{
             const response = await this.get(`${this.baseapi}/Login/getTreatmentProductList`, {
                  // This is due to the API requiring this value to be like this.
@@ -356,7 +356,7 @@ export default class TenrxApiEngine {
            return response;
             
         } catch (error) {
-            TenrxLogger.error('getTreatmentProductList() Error: ', error);
+            TenrxLibraryLogger.error('getTreatmentProductList() Error: ', error);
            const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
@@ -376,7 +376,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
-        TenrxLogger.info('Getting all the Medication Product Detail from API');
+        TenrxLibraryLogger.info('Getting all the Medication Product Detail from API');
         try{
             const response = await this.get(`${this.baseapi}/Login/GetMedicationProductDetails`, {
                  // This is due to the API requiring this value to be like this.
@@ -386,7 +386,7 @@ export default class TenrxApiEngine {
            return response;
             
         } catch (error) {
-            TenrxLogger.error('GetMedicationProductDetails() Error: ', error);
+            TenrxLibraryLogger.error('GetMedicationProductDetails() Error: ', error);
            const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,

@@ -4,7 +4,7 @@ export { TenrxLibraryLogger } from './includes/TenrxLogging.js';
 // Classes
 export { default as TenrxApiEngine } from './classes/TenrxApiEngine.js';
 export { default as TenrxVisitType } from './classes/TenrxVisitType.js';
-export { TenrxProductCategory } from './classes/TenrxProductCategory.js';
+export { default as TenrxProductCategory } from './classes/TenrxProductCategory.js';
 export { default as TenrxLogger } from './classes/TenrxLogger.js';
 
 // Types
