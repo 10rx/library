@@ -1,5 +1,5 @@
 import TenrxApiEngine from "./TenrxApiEngine.js";
-import { TenrxLogger } from "../includes/TenrxLogger.js";
+import { TenrxLibraryLogger } from "../includes/TenrxLogging.js";
 import { useTenrxApi } from "../includes/TenrxFunctions.js";
 import TenrxVisitTypeAPIModel from "../apiModel/TenrxVisitTypeAPIModel.js";
 
@@ -105,35 +105,35 @@ export default class TenrxVisitType {
      * @memberof TenrxVisitType
      */
     public static async getVisitTypes(language = 'en', apiEngine: TenrxApiEngine = useTenrxApi()): Promise<TenrxVisitType[] | null> {
-        TenrxLogger.silly('TenrxVisitType.GetVisitTypes() Started')
+        TenrxLibraryLogger.silly('TenrxVisitType.GetVisitTypes() Started')
         if (apiEngine) {
             const result: TenrxVisitType[] = [];
-            TenrxLogger.info('Retrieving visit types.');
+            TenrxLibraryLogger.info('Retrieving visit types.');
             const response = await apiEngine.getVisitTypes();
             if (response.status === 200) {
-                TenrxLogger.debug('Response from API: ', response.content);
+                TenrxLibraryLogger.debug('Response from API: ', response.content);
                 if (response.content) {
                     const content = response.content as { data:TenrxVisitTypeAPIModel[] };
                     if (content.data) {
-                        TenrxLogger.info('Total Visit Types received: ', content.data.length);
+                        TenrxLibraryLogger.info('Total Visit Types received: ', content.data.length);
                         for (const visitType of content.data) {
                             result.push(new TenrxVisitType(visitType, language));
                         }                    
                         return result;
                     } else {
-                        TenrxLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
+                        TenrxLibraryLogger.error('API returned data as null when getting visit types. Content of error is: ', response.error);
                         return null;
                     }
                 } else {
-                    TenrxLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
+                    TenrxLibraryLogger.error('API returned content as null when getting visit types. Content of error is: ', response.error);
                     return null;
                 }
             } else {
-                TenrxLogger.error('API returned error: ', response.error);
+                TenrxLibraryLogger.error('API returned error: ', response.error);
                 return null;
             }
         } else {
-            TenrxLogger.fatal("TenrxApiEngine is not initialized.");
+            TenrxLibraryLogger.fatal("TenrxApiEngine is not initialized.");
             return null;
         }
     }

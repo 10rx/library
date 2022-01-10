@@ -1,4 +1,4 @@
-import { TenrxLogger } from "../includes/TenrxLogger.js";
+import { TenrxLibraryLogger } from "../includes/TenrxLogging.js";
 import { useTenrxApi } from "../includes/TenrxFunctions.js";
 import TenrxGenderCategoryAPIModel from "../apiModel/TenrxGenderCategoryAPIModel.js";
 
@@ -82,34 +82,34 @@ photoPath: string;
      * @memberof TenrxGenderCategory
      */
      public static async getGenderCategory(id: number, language = 'en', apiEngine = useTenrxApi()): Promise<TenrxGenderCategory[] | null> {
-        TenrxLogger.silly('TenrxVisitType.GetGenderCatagory() Started')            
+        TenrxLibraryLogger.silly('TenrxVisitType.GetGenderCatagory() Started')            
         if (apiEngine == null) {
-            TenrxLogger.fatal("TenrxApiEngine is not initialized.");
+            TenrxLibraryLogger.fatal("TenrxApiEngine is not initialized.");
             return null;
         }
         const result: TenrxGenderCategory[] = [];
-        TenrxLogger.info('Retrieving Gender categories types.');
+        TenrxLibraryLogger.info('Retrieving Gender categories types.');
         const response = await apiEngine.getGenderCategory(id);
         if (response.status === 200) {
-            TenrxLogger.debug('GetGenderCategory() Response: ', response.content);
+            TenrxLibraryLogger.debug('GetGenderCategory() Response: ', response.content);
             const content = response.content as { data: TenrxGenderCategoryAPIModel[] };
             if (content) {
                 if (content.data) {
-                    TenrxLogger.info('Total Gender Catagory received from API: ', content.data.length);
+                    TenrxLibraryLogger.info('Total Gender Catagory received from API: ', content.data.length);
                     for (const genderCategory of content.data) {
                         result.push(new TenrxGenderCategory(genderCategory, language));
                     }                    
                     return result;
                 } else {
-                    TenrxLogger.error('API returned data as null when getting Gender Category. Content of error is: ', response.error);
+                    TenrxLibraryLogger.error('API returned data as null when getting Gender Category. Content of error is: ', response.error);
                     return null;
                 }
             } else {
-                TenrxLogger.error('API returned content as null when getting Gender Category. Content of error is: ', response.error);
+                TenrxLibraryLogger.error('API returned content as null when getting Gender Category. Content of error is: ', response.error);
                 return null;
             }
         } else {
-            TenrxLogger.error('GetGenderCategory() Error: ', response.error);
+            TenrxLibraryLogger.error('GetGenderCategory() Error: ', response.error);
             return null;
         }
     }

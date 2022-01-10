@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { TenrxLogger } from "../includes/TenrxLogger.js";
+import { TenrxLibraryLogger } from "../includes/TenrxLogging.js";
 import TenrxApiResult from '../types/TenrxApiResult.js';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid.js';
@@ -32,7 +32,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     constructor(businesstoken: string, baseapi: string) {
-        TenrxLogger.debug('Creating a new TenrxApiEngine: ', { businesstoken, baseapi });
+        TenrxLibraryLogger.debug('Creating a new TenrxApiEngine: ', { businesstoken, baseapi });
         this.businesstoken = businesstoken;
         this.baseapi = baseapi;
         this.accesstoken = '';
@@ -48,12 +48,12 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     public async registerUser(registrationData: TenrxRegisterUserParameterAPIModel): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Registering user with backend servers');
+        TenrxLibraryLogger.debug('Registering user with backend servers');
         try {
             const response = await this.post(`${this.baseapi}/Login/RegisterPatient`, registrationData);
             return response;
         } catch (error) {
-            TenrxLogger.error('RegisterUser() Error: ', error);
+            TenrxLibraryLogger.error('RegisterUser() Error: ', error);
             const response: TenrxApiResult = {
                 status: 500,
                 content: null,
@@ -71,12 +71,12 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     public async saveSecurityQuestionAnswers(securityQuestionAnswers: TenrxSaveUserSecurityQuestionAPIModel): Promise<TenrxApiResult> {
-        TenrxLogger.silly('Saving security question answers to API');
+        TenrxLibraryLogger.silly('Saving security question answers to API');
         try {
             const response = await this.post(`${this.baseapi}/Login/SaveUserSecurityQuestion`, securityQuestionAnswers);
             return response;
         } catch (error) {
-            TenrxLogger.error('SaveSecurityQuestionAnswers() Error: ', error);
+            TenrxLibraryLogger.error('SaveSecurityQuestionAnswers() Error: ', error);
             const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
@@ -94,14 +94,14 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     public async checkIsEmailExists(email: string): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Checking if email exists: ', email);
+        TenrxLibraryLogger.debug('Checking if email exists: ', email);
         try {
             // API is missing the S in the URL. Therefore it is CheckIsEmailExist instead of CheckIsEmailExists.
             // Also, for some reason, this is a post request instead of a get request.
             const response = await this.post(`${this.baseapi}/Login/CheckIsEmailExist`, {}, {}, { email });
             return response;
         } catch (error) {
-            TenrxLogger.error('CheckIsEmailExists() Error: ', error);
+            TenrxLibraryLogger.error('CheckIsEmailExists() Error: ', error);
             const response: TenrxApiResult = {
                 status: 500,
                 content: null,
@@ -118,7 +118,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     public async logout(): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Logging out user from API');
+        TenrxLibraryLogger.debug('Logging out user from API');
         try {
             const response = await this.authPatch(`${this.baseapi}/Login/Logout`);
             this.accesstoken = '';
@@ -126,7 +126,7 @@ export default class TenrxApiEngine {
             this.expireDateStart = 0;
             return response;
         } catch (error) {
-            TenrxLogger.error('Logout() Error: ', error);
+            TenrxLibraryLogger.error('Logout() Error: ', error);
             const response: TenrxApiResult = {
                 status: -1,
                 content: null,
@@ -161,29 +161,29 @@ export default class TenrxApiEngine {
      * @throws {TenrxAccessTokenExpired} - Throws an exception if the access token is expired. The expired values are contained in the exception.
      */
     private ensureValidAccessToken(): void {
-        TenrxLogger.debug('Ensuring valid access token');
+        TenrxLibraryLogger.debug('Ensuring valid access token');
         if (this.accesstoken === '') {
-            TenrxLogger.silly('Access Token is empty:', this.accesstoken);
+            TenrxLibraryLogger.silly('Access Token is empty:', this.accesstoken);
             throw new TenrxAccessTokenInvalid('Access Token is empty.', this.accesstoken);
         }
         if (this.expiresIn < 0) {
-            TenrxLogger.silly('Expires In is not valid:', this.expiresIn);
+            TenrxLibraryLogger.silly('Expires In is not valid:', this.expiresIn);
             throw new TenrxAccessTokenInvalid('Expires In is not valid.', this.expiresIn);
         }
         if (this.expireDateStart === 0) {
-            TenrxLogger.silly('Expire Date Start is not valid:', this.expireDateStart);
+            TenrxLibraryLogger.silly('Expire Date Start is not valid:', this.expireDateStart);
             throw new TenrxAccessTokenInvalid('Expire Date Start is not valid.', this.expireDateStart);
         }
         const now: number = Date.now();
         if (now > (this.expireDateStart + this.expiresIn * 1000)) {
-            TenrxLogger.silly('Access Token has expired:', {
+            TenrxLibraryLogger.silly('Access Token has expired:', {
                 'expireDateStart': this.expireDateStart,
                 'expiresIn': this.expiresIn,
                 now
             });
             throw new TenrxAccessTokenExpired('Access Token has expired.', this.expireDateStart, this.expiresIn, now);
         }
-        TenrxLogger.debug('Access Token is valid.');
+        TenrxLibraryLogger.debug('Access Token is valid.');
     }
 
     /**
@@ -197,7 +197,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async login(username: string, password: string, language = 'en', macaddress = 'up:da:te:la:te:rr'): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Logging in user to API: ', { username, password, language, macaddress });
+        TenrxLibraryLogger.debug('Logging in user to API: ', { username, password, language, macaddress });
         try {
             const response:TenrxApiResult = await this.post(`${this.baseapi}/Login/PatientLogin`,
             {
@@ -207,7 +207,7 @@ export default class TenrxApiEngine {
                 language
             });
             if (response.status === 200) {
-                TenrxLogger.debug('Login() Response: ', response.content);
+                TenrxLibraryLogger.debug('Login() Response: ', response.content);
                 if (response.content) {
                     const content = response.content as TenrxLoginAPIModel;
                     if (content.data){
@@ -215,22 +215,22 @@ export default class TenrxApiEngine {
                             this.accesstoken = content.access_token;
                             this.expiresIn = content.expires_in;
                             this.expireDateStart = Date.now();
-                            TenrxLogger.debug('Login() Updated Access Token in API Engine: ', this.accesstoken, ' Expires In: ', this.expiresIn);
+                            TenrxLibraryLogger.debug('Login() Updated Access Token in API Engine: ', this.accesstoken, ' Expires In: ', this.expiresIn);
                         } else {
-                            TenrxLogger.debug('Login() No Access Token in API Response');
+                            TenrxLibraryLogger.debug('Login() No Access Token in API Response');
                         }
                     } else {
-                        TenrxLogger.error('API returned data as null when logging in. Content of error is: ', response.error);
+                        TenrxLibraryLogger.error('API returned data as null when logging in. Content of error is: ', response.error);
                     }
                 } else {
-                    TenrxLogger.error('API returned content as null when logging in. Content of error is: ', response.error);
+                    TenrxLibraryLogger.error('API returned content as null when logging in. Content of error is: ', response.error);
                 }
             } else {
-                TenrxLogger.error('Login() Error: ', response.error);
+                TenrxLibraryLogger.error('Login() Error: ', response.error);
             }
             return response;
         } catch (error) {
-            TenrxLogger.error('Login() Error: ', error);
+            TenrxLibraryLogger.error('Login() Error: ', error);
             const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
@@ -248,12 +248,12 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async getVisitTypes(): Promise<TenrxApiResult> {
-        TenrxLogger.silly('Getting all the visit types from API');
+        TenrxLibraryLogger.silly('Getting all the visit types from API');
         try {
             const response = await this.get(`${this.baseapi}/Login/GetVisitTypes`);
             return response;
         } catch (error) {
-            TenrxLogger.error('GetVisitTypes() Error: ', error);
+            TenrxLibraryLogger.error('GetVisitTypes() Error: ', error);
             const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
@@ -271,7 +271,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async getProductCategory(id: number): Promise<TenrxApiResult> {
-        TenrxLogger.info('Getting all the product category from API');
+        TenrxLibraryLogger.info('Getting all the product category from API');
         try{
             const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
                 // This is due to the API requiring this value to be like this.
@@ -280,7 +280,7 @@ export default class TenrxApiEngine {
               });
             return response;
         } catch (error) {
-            TenrxLogger.error('GetProductCategory() Error: ', error);
+            TenrxLibraryLogger.error('GetProductCategory() Error: ', error);
             const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
@@ -298,7 +298,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async getGenderCategory(id: number): Promise<TenrxApiResult> {
-        TenrxLogger.info('Getting all the Gender catagory from API');
+        TenrxLibraryLogger.info('Getting all the Gender catagory from API');
         try{
             const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
                  // This is due to the API requiring this value to be like this.
@@ -308,7 +308,7 @@ export default class TenrxApiEngine {
            return response;
             
         } catch (error) {
-            TenrxLogger.error('GetGenderCategory() Error: ', error);
+            TenrxLibraryLogger.error('GetGenderCategory() Error: ', error);
            const response: TenrxApiResult = {
                 'status': 0,
                 'content': null,
@@ -332,7 +332,7 @@ export default class TenrxApiEngine {
         // Needed for the API since the API requires Authorization: {token}
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const authHeaders = { ...headers, 'Authorization': `${this.accesstoken}` };
-        TenrxLogger.debug('Preparing to execute authenticated GET WebCall.');
+        TenrxLibraryLogger.debug('Preparing to execute authenticated GET WebCall.');
         return await this.get(url, params, authHeaders);
     }
 
@@ -346,7 +346,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Executing GET WebCall: ', { url, params, headers });
+        TenrxLibraryLogger.debug('Executing GET WebCall: ', { url, params, headers });
         const internalurl: URL = new URL(url);
         const returnvalue: TenrxApiResult = {
             'status': 0,
@@ -358,7 +358,7 @@ export default class TenrxApiEngine {
                 internalurl.searchParams.append(key, params[key]);
             });
         }
-        TenrxLogger.silly('Real GET URL: ', internalurl.toString());
+        TenrxLibraryLogger.silly('Real GET URL: ', internalurl.toString());
         try {
             const response = await fetch(internalurl.toString(), {
                 'method': 'GET',
@@ -367,14 +367,14 @@ export default class TenrxApiEngine {
                     ...headers
                 },
             });
-            TenrxLogger.silly('GET WebCall Response: ', response);
+            TenrxLibraryLogger.silly('GET WebCall Response: ', response);
             returnvalue.status = response.status;
             // Need to find a better way to write this so that we don't have to disable the rule.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             returnvalue.content = await response.json();
         } catch (error) {
             returnvalue.error = error;
-            TenrxLogger.silly('GET WebCall Error: ', error);
+            TenrxLibraryLogger.silly('GET WebCall Error: ', error);
         }
         return returnvalue;
     }
@@ -393,7 +393,7 @@ export default class TenrxApiEngine {
         // Needed for the API since the API requires Authorization: {token}
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const authHeaders = { ...headers, 'Authorization': `${this.accesstoken}` };
-        TenrxLogger.debug('Preparing to execute authenticated POST WebCall: ');
+        TenrxLibraryLogger.debug('Preparing to execute authenticated POST WebCall: ');
         return await this.post(url, params, authHeaders, queryparams);
     }
 
@@ -407,7 +407,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async post(url: string, params: object = {}, headers: object = {}, queryparams: Record<string, string> = {}): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Executing POST WebCall: ', { url, params, headers, queryparams });
+        TenrxLibraryLogger.debug('Executing POST WebCall: ', { url, params, headers, queryparams });
         const returnvalue: TenrxApiResult = {
             'status': 0,
             'content': null,
@@ -419,7 +419,7 @@ export default class TenrxApiEngine {
                 internalurl.searchParams.append(key, queryparams[key]);
             });
         }
-        TenrxLogger.silly('Real POST URL: ', internalurl.toString());
+        TenrxLibraryLogger.silly('Real POST URL: ', internalurl.toString());
         try {
             const response = await fetch(internalurl, {
                 'method': 'POST',
@@ -432,14 +432,14 @@ export default class TenrxApiEngine {
                 },
                 'body': JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
             });
-            TenrxLogger.silly('POST WebCall Response: ', response);
+            TenrxLibraryLogger.silly('POST WebCall Response: ', response);
             returnvalue.status = response.status;
             // Need to find a better way to write this so that we don't have to disable the rule.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             returnvalue.content = await response.json();
         } catch (error) {
             returnvalue.error = error;
-            TenrxLogger.silly('POST WebCall Error: ', error);
+            TenrxLibraryLogger.silly('POST WebCall Error: ', error);
         }
         return returnvalue;
     }
@@ -458,7 +458,7 @@ export default class TenrxApiEngine {
         // Needed for the API since the API requires Authorization: {token}
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const authHeaders = { ...headers, 'Authorization': `${this.accesstoken}` };
-        TenrxLogger.debug('Preparing to execute authenticated PUT WebCall: ');
+        TenrxLibraryLogger.debug('Preparing to execute authenticated PUT WebCall: ');
         return await this.put(url, params, authHeaders);
     }
 
@@ -472,7 +472,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Executing PUT WebCall: ', { url, params, headers });
+        TenrxLibraryLogger.debug('Executing PUT WebCall: ', { url, params, headers });
         const returnvalue: TenrxApiResult = {
             'status': 0,
             'content': null,
@@ -490,14 +490,14 @@ export default class TenrxApiEngine {
                 },
                 'body': JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
             });
-            TenrxLogger.silly('PUT WebCall Response: ', response);
+            TenrxLibraryLogger.silly('PUT WebCall Response: ', response);
             returnvalue.status = response.status;
             // Need to find a better way to write this so that we don't have to disable the rule.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             returnvalue.content = await response.json();            
         } catch (error) {
             returnvalue.error = error;
-            TenrxLogger.silly('PUT WebCall Error: ', error);
+            TenrxLibraryLogger.silly('PUT WebCall Error: ', error);
         }
         return returnvalue;
     }
@@ -518,7 +518,7 @@ export default class TenrxApiEngine {
         // Needed for the API since the API requires Authorization: {token}
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const authHeaders = { ...headers, 'Authorization': `${this.accesstoken}` };
-        TenrxLogger.debug('Preparing to execute authenticated PATCH WebCall: ');
+        TenrxLibraryLogger.debug('Preparing to execute authenticated PATCH WebCall: ');
         return await this.patch(url, queryparams, bodyparams, authHeaders);
     }
 
@@ -533,7 +533,7 @@ export default class TenrxApiEngine {
      * @memberof TenrxApiEngine
      */
     async patch(url: string, queryparams: Record<string, string> = {}, bodyparams: object = {}, headers: object = {}): Promise<TenrxApiResult> {
-        TenrxLogger.debug('Executing PATCH WebCall: ', { url, queryparams, bodyparams, headers });
+        TenrxLibraryLogger.debug('Executing PATCH WebCall: ', { url, queryparams, bodyparams, headers });
         const returnvalue: TenrxApiResult = {
             'status': 0,
             'content': null,
@@ -545,7 +545,7 @@ export default class TenrxApiEngine {
                 internalurl.searchParams.append(key, queryparams[key]);
             });
         }
-        TenrxLogger.silly('Real PATCH URL: ', internalurl.toString());
+        TenrxLibraryLogger.silly('Real PATCH URL: ', internalurl.toString());
         try {
             const response = await fetch(internalurl.toString(), {
                 'method': 'PATCH',
@@ -558,14 +558,14 @@ export default class TenrxApiEngine {
                 },
                 'body': JSON.stringify(bodyparams), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
             });
-            TenrxLogger.silly('PATCH WebCall Response: ', response);
+            TenrxLibraryLogger.silly('PATCH WebCall Response: ', response);
             returnvalue.status = response.status;
             // Need to find a better way to write this so that we don't have to disable the rule.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             returnvalue.content = await response.json();
         } catch (error) {
             returnvalue.error = error;
-            TenrxLogger.silly('PATCH WebCall Error: ', error);
+            TenrxLibraryLogger.silly('PATCH WebCall Error: ', error);
         }
         return returnvalue;
     }
@@ -584,7 +584,7 @@ export default class TenrxApiEngine {
         // This is needed since the actual instance is stored in the _instance static variable
         // eslint-disable-next-line no-underscore-dangle
         if (TenrxApiEngine._instance === null) {
-            TenrxLogger.error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
+            TenrxLibraryLogger.error('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.');
             throw new TenrxNotInitialized('TenrxApiEngine is not initialized. Call TenrxApiEngine.Initialize() first.', 'TenrxApiEngine');
         }
         // eslint-disable-next-line no-underscore-dangle
@@ -602,7 +602,7 @@ export default class TenrxApiEngine {
     public static initialize(businesstoken: string, baseapi: string): void {
         // eslint-disable-next-line no-underscore-dangle
         if (TenrxApiEngine._instance !== null) {
-            TenrxLogger.warn('TenrxApiEngine is already initialized. Call TenrxApiEngine.Initialize() only once.');
+            TenrxLibraryLogger.warn('TenrxApiEngine is already initialized. Call TenrxApiEngine.Initialize() only once.');
         }
         // eslint-disable-next-line no-underscore-dangle
         TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi);
