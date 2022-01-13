@@ -320,39 +320,15 @@ export default class TenrxApiEngine {
 
 
     /**
-     *
-     * 
-     * @param {number} treatmentTypeId
-     * @param {number} productId
-     * @param {number} genderId
-     * @param {string} searchKey
-     * @param {boolean} isWebRequest
-     * @param {number} pageNumber
-     * @param {number} pageSize
-     * @param {string} sortColumn
-     * @param {string} sortOrder
-     * @return {*}  {Promise<TenrxApiResult>}
-     * @memberof TenrxApiEngine
-     */
-    async getTreatmentProductList(treatmentTypeId:number,productId : number, genderId : number,
-         searchKey : string, isWebRequest : boolean,pageNumber : number,
-          pageSize : number,sortColumn : string, sortOrder : string): Promise<TenrxApiResult> {
+      *
+      *
+      * @return {*}  {Promise<TenrxApiResult>}
+      * @memberof TenrxApiEngine
+      */
+    async getTreatmentProductList(): Promise<TenrxApiResult> {
         TenrxLibraryLogger.info('Getting all the Treatment ProductList from API');
         try{
-            const response = await this.get(`${this.baseapi}/Login/getTreatmentProductList`, {
-                 // This is due to the API requiring this value to be like this.
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-               'TreatmentTypeId':treatmentTypeId.toString(),
-               'productId':productId.toString(),
-               'genderId':genderId.toString(),
-               searchKey,
-               'isWebRequest':isWebRequest.toString(),
-               'pageNumber':pageNumber.toString(),
-               'pageSize':pageSize.toString(),
-               'sortColumn':sortColumn.toString(),
-               'sortOrder':sortOrder.toString()
-              });
-              
+            const response = await this.post(`${this.baseapi}/Login/getTreatmentProductList`);  
            return response;
             
         } catch (error) {
