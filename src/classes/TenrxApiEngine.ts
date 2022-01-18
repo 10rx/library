@@ -319,10 +319,10 @@ export default class TenrxApiEngine {
     }
 
 
-    /**
+     /**
       *
       *
-      * @return {*}  {Promise<TenrxApiResult>}
+      * @return {*}  {Promise<TenrxApiResult>} - The response of the POST request.
       * @memberof TenrxApiEngine
       */
     async getTreatmentProductList(): Promise<TenrxApiResult> {
@@ -348,8 +348,8 @@ export default class TenrxApiEngine {
      *
      *
      * @param {number} id
-     * @return {*}  {Promise<TenrxApiResult>}
-     * @memberof TenrxApiEngine
+     * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
+     * @memberof TenrxApiEngine 
      */
     async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
         TenrxLibraryLogger.info('Getting all the Medication Product Detail from API');
