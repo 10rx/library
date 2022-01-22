@@ -1,10 +1,18 @@
-import { BUSINESS_TOKEN, TEST_API_BASE_URL, TEST_USERNAME_EXISTS, TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, TEST_PASSWORD_HASHED_FAILED, Testlogger } from './includes/TexrxCommonInclude';
+import {
+  BUSINESS_TOKEN,
+  TEST_API_BASE_URL,
+  TEST_USERNAME_EXISTS,
+  TEST_USERNAME_NOT_EXISTS,
+  TEST_PASSWORD_HASHED_SUCCESS,
+  TEST_PASSWORD_HASHED_FAILED,
+  Testlogger,
+} from './includes/TexrxCommonInclude';
 import { TenrxApiEngine, useTenrxApi } from '../src/index.js';
 import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel.js';
 
 Testlogger.setSettings({
   type: 'pretty',
-})
+});
 
 const tenrx = useTenrxApi();
 
@@ -35,9 +43,8 @@ test('Singleton Test', async () => {
   expect(ApiEngine1).not.toBe(ApiEngine2);
 });
 
-
 test('Login API Test Failure', async () => {
-  const result = await tenrx.login(TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_HASHED_FAILED,'en');
+  const result = await tenrx.login(TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_HASHED_FAILED, 'en');
   const content = result.content as TenrxLoginAPIModel;
   expect(content.statusCode).toBe(401);
   expect(content.access_token).toBeNull();
@@ -49,7 +56,7 @@ test('Login API Test Failure', async () => {
 });
 
 test('Login API Test Security Question', async () => {
-  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en', 'mu:st:fa:il:th:iz');
+  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz');
   const content = result.content as TenrxLoginAPIModel;
   expect(content.statusCode).toBe(200);
   expect(content.access_token).toBeNull();
@@ -64,7 +71,7 @@ test('Login API Test Security Question', async () => {
 });
 
 test('Login API Test Success', async () => {
-  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
+  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en');
   const content = result.content as TenrxLoginAPIModel;
   expect(content.statusCode).toBe(200);
   expect(content.access_token).not.toBeNull();
@@ -91,20 +98,22 @@ test('Gender Category Test', async () => {
 });
 
 test('Auth GET Test Successful', async () => {
-  const logindata = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS,'en');
+  const logindata = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en');
   Testlogger.info(logindata);
   expect(tenrx.isAuthenticated).toBe(true);
   if (tenrx.isAuthenticated) {
     const content = logindata.content as TenrxLoginAPIModel;
     const data = content.data as any;
-    const response = await tenrx.authGet(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', { 'patientId': data.id });
+    const response = await tenrx.authGet(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', {
+      patientId: data.id,
+    });
     Testlogger.info(response);
     expect(response.status).toBe(200);
   }
 });
 
 test('saveUserSecurityQuestion Test Success', async () => {
-  const result = await tenrx.saveSecurityQuestionAnswers( {
+  const result = await tenrx.saveSecurityQuestionAnswers({
     username: TEST_USERNAME_EXISTS,
     password: TEST_PASSWORD_HASHED_SUCCESS,
     macaddress: 'mu:st:fa:il:th:is',
@@ -113,8 +122,8 @@ test('saveUserSecurityQuestion Test Success', async () => {
         id: 0,
         questionID: 19,
         answer: 'Test',
-      }
-    ]
+      },
+    ],
   });
   expect(result).not.toBeNull();
   const content = result.content as any;
@@ -122,7 +131,7 @@ test('saveUserSecurityQuestion Test Success', async () => {
 });
 
 test('saveUserSecurityQuestion Test Fail', async () => {
-  const result = await tenrx.saveSecurityQuestionAnswers( {
+  const result = await tenrx.saveSecurityQuestionAnswers({
     username: TEST_USERNAME_EXISTS,
     password: TEST_PASSWORD_HASHED_SUCCESS,
     macaddress: 'mu:st:fa:il:th:is',
@@ -131,8 +140,8 @@ test('saveUserSecurityQuestion Test Fail', async () => {
         id: 0,
         questionID: 1,
         answer: 'Test',
-      }
-    ]
+      },
+    ],
   });
   expect(result).not.toBeNull();
   const content = result.content as any;
@@ -173,7 +182,7 @@ test('RegisterUser Test Success', async () => {
     visitTypesId: 0,
     userId: 0,
     customerId: '',
-    isFaceImage: false
+    isFaceImage: false,
   });
   expect(result).not.toBeNull();
 });

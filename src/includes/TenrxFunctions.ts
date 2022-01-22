@@ -62,7 +62,7 @@ export const useTenrxApi = (): TenrxApiEngine => {
  * @return {*}  {TenrxLogger} - The Tenrx Logger single instance.
  */
 export const useTenrxLogger = (): TenrxLogger => {
-    return TenrxLogger.instance;
+  return TenrxLogger.instance;
 };
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
