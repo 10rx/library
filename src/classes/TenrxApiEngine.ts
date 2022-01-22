@@ -387,7 +387,7 @@ export default class TenrxApiEngine {
   }
 
   /**
-   *
+   * Gets product details by id.
    *
    * @param {number} id
    * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
