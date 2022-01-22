@@ -360,7 +360,7 @@ export default class TenrxApiEngine {
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.info('Getting all the Treatment ProductList from API');
     try {
-      const response = await this.get(`${this.baseapi}/Login/getTreatmentProductList`, {
+      const response = await this.get(`${this.baseapi}/Product/getTreatmentProductList`, {
         // This is due to the API requiring this value to be like this.
         // eslint-disable-next-line @typescript-eslint/naming-convention
         TreatmentTypeId: treatmentTypeId.toString(),
