@@ -4,7 +4,7 @@ import {
   TEST_PASSWORD_SUCCESS,
   Testlogger,
   MakeRandomString,
-} from './includes/TexrxCommonInclude';
+} from './includes/TexrxCommonInclude.js';
 import {
   checkIfEmailExists,
   saveSecurityQuestionAnswers,

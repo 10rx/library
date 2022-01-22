@@ -4,7 +4,7 @@ import {
   TEST_PASSWORD_SUCCESS,
   TEST_PASSWORD_FAILED,
   Testlogger,
-} from './includes/TexrxCommonInclude';
+} from './includes/TexrxCommonInclude.js';
 import { authenticateTenrx, logoutTenrx, useTenrxApi } from '../src/index.js';
 
 Testlogger.setSettings({

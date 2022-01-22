@@ -1,4 +1,4 @@
-import { Testlogger } from './includes/TexrxCommonInclude';
+import { Testlogger } from './includes/TexrxCommonInclude.js';
 import { TenrxGenderCategory } from '../src/classes/TenrxGenderCategory.js';
 
 Testlogger.setSettings({

@@ -6,7 +6,7 @@ import {
   TEST_PASSWORD_HASHED_SUCCESS,
   TEST_PASSWORD_HASHED_FAILED,
   Testlogger,
-} from './includes/TexrxCommonInclude';
+} from './includes/TexrxCommonInclude.js';
 import { TenrxApiEngine, useTenrxApi } from '../src/index.js';
 import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel.js';
 

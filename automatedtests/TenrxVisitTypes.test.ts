@@ -1,4 +1,4 @@
-import { Testlogger } from './includes/TexrxCommonInclude';
+import { Testlogger } from './includes/TexrxCommonInclude.js';
 import { TenrxVisitType } from '../src/index.js';
 
 Testlogger.setSettings({
