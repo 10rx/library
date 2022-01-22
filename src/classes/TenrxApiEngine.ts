@@ -721,6 +721,7 @@ export default class TenrxApiEngine {
     // eslint-disable-next-line no-underscore-dangle
     if (TenrxApiEngine._instance !== null) {
       TenrxLibraryLogger.warn('TenrxApiEngine is already initialized. Call TenrxApiEngine.Initialize() only once.');
+      return;
     }
     // eslint-disable-next-line no-underscore-dangle
     TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi);
