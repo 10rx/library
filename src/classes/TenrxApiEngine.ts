@@ -31,7 +31,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   constructor(businesstoken: string, baseapi: string) {
-    TenrxLibraryLogger.debug('Creating a new TenrxApiEngine: ', { businesstoken, baseapi });
+    TenrxLibraryLogger.silly('Creating a new TenrxApiEngine: ', { businesstoken, baseapi });
     this.businesstoken = businesstoken;
     this.baseapi = baseapi;
     this.accesstoken = '';
@@ -47,7 +47,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   public async registerUser(registrationData: TenrxRegisterUserParameterAPIModel): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.debug('Registering user with backend servers');
+    TenrxLibraryLogger.silly('Registering user with backend servers');
     try {
       const response = await this.post(`${this.baseapi}/Login/RegisterPatient`, registrationData);
       return response;
@@ -95,7 +95,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   public async checkIsEmailExists(email: string): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.debug('Checking if email exists: ', email);
+    TenrxLibraryLogger.silly('Checking if email exists: ', email);
     try {
       // API is missing the S in the URL. Therefore it is CheckIsEmailExist instead of CheckIsEmailExists.
       // Also, for some reason, this is a post request instead of a get request.
@@ -119,7 +119,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   public async logout(): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.debug('Logging out user from API');
+    TenrxLibraryLogger.silly('Logging out user from API');
     try {
       const response = await this.authPatch(`${this.baseapi}/Login/Logout`);
       this.accesstoken = '';
@@ -162,7 +162,7 @@ export default class TenrxApiEngine {
    * @throws {TenrxAccessTokenExpired} - Throws an exception if the access token is expired. The expired values are contained in the exception.
    */
   private ensureValidAccessToken(): void {
-    TenrxLibraryLogger.debug('Ensuring valid access token');
+    TenrxLibraryLogger.silly('Ensuring valid access token');
     if (this.accesstoken === '') {
       TenrxLibraryLogger.silly('Access Token is empty:', this.accesstoken);
       throw new TenrxAccessTokenInvalid('Access Token is empty.', this.accesstoken);
@@ -184,7 +184,7 @@ export default class TenrxApiEngine {
       });
       throw new TenrxAccessTokenExpired('Access Token has expired.', this.expireDateStart, this.expiresIn, now);
     }
-    TenrxLibraryLogger.debug('Access Token is valid.');
+    TenrxLibraryLogger.silly('Access Token is valid.');
   }
 
   /**
@@ -203,7 +203,7 @@ export default class TenrxApiEngine {
     language = 'en',
     macaddress = 'up:da:te:la:te:rr',
   ): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.debug('Logging in user to API: ', { username, password, language, macaddress });
+    TenrxLibraryLogger.silly('Logging in user to API: ', { username, password, language, macaddress });
     try {
       const response: TenrxApiResult = await this.post(`${this.baseapi}/Login/PatientLogin`, {
         username,
@@ -212,7 +212,7 @@ export default class TenrxApiEngine {
         language,
       });
       if (response.status === 200) {
-        TenrxLibraryLogger.debug('Login() Response: ', response.content);
+        TenrxLibraryLogger.silly('Login() Response: ', response.content);
         if (response.content) {
           const content = response.content as TenrxLoginAPIModel;
           if (content.data) {
@@ -220,14 +220,14 @@ export default class TenrxApiEngine {
               this.accesstoken = content.access_token;
               this.expiresIn = content.expires_in;
               this.expireDateStart = Date.now();
-              TenrxLibraryLogger.debug(
+              TenrxLibraryLogger.silly(
                 'Login() Updated Access Token in API Engine: ',
                 this.accesstoken,
                 ' Expires In: ',
                 this.expiresIn,
               );
             } else {
-              TenrxLibraryLogger.debug('Login() No Access Token in API Response');
+              TenrxLibraryLogger.silly('Login() No Access Token in API Response');
             }
           } else {
             TenrxLibraryLogger.error(
@@ -286,7 +286,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   async getProductCategory(id: number): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.info('Getting all the product category from API');
+    TenrxLibraryLogger.silly('Getting all the product category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
         // This is due to the API requiring this value to be like this.
@@ -313,7 +313,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   async getGenderCategory(id: number): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.info('Getting all the Gender catagory from API');
+    TenrxLibraryLogger.silly('Getting all the Gender catagory from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
         // This is due to the API requiring this value to be like this.
@@ -358,7 +358,7 @@ export default class TenrxApiEngine {
     sortColumn: string,
     sortOrder: string,
   ): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.info('Getting all the Treatment ProductList from API');
+    TenrxLibraryLogger.silly('Getting all the Treatment ProductList from API');
     try {
       const response = await this.get(`${this.baseapi}/Product/getTreatmentProductList`, {
         // This is due to the API requiring this value to be like this.
@@ -394,7 +394,7 @@ export default class TenrxApiEngine {
    * @memberof TenrxApiEngine
    */
   async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.info('Getting all the Medication Product Detail from API');
+    TenrxLibraryLogger.silly('Getting all the Medication Product Detail from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetMedicationProductDetails`, {
         // This is due to the API requiring this value to be like this.
