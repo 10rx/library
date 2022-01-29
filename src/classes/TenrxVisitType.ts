@@ -2,6 +2,10 @@ import TenrxApiEngine from './TenrxApiEngine.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import TenrxVisitTypeAPIModel from '../apiModel/TenrxVisitTypeAPIModel.js';
+import TenrxProductCategory from './TenrxProductCategory.js';
+import TenrxNotLoaded from '../exceptions/TenrxNotLoaded.js';
+import TenrxGenderCategory from './TenrxGenderCategory.js';
+import TenrxLoadError from '../exceptions/TenrxLoadError.js';
 
 /**
  * Represents a Tenrx visit type.
@@ -10,6 +14,9 @@ import TenrxVisitTypeAPIModel from '../apiModel/TenrxVisitTypeAPIModel.js';
  * @class TenrxVisitType
  */
 export default class TenrxVisitType {
+  private internalProductCategories: TenrxProductCategory[];
+  private internalGenderCategories: TenrxGenderCategory[];
+
   /**
    * The id of the visit type.
    *
@@ -74,13 +81,22 @@ export default class TenrxVisitType {
   visitTypeListings: TenrxVisitType[];
 
   /**
+   * True if visit types has loaded all its data from API
+   *
+   * @type {boolean}
+   * @memberof TenrxVisitType
+   */
+  loaded: boolean;
+
+  /**
    * Creates an instance of TenrxVisitType.
    *
    * @param {TenrxVisitTypeAPIModel} data
    * @param {string} [language='en']
    * @memberof TenrxVisitType
    */
-  constructor(data: TenrxVisitTypeAPIModel, language = 'en') {
+  constructor(data: TenrxVisitTypeAPIModel, language = 'en', load = false) {
+    this.loaded = false;
     this.id = data.id;
     this.visitType = language === 'en' ? data.visitType : language === 'es' ? data.visitTypeEs : data.visitType;
     this.displayOrder = data.displayOrder;
@@ -93,6 +109,95 @@ export default class TenrxVisitType {
         this.visitTypeListings.push(new TenrxVisitType(visitTypeListing, language));
       }
     }
+    this.internalProductCategories = [];
+    this.internalGenderCategories = [];
+    if (load) {
+      this.load().catch((e) => {
+        TenrxLibraryLogger.error(
+          `Error while attemping to load visit type with id '${this.id}' and type: '${this.visitType}' in constructor. Exception:`,
+          e,
+        );
+      });
+    }
+  }
+
+  /**
+   * Gets all the product categories of the visit type
+   *
+   * @readonly
+   * @type {TenrxProductCategory[]}
+   * @memberof TenrxVisitType
+   * @throws {TenrxNotInitialized} - If the TenrxVisitType has not been loaded yet.
+   */
+  public get productCategories(): TenrxProductCategory[] {
+    if (this.loaded) {
+      return this.internalProductCategories;
+    } else {
+      TenrxLibraryLogger.error(`Visit type with '${this.id}' and type: '${this.visitType}' has not been loaded yet.`);
+      throw new TenrxNotLoaded('Visit type has not been loaded yet.', 'TenrxVisitType');
+    }
+  }
+
+  /**
+   * Gets all the gender categories of the visit types
+   *
+   * @readonly
+   * @type {TenrxGenderCategory[]}
+   * @memberof TenrxVisitType
+   */
+  public get genderCategory(): TenrxGenderCategory[] {
+    if (this.loaded) {
+      return this.internalGenderCategories;
+    } else {
+      TenrxLibraryLogger.error(`Visit type with '${this.id}' and type: '${this.visitType}' has not been loaded yet.`);
+      throw new TenrxNotLoaded('Visit type has not been loaded yet.', 'TenrxVisitType');
+    }
+  }
+
+  /**
+   * Loads the product categories of a visit type data from API.
+   *
+   * @param {string} [language='en']
+   * @param {TenrxApiEngine} [apiEngine=useTenrxApi()]
+   * @return {*}  {Promise<TenrxVisitType>}
+   * @memberof TenrxVisitType
+   */
+  public async load(language = 'en', apiEngine: TenrxApiEngine = useTenrxApi()): Promise<TenrxVisitType> {
+    if (!this.loaded) {
+      TenrxLibraryLogger.info(`Loading visit type with id '${this.id}' and type: '${this.visitType}'.`);
+      try {
+        const responseCat = await TenrxProductCategory.getProductCategories(this.id, language, apiEngine);
+        this.internalProductCategories = responseCat ? responseCat : [];
+      } catch (e) {
+        TenrxLibraryLogger.error(
+          `Error occurred when loading visit type with '${this.id}' and type: '${this.visitType}':`,
+          e,
+        );
+        throw new TenrxLoadError(
+          `Error while attempting to load visit type with id '${this.id}' and type: '${this.visitType}' in load.`,
+          'TenrxVisitType',
+          e,
+        );
+      }
+      try {
+        const responseGender = await TenrxGenderCategory.getGenderCategories(this.id, language, apiEngine);
+        this.internalGenderCategories = responseGender ? responseGender : [];
+      } catch (e) {
+        TenrxLibraryLogger.error(
+          `Error occurred when loading visit type with '${this.id}' and type: '${this.visitType}':`,
+          e,
+        );
+        throw new TenrxLoadError(
+          `Error while attempting to load visit type with id '${this.id}' and type: '${this.visitType}' in load.`,
+          'TenrxVisitType',
+          e,
+        );
+      }
+      this.loaded = true;
+    } else {
+      TenrxLibraryLogger.warn(`Visit type with id '${this.id}' and type: '${this.visitType}' has already been loaded.`);
+    }
+    return this;
   }
 
   /**

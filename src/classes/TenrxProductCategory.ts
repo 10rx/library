@@ -1,6 +1,9 @@
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import TenrxProductCategoryAPIModel from '../apiModel/TenrxProductCategoryAPIModel.js';
+import TenrxProduct from './TenrxProduct.js';
+import TenrxNotLoaded from '../exceptions/TenrxNotLoaded.js';
+import TenrxLoadError from '../exceptions/TenrxLoadError.js';
 
 /**
  * Represents a Tenrx Product Category
@@ -9,6 +12,7 @@ import TenrxProductCategoryAPIModel from '../apiModel/TenrxProductCategoryAPIMod
  * @class TenrxProductCatagory
  */
 export default class TenrxProductCategory {
+  private internalProducts: TenrxProduct[];
   /**
    * The id of the product category.
    *
@@ -66,6 +70,14 @@ export default class TenrxProductCategory {
   productCatagories: TenrxProductCategory[];
 
   /**
+   * True if visit types has loaded all its data from API
+   *
+   * @type {boolean}
+   * @memberof TenrxProductCategory
+   */
+  loaded: boolean;
+
+  /**
    * Creates an instance of TenrxProductCategory.
    *
    * @param {TenrxProductCategoryAPIModel} data - The data to be used to create the instance.
@@ -79,7 +91,9 @@ export default class TenrxProductCategory {
     this.visitTypeCategoryId = data.visitTypeCategoryId;
     this.active = data.isActive;
     this.photoPath = data.photoPath;
+    this.loaded = false;
     this.productCatagories = [];
+    this.internalProducts = [];
     if (data.productCategories) {
       data.productCategories.forEach((element) => {
         this.productCatagories.push(new TenrxProductCategory(element, language));
@@ -88,30 +102,84 @@ export default class TenrxProductCategory {
   }
 
   /**
-   * Gets the product categories by id.
+   * Loads the products for this category.
+   *
+   * @param {*} [apiEngine=useTenrxApi()]
+   * @return {*}
+   * @memberof TenrxProductCategory
+   */
+  public async load(apiEngine = useTenrxApi()) {
+    if (!this.loaded) {
+      try {
+        const response = await apiEngine.getTreatmentProductList(this.treatmentTypeId, this.id);
+        if (response.status === 200) {
+          TenrxLibraryLogger.debug('getProductCategories() Response: ', response.content);
+        } else {
+          TenrxLibraryLogger.error('getProductCategories() Error: ', response.error);
+        }
+      } catch (e) {
+        TenrxLibraryLogger.error(
+          `Error occurred when loading product category with '${this.id}' and visit Id: '${this.treatmentTypeId}':`,
+          e,
+        );
+        throw new TenrxLoadError(
+          `Error while attempting to load product category with '${this.id}' and visit Id: '${this.treatmentTypeId}'.`,
+          'TenrxVisitType',
+          e,
+        );
+      }
+      this.loaded = true;
+    } else {
+      TenrxLibraryLogger.warn(
+        `Product Category with '${this.id}' and visit Id: '${this.treatmentTypeId}' has already been loaded.`,
+      );
+    }
+    return this;
+  }
+
+  /**
+   * Gets the products for this category.
+   *
+   * @readonly
+   * @type {TenrxProduct[]}
+   * @memberof TenrxProductCategory
+   */
+  public get products(): TenrxProduct[] {
+    if (this.loaded) {
+      return this.internalProducts;
+    } else {
+      TenrxLibraryLogger.error(
+        `Product Category with '${this.id}' and visit Id: '${this.treatmentTypeId}' has not been loaded yet.`,
+      );
+      throw new TenrxNotLoaded('Product Category has not been loaded yet.', 'TenrxProductCategory');
+    }
+  }
+
+  /**
+   * Gets the product categories by visit type id.
    *
    * @static
-   * @param {number} id - The id of the product category.
+   * @param {number} id - The id of the visit type where the category belongs.
    * @param {string} [language='en'] - The language to be used to create the instance.
    * @param {*} [apiEngine=useTenrxApi()] - The api engine to be used to create the instance.
    * @return {*}  {(Promise<TenrxProductCategory[] | null>)} - The product categories by id.
    * @memberof TenrxProductCategory
    */
-  public static async getProductCategory(
-    id: number,
+  public static async getProductCategories(
+    visitId: number,
     language = 'en',
     apiEngine = useTenrxApi(),
   ): Promise<TenrxProductCategory[] | null> {
-    TenrxLibraryLogger.silly('TenrxVisitType.GetProductCatagory() Started');
+    TenrxLibraryLogger.silly('TenrxVisitType.getProductCategories() Started');
     if (apiEngine == null) {
       TenrxLibraryLogger.fatal('TenrxApiEngine is not initialized.');
       return null;
     }
     const result: TenrxProductCategory[] = [];
     TenrxLibraryLogger.info('Retrieving product categories types.');
-    const response = await apiEngine.getProductCategory(id);
+    const response = await apiEngine.getProductCategories(visitId);
     if (response.status === 200) {
-      TenrxLibraryLogger.debug('GetProductCategory() Response: ', response.content);
+      TenrxLibraryLogger.debug('getProductCategories() Response: ', response.content);
       const content = response.content as { data: TenrxProductCategoryAPIModel[] };
       if (content) {
         if (content.data) {
@@ -135,7 +203,7 @@ export default class TenrxProductCategory {
         return null;
       }
     } else {
-      TenrxLibraryLogger.error('GetProductCategory() Error: ', response.error);
+      TenrxLibraryLogger.error('getProductCategories() Error: ', response.error);
       return null;
     }
   }

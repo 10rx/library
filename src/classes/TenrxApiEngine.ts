@@ -279,19 +279,19 @@ export default class TenrxApiEngine {
   }
 
   /**
-   * Gets the product category by id.
+   * Gets the product category by visit Id.
    *
-   * @param {number} id - The id of the product category
+   * @param {number} visitId - The id of the product category
    * @return {*}  {Promise<TenrxApiResult>} - The result of the product category API call.
    * @memberof TenrxApiEngine
    */
-  async getProductCategory(id: number): Promise<TenrxApiResult> {
+  async getProductCategories(visitId: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the product category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
         // This is due to the API requiring this value to be like this.
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        Id: id.toString(),
+        Id: visitId.toString(),
       });
       return response;
     } catch (error) {
@@ -306,23 +306,23 @@ export default class TenrxApiEngine {
   }
 
   /**
-   * Gets the gender category by id.
+   * Gets the gender category by visit Id.
    *
-   * @param {number} id
+   * @param {number} visitId
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async getGenderCategory(id: number): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.silly('Getting all the Gender catagory from API');
+  async getGenderCategories(visitId: number): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting all the Gender category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
         // This is due to the API requiring this value to be like this.
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        Id: id.toString(),
+        Id: visitId.toString(),
       });
       return response;
     } catch (error) {
-      TenrxLibraryLogger.error('GetGenderCategory() Error: ', error);
+      TenrxLibraryLogger.error('getGenderCategories() Error: ', error);
       const response: TenrxApiResult = {
         status: 0,
         content: null,
@@ -349,31 +349,32 @@ export default class TenrxApiEngine {
    */
   async getTreatmentProductList(
     treatmentTypeId: number,
-    productId: number,
-    genderId: number,
-    searchKey: string,
-    isWebRequest: boolean,
-    pageNumber: number,
-    pageSize: number,
-    sortColumn: string,
-    sortOrder: string,
+    categoryId = 0,
+    productId = 0,
+    genderId = 0,
+    searchKey = '',
+    isWebRequest = true,
+    pageNumber = 1,
+    pageSize = 10,
+    sortColumn = '',
+    sortOrder = '',
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the Treatment ProductList from API');
     try {
-      const response = await this.get(`${this.baseapi}/Product/getTreatmentProductList`, {
+      const response = await this.post(`${this.baseapi}/Login/getTreatmentProductList`, {
         // This is due to the API requiring this value to be like this.
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        TreatmentTypeId: treatmentTypeId.toString(),
-        productId: productId.toString(),
-        genderId: genderId.toString(),
+        treatmentTypeId,
+        categoryId,
+        productId,
+        genderId,
         searchKey,
-        isWebRequest: isWebRequest.toString(),
-        pageNumber: pageNumber.toString(),
-        pageSize: pageSize.toString(),
-        sortColumn: sortColumn.toString(),
-        sortOrder: sortOrder.toString(),
+        isWebRequest,
+        pageNumber,
+        pageSize,
+        sortColumn,
+        sortOrder,
       });
-
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('getTreatmentProductList() Error: ', error);

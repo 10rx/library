@@ -5,6 +5,8 @@ export { TenrxLibraryLogger } from './includes/TenrxLogging.js';
 export { default as TenrxApiEngine } from './classes/TenrxApiEngine.js';
 export { default as TenrxVisitType } from './classes/TenrxVisitType.js';
 export { default as TenrxProductCategory } from './classes/TenrxProductCategory.js';
+export { default as TenrxGenderCategory } from './classes/TenrxGenderCategory.js';
+export { default as TenrxProduct } from './classes/TenrxProduct.js';
 export { default as TenrxLogger } from './classes/TenrxLogger.js';
 
 // Types
@@ -19,6 +21,8 @@ export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
 export { default as TenrxNotInitialized } from './exceptions/TenrxNotInitialized.js';
 export { default as TenrxAccessTokenExpired } from './exceptions/TenrxAccessTokenExpired.js';
 export { default as TenrxAccessTokenInvalid } from './exceptions/TenrxAccessTokenInvalid.js';
+export { default as TenrxNotLoaded } from './exceptions/TenrxNotLoaded.js';
+export { default as TenrxLoadError } from './exceptions/TenrxLoadError.js';
 
 // The following is needed to get rid of warnings when creating documentation. The following are documented in swagger.
 // TODO: add links to swagger.

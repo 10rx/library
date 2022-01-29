@@ -87,13 +87,13 @@ test('Login API Test Success', async () => {
   expect(tenrx.isAuthenticated).toBe(true);
 });
 
-test('ProductCategory Test', async () => {
-  const response = await tenrx.getProductCategory(1);
+test('ProductCategories Test', async () => {
+  const response = await tenrx.getProductCategories(1);
   expect(response).not.toBeNull();
 });
 
 test('Gender Category Test', async () => {
-  const response = await tenrx.getGenderCategory(3);
+  const response = await tenrx.getGenderCategories(3);
   expect(response).not.toBeNull();
 });
 

@@ -13,11 +13,12 @@ test('Product End to End Successful', async () => {
   expect(visitTypes).not.toBeNull();
   expect(visitTypes!.length).toBeGreaterThan(0);
   if (visitTypes) {
+    expect(visitTypes!.length).toBeGreaterThanOrEqual(0);
     for (const visitType of visitTypes) {
-      Testlogger.info('Getting categories for Visit Type:', visitType.visitType);
-      const products = await TenrxProductCategory.getProductCategory(visitType.id);
-      expect(products).not.toBeNull();
-      Testlogger.debug('Products Category:', products);
+      await visitType.load();
+      for (const productCategory of visitType.productCategories) {
+          await productCategory.load();
+      }
     }
   }
 });
