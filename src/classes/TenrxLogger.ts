@@ -35,6 +35,7 @@ export default class TenrxLogger {
           type: 'hidden',
           maskValuesOfKeys: ['access_token', 'authorization', 'password', 'Authorization'],
           maskPlaceholder: '********',
+          ignoreStackLevels: 4,
         };
   }
 

@@ -8,4 +8,5 @@ export const TenrxLibraryLogger = new TenrxLogger({
   type: 'hidden',
   maskValuesOfKeys: ['access_token', 'authorization', 'password', 'Authorization'],
   maskPlaceholder: '********',
+  ignoreStackLevels: 4,
 });
