@@ -26,7 +26,6 @@ export default class TenrxLogger {
    * @memberof TenrxLogger
    */
   public constructor(settings?: ISettingsParam) {
-    this.internalLogger = isBrowser ? null : new Logger(settings);
     this.internalSettings = settings
       ? settings
       : {
@@ -35,8 +34,8 @@ export default class TenrxLogger {
           type: 'hidden',
           maskValuesOfKeys: ['access_token', 'authorization', 'password', 'Authorization'],
           maskPlaceholder: '********',
-          ignoreStackLevels: 4,
         };
+    this.internalLogger = isBrowser ? null : new Logger({ignoreStackLevels: 4, ...this.internalSettings,});
   }
 
   /**
