@@ -12,20 +12,124 @@ import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
  * @class TenrxProduct
  */
 export default class TenrxProduct {
+  /**
+   * Contains the id of the product.
+   *
+   * @type {number}
+   * @memberof TenrxProduct
+   */
   id: number;
+
+  /**
+   * Contains the category id of the product.
+   *
+   * @type {number}
+   * @memberof TenrxProduct
+   */
   categoryId: number;
+
+  /**
+   * Returns true if the product is active. Otherwise, returns false.
+   *
+   * @type {boolean}
+   * @memberof TenrxProduct
+   */
   active: boolean;
+
+  /**
+   * Returns true if the product is a rx and requires prescription. Otherwise, returns false.
+   *
+   * @type {boolean}
+   * @memberof TenrxProduct
+   */
   rx: boolean;
+
+  /**
+   * Contains the visit type id of the product.
+   *
+   * @type {number}
+   * @memberof TenrxProduct
+   */
   treatmentTypeId: number;
+
+  /**
+   * Contains the gender id of the product.
+   *
+   * @type {number}
+   * @memberof TenrxProduct
+   */
   genderId: number;
+
+  /**
+   * Contains the name of the product.
+   *
+   * @type {string}
+   * @memberof TenrxProduct
+   */
   name: string;
-  photoPath: string;
+
+  /**
+   * Contains the path(s) of the picture(s) of the product.
+   *
+   * @type {(string | string[])}
+   * @memberof TenrxProduct
+   */
+  photoPath: string | string[];
+
+  /**
+   * Contains the default price of the product.
+   *
+   * @type {string}
+   * @memberof TenrxProduct
+   */
   defaultPrice: string;
+
+  /**
+   * Returns true if the product has been loaded completely from the api. Otherwise, returns false.
+   *
+   * @type {boolean}
+   * @memberof TenrxProduct
+   */
   loaded: boolean;
+
+  /**
+   * Contains the description of the product.
+   *
+   * @type {string}
+   * @memberof TenrxProduct
+   */
   description: string;
+
+  /**
+   * Contains the precautions of the product.
+   *
+   * @type {string}
+   * @memberof TenrxProduct
+   */
   precautions: string;
+
+  /**
+   * Contains the actual selling price of the product.
+   *
+   * @type {string}
+   * @memberof TenrxProduct
+   */
   sellingPrice: string;
+
+  /**
+   * Returns true if the product is out of stock. Otherwise, returns false.
+   *
+   * @type {boolean}
+   * @memberof TenrxProduct
+   */
   outOfStock: boolean;
+
+  /**
+   * Contains the strength levels of the product if any. Otherwise, an empty array is returned.
+   *
+   * @type {TenrxMedicationStrength[]}
+   * @memberof TenrxProduct
+   */
   strengthLevels: TenrxMedicationStrength[];
 
   /**
@@ -100,7 +204,9 @@ export default class TenrxProduct {
             message: string;
           };
           if (content) {
-            if (this.id === 2330) { TenrxLibraryLogger.info(`Product failing ${this.id} with name ${this.name}:`, content) }
+            if (this.id === 2330) {
+              TenrxLibraryLogger.info(`Product failing ${this.id} with name ${this.name}:`, content);
+            }
             if (content.statusCode === 200) {
               const data = content.data;
               if (data) {
@@ -182,8 +288,30 @@ export default class TenrxProduct {
       ? Number(this.sellingPrice)
       : Number(this.defaultPrice);
   }
-  /*
-    public static async getProductByID(id: number):Promise<TenrxProduct | null> {
-        
-    } */
+
+  /**
+   * Gets an instance of a {TenrxProduct} with the given id.
+   *
+   * @static
+   * @param {number} id
+   * @param {string} [language='en']
+   * @param {*} [apiEngine=useTenrxApi()]
+   * @return {*}  {(Promise<TenrxProduct | null>)}
+   * @memberof TenrxProduct
+   */
+  public static async getProductByID(
+    id: number,
+    language = 'en',
+    apiEngine = useTenrxApi(),
+  ): Promise<TenrxProduct | null> {
+    const product = new TenrxProduct(null, language, false, apiEngine);
+    product.id = id;
+    try {
+      await product.load(language, apiEngine);
+      return product;
+    } catch (e) {
+      TenrxLibraryLogger.error(`Error while attempting to load product with id: '${id}'.`, e);
+      return null;
+    }
+  }
 }
