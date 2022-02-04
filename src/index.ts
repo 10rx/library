@@ -15,6 +15,7 @@ export { default as TenrxLoginResponseData } from './types/TenrxLoginResponseDat
 export { default as TenrxLoginSecurityQuestion } from './types/TenrxLoginSecurityQuestion.js';
 export { default as TenrxLoginSecurityQuestionAnswer } from './types/TenrxLoginSecurityQuestionAnswer.js';
 export { default as TenrxRegistrationFormData } from './types/TenrxRegistrationFormData.js';
+export { default as TenrxMedicationStrength } from './types/TenrxMedicationStrength.js';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -44,4 +45,8 @@ export {
   logoutTenrx,
   saveSecurityQuestionAnswers,
   registerUser,
+  isBrowser,
+  isNode,
+  isWebWorker,
+  isJsDom,
 } from './includes/TenrxFunctions.js';

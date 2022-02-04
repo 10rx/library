@@ -4,6 +4,7 @@ import TenrxProductCategoryAPIModel from '../apiModel/TenrxProductCategoryAPIMod
 import TenrxProduct from './TenrxProduct.js';
 import TenrxNotLoaded from '../exceptions/TenrxNotLoaded.js';
 import TenrxLoadError from '../exceptions/TenrxLoadError.js';
+import TenrxTreatmentProductListAPIModel from '../apiModel/TenrxTreatmentProductListAPIModel.js';
 
 /**
  * Represents a Tenrx Product Category
@@ -82,9 +83,11 @@ export default class TenrxProductCategory {
    *
    * @param {TenrxProductCategoryAPIModel} data - The data to be used to create the instance.
    * @param {string} [language='en'] - The language to be used to create the instance.
+   * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to be used to create the instance.
    * @memberof TenrxProductCategory
+   * @throws {TenrxLoadError} - Throws an error if the instance could not be created.
    */
-  constructor(data: TenrxProductCategoryAPIModel, language = 'en') {
+  constructor(data: TenrxProductCategoryAPIModel, language = 'en', load = false, apiEngine = useTenrxApi()) {
     this.id = data.id;
     this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
     this.treatmentTypeId = data.treatmentTypeId;
@@ -94,6 +97,15 @@ export default class TenrxProductCategory {
     this.loaded = false;
     this.productCatagories = [];
     this.internalProducts = [];
+    if (load) {
+      this.load(language, apiEngine).catch((e) => {
+        throw new TenrxLoadError(
+          `Error while attempting to load product category with '${this.id}' and visit Id: '${this.treatmentTypeId}'.`,
+          'TenrxVisitType',
+          e,
+        );
+      });
+    }
     if (data.productCategories) {
       data.productCategories.forEach((element) => {
         this.productCatagories.push(new TenrxProductCategory(element, language));
@@ -102,18 +114,39 @@ export default class TenrxProductCategory {
   }
 
   /**
-   * Loads the products for this category.
+   * Loads the products for this category
    *
-   * @param {*} [apiEngine=useTenrxApi()]
-   * @return {*}
+   * @param {string} [language='en'] - The language to be used to load the instance.
+   * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to be used to load the instance.
+   * @return {TenrxProductCategory} - The same instance after it has been loaded.
    * @memberof TenrxProductCategory
+   * @throws {TenrxLoadError} - Throws an error if the instance could not be loaded.
    */
-  public async load(apiEngine = useTenrxApi()) {
+  public async load(language = 'en', apiEngine = useTenrxApi()) {
     if (!this.loaded) {
+      TenrxLibraryLogger.info(`Loading product category with '${this.id}' and visit Id: '${this.treatmentTypeId}'`);
       try {
         const response = await apiEngine.getTreatmentProductList(this.treatmentTypeId, this.id);
         if (response.status === 200) {
           TenrxLibraryLogger.debug('getProductCategories() Response: ', response.content);
+          const content = response.content as { data: TenrxTreatmentProductListAPIModel[] };
+          if (content.data) {
+            content.data.forEach((element) => {
+                try {
+                    this.internalProducts.push(new TenrxProduct(element, language));
+                } catch (e) {
+                    TenrxLibraryLogger.error(`Error while attempting to load product with '${element.id}':`, e);
+                }
+            });
+            this.loaded = true;
+            TenrxLibraryLogger.info(
+              `A total of '${this.internalProducts.length}' products were loaded for product category with '${this.id}' and visit Id: '${this.treatmentTypeId}'`,
+            );
+          } else {
+            TenrxLibraryLogger.info(
+              `No products found for product category with '${this.id}' and visit Id: '${this.treatmentTypeId}'`,
+            );
+          }
         } else {
           TenrxLibraryLogger.error('getProductCategories() Error: ', response.error);
         }
@@ -143,6 +176,7 @@ export default class TenrxProductCategory {
    * @readonly
    * @type {TenrxProduct[]}
    * @memberof TenrxProductCategory
+   * @throws {TenrxNotLoaded} - Throws an error if the instance has not been loaded.
    */
   public get products(): TenrxProduct[] {
     if (this.loaded) {

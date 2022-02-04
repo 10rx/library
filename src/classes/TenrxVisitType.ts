@@ -91,11 +91,13 @@ export default class TenrxVisitType {
   /**
    * Creates an instance of TenrxVisitType.
    *
-   * @param {TenrxVisitTypeAPIModel} data
-   * @param {string} [language='en']
+   * @param {TenrxVisitTypeAPIModel} data - The data to initialize the visit type with.
+   * @param {string} [language='en'] - The language to use for the visit type.
+   * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to use.
    * @memberof TenrxVisitType
+   * @throws {TenrxLoadError} - If the visit type could not be loaded.
    */
-  constructor(data: TenrxVisitTypeAPIModel, language = 'en', load = false) {
+  constructor(data: TenrxVisitTypeAPIModel, language = 'en', load = false, apiEngine = useTenrxApi()) {
     this.loaded = false;
     this.id = data.id;
     this.visitType = language === 'en' ? data.visitType : language === 'es' ? data.visitTypeEs : data.visitType;
@@ -112,9 +114,14 @@ export default class TenrxVisitType {
     this.internalProductCategories = [];
     this.internalGenderCategories = [];
     if (load) {
-      this.load().catch((e) => {
+      this.load(language, apiEngine).catch((e) => {
         TenrxLibraryLogger.error(
           `Error while attemping to load visit type with id '${this.id}' and type: '${this.visitType}' in constructor. Exception:`,
+          e,
+        );
+        throw new TenrxLoadError(
+          `Error while attemping to load visit type with id '${this.id}' and type: '${this.visitType}' in constructor. Exception:`,
+          'TenrxVisitType',
           e,
         );
       });
@@ -168,6 +175,7 @@ export default class TenrxVisitType {
       try {
         const responseCat = await TenrxProductCategory.getProductCategories(this.id, language, apiEngine);
         this.internalProductCategories = responseCat ? responseCat : [];
+        this.loaded = true;
       } catch (e) {
         TenrxLibraryLogger.error(
           `Error occurred when loading visit type with '${this.id}' and type: '${this.visitType}':`,
