@@ -221,9 +221,7 @@ export default class TenrxApiEngine {
               this.expiresIn = content.expires_in;
               this.expireDateStart = Date.now();
               TenrxLibraryLogger.silly(
-                'Login() Updated Access Token in API Engine: ',
-                this.accesstoken,
-                ' Expires In: ',
+                'Login() Updated Access Token in API Engine: ******* Expires In: ',
                 this.expiresIn,
               );
             } else {
