@@ -79,6 +79,22 @@ export default class TenrxProductCategory {
   loaded: boolean;
 
   /**
+   * Gets the short description of the product category.
+   *
+   * @type {string}
+   * @memberof TenrxProductCategory
+   */
+  shortDescription: string;
+
+  /**
+   * Gets the description of the product category.
+   *
+   * @type {string}
+   * @memberof TenrxProductCategory
+   */
+  description: string;
+
+  /**
    * Creates an instance of TenrxProductCategory.
    *
    * @param {TenrxProductCategoryAPIModel} data - The data to be used to create the instance.
@@ -97,6 +113,8 @@ export default class TenrxProductCategory {
     this.loaded = false;
     this.productCatagories = [];
     this.internalProducts = [];
+    this.shortDescription = (data.shortDescription) ? data.shortDescription : '';
+    this.description = (data.description) ? data.description : '';
     if (load) {
       this.load(language, apiEngine).catch((e) => {
         throw new TenrxLoadError(
@@ -132,11 +150,11 @@ export default class TenrxProductCategory {
           const content = response.content as { data: TenrxTreatmentProductListAPIModel[] };
           if (content.data) {
             content.data.forEach((element) => {
-                try {
-                    this.internalProducts.push(new TenrxProduct(element, language));
-                } catch (e) {
-                    TenrxLibraryLogger.error(`Error while attempting to load product with '${element.id}':`, e);
-                }
+              try {
+                this.internalProducts.push(new TenrxProduct(element, language));
+              } catch (e) {
+                TenrxLibraryLogger.error(`Error while attempting to load product with '${element.id}':`, e);
+              }
             });
             this.loaded = true;
             TenrxLibraryLogger.info(

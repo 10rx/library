@@ -7,4 +7,6 @@ export default interface TenrxProductCategoryAPIModel {
   visitTypeCategoryId: number;
   photoPath: string;
   productCategories: TenrxProductCategoryAPIModel[];
+  shortDescription?: string;
+  description?: string;
 }
