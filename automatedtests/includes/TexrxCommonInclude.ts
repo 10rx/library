@@ -1,4 +1,5 @@
 import { initializeTenrx, TenrxApiEngine, TenrxLibraryLogger } from '../../src/index.js';
+import TenrxFileStorage from './TenrxFileStorage.js';
 
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
 export const TEST_API_BASE_URL = 'https://10rxapi.csscloudservices.com';
@@ -17,7 +18,7 @@ TenrxLibraryLogger.setSettings({
   minLevel: 'warn',
 });
 
-if (!TenrxApiEngine.isInstanceInitialized()) initializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL);
+if (!TenrxApiEngine.isInstanceInitialized()) initializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL, new TenrxFileStorage());
 
 export const Testlogger = TenrxLibraryLogger;
 

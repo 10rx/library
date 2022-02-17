@@ -8,6 +8,7 @@ export { default as TenrxProductCategory } from './classes/TenrxProductCategory.
 export { default as TenrxGenderCategory } from './classes/TenrxGenderCategory.js';
 export { default as TenrxProduct } from './classes/TenrxProduct.js';
 export { default as TenrxLogger } from './classes/TenrxLogger.js';
+export { default as TenrxStorage } from './classes/TenrxStorage.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -16,6 +17,7 @@ export { default as TenrxLoginSecurityQuestion } from './types/TenrxLoginSecurit
 export { default as TenrxLoginSecurityQuestionAnswer } from './types/TenrxLoginSecurityQuestionAnswer.js';
 export { default as TenrxRegistrationFormData } from './types/TenrxRegistrationFormData.js';
 export { default as TenrxMedicationStrength } from './types/TenrxMedicationStrength.js';
+export { TenrxStorageScope } from './classes/TenrxStorage.js';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -40,6 +42,7 @@ export {
   initializeTenrx,
   useTenrxApi,
   useTenrxLogger,
+  useTenrxStorage,
   authenticateTenrx,
   checkIfEmailExists,
   logoutTenrx,

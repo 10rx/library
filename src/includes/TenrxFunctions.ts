@@ -19,6 +19,7 @@ import TenrxCheckIfEmailExistAPIModel from '../apiModel/TenrxCheckIfEmailExistAP
 import TenrxQuestionAPIModel from '../apiModel/TenrxQuestionAPIModel.js';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 import { ISettingsParam } from 'tslog';
+import TenrxStorage from '../classes/TenrxStorage.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -27,7 +28,7 @@ import { ISettingsParam } from 'tslog';
  * @param {string} baseapi - The base api to be used when creating the instance.
  * @param {ISettingsParam} [loggerSetting] - The settings for the logger.
  */
-export const initializeTenrx = (businesstoken: string, baseapi: string, loggerSettings?: ISettingsParam): void => {
+export const initializeTenrx = (businesstoken: string, baseapi: string, storage: TenrxStorage, loggerSettings?: ISettingsParam): void => {
   TenrxLibraryLogger.info('Initializing Tenrx...');
   TenrxApiEngine.initialize(businesstoken, baseapi);
   // eslint-disable-next-line import/no-named-as-default-member
@@ -44,6 +45,7 @@ export const initializeTenrx = (businesstoken: string, baseapi: string, loggerSe
           type: 'hidden',
         },
   );
+  TenrxStorage.initialize(storage);
   TenrxLibraryLogger.info('Initialization successful.');
 };
 
@@ -64,6 +66,15 @@ export const useTenrxApi = (): TenrxApiEngine => {
 export const useTenrxLogger = (): TenrxLogger => {
   return TenrxLogger.instance;
 };
+
+/**
+ * This function retrieves the TenrxStorage single instance. It is used when there is no need to have multiple instances of the TenrxStorage.
+ *
+ * @return {*}  {TenrxStorage}
+ */
+export const useTenrxStorage = (): TenrxStorage => {
+  return TenrxStorage.instance;
+}
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
