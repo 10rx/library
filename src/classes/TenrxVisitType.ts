@@ -89,6 +89,22 @@ export default class TenrxVisitType {
   loaded: boolean;
 
   /**
+   * Gets the short description of the visit type.
+   *
+   * @type {string}
+   * @memberof TenrxVisitType
+   */
+  shortDescription: string;
+
+  /**
+   * Gets the description of the visit type.
+   *
+   * @type {string}
+   * @memberof TenrxVisitType
+   */
+  description: string;
+
+  /**
    * Creates an instance of TenrxVisitType.
    *
    * @param {TenrxVisitTypeAPIModel} data - The data to initialize the visit type with.
@@ -106,6 +122,8 @@ export default class TenrxVisitType {
     this.level = data.level;
     this.photoPath = data.photoPath;
     this.visitTypeListings = [];
+    this.shortDescription = (data.shortDescription) ? data.shortDescription : '';
+    this.description = (data.description) ? data.description : '';
     if (data.visitTypeListings) {
       for (const visitTypeListing of data.visitTypeListings) {
         this.visitTypeListings.push(new TenrxVisitType(visitTypeListing, language));
