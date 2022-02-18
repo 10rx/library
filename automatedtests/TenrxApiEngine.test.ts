@@ -9,6 +9,7 @@ import {
 } from './includes/TexrxCommonInclude.js';
 import { TenrxApiEngine, useTenrxApi } from '../src/index.js';
 import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel.js';
+import TenrxQuestionAPIModel from '../src/apiModel/TenrxQuestionAPIModel.js';
 
 Testlogger.setSettings({
   type: 'pretty',
@@ -61,7 +62,7 @@ test('Login API Test Security Question', async () => {
   expect(content.statusCode).toBe(200);
   expect(content.access_token).toBeNull();
   expect(content.data).not.toBeNull();
-  const data = content.data as any[];
+  const data = content.data as TenrxQuestionAPIModel[];
   expect(data.length).toBeGreaterThan(0);
   expect(content.message).not.toBeNull();
   expect(content.message.length).toBeGreaterThan(0);

@@ -16,10 +16,10 @@ import TenrxServerError from '../exceptions/TenrxServerError.js';
 
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxCheckIfEmailExistAPIModel from '../apiModel/TenrxCheckIfEmailExistAPIModel.js';
-import TenrxQuestionAPIModel from '../apiModel/TenrxQuestionAPIModel.js';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 import { ISettingsParam } from 'tslog';
 import TenrxStorage from '../classes/TenrxStorage.js';
+import TenrxUserAccount from '../classes/TenrxUserAccount.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -87,6 +87,15 @@ export const useTenrxStorage = (): TenrxStorage => {
   return TenrxStorage.instance;
 };
 
+/**
+ * This functions retrieves the TenrxUserAccount single instance. It is used when there is no need to have multiple instances of the TenrxUserAccount.
+ *
+ * @return {*}  {TenrxUserAccount}
+ */
+export const useTenrxUserAccount = (): TenrxUserAccount => {
+  return TenrxUserAccount.instance;
+};
+
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
 
@@ -150,7 +159,7 @@ export const authenticateTenrx = async (
               loginresponse.securityQuestions = [];
               for (const rawquestion of content.data) {
                 const securityquestion: TenrxLoginSecurityQuestion = {} as TenrxLoginSecurityQuestion;
-                const question = rawquestion as TenrxQuestionAPIModel;
+                const question = rawquestion;
                 securityquestion.id = question.id;
                 securityquestion.question = question.question;
                 securityquestion.value = question.value;
