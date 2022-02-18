@@ -140,6 +140,7 @@ export default class TenrxProduct {
    * @param {boolean} [load=false] - Indicates if the product should be loaded from api.
    * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to be used to load the instance.
    * @memberof TenrxProduct
+   * @throws {TenrxLoadError} - Throws an error if the product is not loaded.
    */
   constructor(
     data: TenrxTreatmentProductListAPIModel | null,
@@ -189,8 +190,9 @@ export default class TenrxProduct {
    * Loads the product from the api.
    *
    * @param {string} [language='en']
-   * @param {*} [apiEngine=useTenrxApi()]
+   * @param {*} [apiEngine=useTenrxApi()]   
    * @memberof TenrxProduct
+   * @throws {TenrxLoadError} - Throws an error if the product could not be loaded.
    */
   public async load(language = 'en', apiEngine = useTenrxApi()) {
     if (!this.loaded) {
