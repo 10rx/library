@@ -65,6 +65,12 @@ export default class TenrxUserAccount {
    */
   photoPath: string;
 
+  /**
+   * Creates an instance of TenrxUserAccount.
+   * 
+   * @param {TenrxLoginAPIModelData} data - The data to be used to create the instance.
+   * @memberof TenrxUserAccount
+   */
   constructor(data: TenrxLoginAPIModelData) {
     this.id = data.userID;
     this.patientId = data.id;
