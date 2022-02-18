@@ -26,9 +26,17 @@ import TenrxStorage from '../classes/TenrxStorage.js';
  *
  * @param {string} businesstoken - The business token to be used when creating the instance.
  * @param {string} baseapi - The base api to be used when creating the instance.
+ * @param {TenrxStorage} storage - The storage to be used when creating the instance.
+ * @param {(theStorage: TenrxStorage) => void} [onInit] - The callback to be called after the instance is initialized.
  * @param {ISettingsParam} [loggerSetting] - The settings for the logger.
  */
-export const initializeTenrx = (businesstoken: string, baseapi: string, storage: TenrxStorage, loggerSettings?: ISettingsParam): void => {
+export const initializeTenrx = (
+  businesstoken: string,
+  baseapi: string,
+  storage: TenrxStorage,
+  onInit?: (theStorage: TenrxStorage) => void,
+  loggerSettings?: ISettingsParam,
+): void => {
   TenrxLibraryLogger.info('Initializing Tenrx...');
   TenrxApiEngine.initialize(businesstoken, baseapi);
   // eslint-disable-next-line import/no-named-as-default-member
@@ -46,6 +54,9 @@ export const initializeTenrx = (businesstoken: string, baseapi: string, storage:
         },
   );
   TenrxStorage.initialize(storage);
+  if (onInit) {
+    onInit(TenrxStorage.instance);
+  }
   TenrxLibraryLogger.info('Initialization successful.');
 };
 
@@ -74,7 +85,7 @@ export const useTenrxLogger = (): TenrxLogger => {
  */
 export const useTenrxStorage = (): TenrxStorage => {
   return TenrxStorage.instance;
-}
+};
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
