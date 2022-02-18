@@ -50,6 +50,22 @@ export default class TenrxGenderCategory {
   genderCategories: TenrxGenderCategory[];
 
   /**
+   * Gets the short description of the gender category.
+   *
+   * @type {string}
+   * @memberof TenrxGenderCategory
+   */
+  shortDescription: string;
+
+  /**
+   * Gets the description of the gender category.
+   *
+   * @type {string}
+   * @memberof TenrxGenderCategory
+   */
+  description: string;
+
+  /**
    * Creates an instance of TenrxGenderCategory.
    *
    * @param {TenrxGenderCategoryAPIModel} data - The data to be used to create the instance.
@@ -62,6 +78,8 @@ export default class TenrxGenderCategory {
     this.treatmentTypeId = data.treatmentTypeId;
     this.photoPath = data.photoPath;
     this.genderCategories = [];
+    this.shortDescription = (data.shortDescription) ? data.shortDescription : '';
+    this.description = (data.description) ? data.description : '';
     if (data.genderCategories) {
       data.genderCategories.forEach((element) => {
         this.genderCategories.push(new TenrxGenderCategory(element, language));

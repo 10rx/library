@@ -7,4 +7,6 @@ export default interface TenrxGenderCategoryAPIModel {
   visitTypeCategoryId: number;
   photoPath: string;
   genderCategories: TenrxGenderCategoryAPIModel[];
+  shortDescription?: string;
+  description?: string;
 }
