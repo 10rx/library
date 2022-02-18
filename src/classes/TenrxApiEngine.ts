@@ -714,9 +714,19 @@ export default class TenrxApiEngine {
    * @static
    * @param {string} businesstoken - The business token to use for the API engine
    * @param {string} baseapi - The base api url to use for the API engine
+   * @param {string} [accessToken] - The access token to use for the API engine
+   * @param {number} [expireDateStart] - The expire date start of the token to use for the API engine
+   * @param {number} [expiresIn] - The expires in date time in seconds of the token.
+   * @return {*}  {void}
    * @memberof TenrxApiEngine
    */
-  public static initialize(businesstoken: string, baseapi: string): void {
+  public static initialize(
+    businesstoken: string,
+    baseapi: string,
+    accessToken?: string,
+    expireDateStart?: number,
+    expiresIn?: number,
+  ): void {
     // eslint-disable-next-line no-underscore-dangle
     if (TenrxApiEngine._instance !== null) {
       TenrxLibraryLogger.warn('TenrxApiEngine is already initialized. Call TenrxApiEngine.Initialize() only once.');
@@ -724,6 +734,12 @@ export default class TenrxApiEngine {
     }
     // eslint-disable-next-line no-underscore-dangle
     TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi);
+    // eslint-disable-next-line no-underscore-dangle
+    TenrxApiEngine._instance.accesstoken = accessToken ? accessToken : '';
+    // eslint-disable-next-line no-underscore-dangle
+    TenrxApiEngine._instance.expireDateStart = expireDateStart ? expireDateStart : 0;
+    // eslint-disable-next-line no-underscore-dangle
+    TenrxApiEngine._instance.expiresIn = expiresIn ? expiresIn : 0;
   }
 
   /**
