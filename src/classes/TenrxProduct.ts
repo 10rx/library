@@ -331,6 +331,7 @@ export default class TenrxProduct {
     apiEngine = useTenrxApi(),
   ): Promise<TenrxTreatmentProductListAPIModel[] | null> {
     try {
+      TenrxLibraryLogger.info('Getting all products.');
       const response = await apiEngine.getTreatmentProductList(0, 0, 0, 0, '', true, 1, 500, '', '', language);
       if (response.status === 200) {
         if (response.content) {
