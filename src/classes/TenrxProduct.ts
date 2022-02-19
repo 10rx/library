@@ -190,7 +190,7 @@ export default class TenrxProduct {
    * Loads the product from the api.
    *
    * @param {string} [language='en']
-   * @param {*} [apiEngine=useTenrxApi()]   
+   * @param {*} [apiEngine=useTenrxApi()]
    * @memberof TenrxProduct
    * @throws {TenrxLoadError} - Throws an error if the product could not be loaded.
    */
@@ -313,6 +313,46 @@ export default class TenrxProduct {
       return product;
     } catch (e) {
       TenrxLibraryLogger.error(`Error while attempting to load product with id: '${id}'.`, e);
+      return null;
+    }
+  }
+
+  /**
+   * Gets all products from the API.
+   *
+   * @static
+   * @param {string} [language='en'] - The language to use for the product names.
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {(Promise<TenrxTreatmentProductListAPIModel[] | null>)}
+   * @memberof TenrxProduct
+   */
+  public static async getAllProducts(
+    language = 'en',
+    apiEngine = useTenrxApi(),
+  ): Promise<TenrxTreatmentProductListAPIModel[] | null> {
+    try {
+      const response = await apiEngine.getTreatmentProductList(0, 0, 0, 0, '', true, 1, 500, '', '', language);
+      if (response.status === 200) {
+        if (response.content) {
+          const content = response.content as {
+            data: TenrxTreatmentProductListAPIModel[];
+          };
+          if (content.data) {
+            return content.data;
+          } else {
+            TenrxLibraryLogger.error(`Error while loading products: No data.`);
+            return null;
+          }
+        } else {
+          TenrxLibraryLogger.error('Error while loading products: response.content is null');
+          return null;
+        }
+      } else {
+        TenrxLibraryLogger.error('Error while loading products:', response.error);
+        return null;
+      }
+    } catch (e) {
+      TenrxLibraryLogger.error('Error while attempting to get all:', e);
       return null;
     }
   }

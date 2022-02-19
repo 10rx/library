@@ -7,6 +7,7 @@ import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired.js';
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
+import TenrxUpdatePatientDetailsAPIModel from '../apiModel/TenrxUpdatePatientDetailsAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -55,6 +56,29 @@ export default class TenrxApiEngine {
       TenrxLibraryLogger.error('RegisterUser() Error: ', error);
       const response: TenrxApiResult = {
         status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Updates the patient details in the API.
+   *
+   * @param {TenrxUpdatePatientDetailsAPIModel} details - The details to update
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async updatePatientDetails(details: TenrxUpdatePatientDetailsAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving patient details to API');
+    try {
+      const response = await this.authPost(`${this.baseapi}/Patients/UpdatePatientDetails`, details);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('updatePatientDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
         content: null,
         error,
       };
@@ -329,19 +353,21 @@ export default class TenrxApiEngine {
       return response;
     }
   }
-
+  
   /**
    * Gets the product list from treatment.
    *
-   * @param {number} treatmentTypeId
-   * @param {number} productId
-   * @param {number} genderId
-   * @param {string} searchKey
-   * @param {boolean} isWebRequest
-   * @param {number} pageNumber
-   * @param {number} pageSize
-   * @param {string} sortColumn
-   * @param {string} sortOrder
+   * @param {number} treatmentTypeId - The id of the treatment type
+   * @param {number} [categoryId=0] - The id of the product category
+   * @param {number} [productId=0] - The id of the product
+   * @param {number} [genderId=0] - The id of the gender
+   * @param {string} [searchKey=''] - The search key to use to find the product
+   * @param {boolean} [isWebRequest=true] - True if the request comes from the website
+   * @param {number} [pageNumber=1] - The page number to get
+   * @param {number} [pageSize=10] - The page size to get
+   * @param {string} [sortColumn=''] - The column to sort by
+   * @param {string} [sortOrder=''] - The order to sort by
+   * @param {string} [language='en'] - The language to use
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
@@ -356,6 +382,7 @@ export default class TenrxApiEngine {
     pageSize = 10,
     sortColumn = '',
     sortOrder = '',
+    language = 'en',
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the Treatment ProductList from API');
     try {
@@ -372,6 +399,7 @@ export default class TenrxApiEngine {
         pageSize,
         sortColumn,
         sortOrder,
+        language,
       });
       return response;
     } catch (error) {
