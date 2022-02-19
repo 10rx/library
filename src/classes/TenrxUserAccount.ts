@@ -1,6 +1,8 @@
 import { TenrxLoginAPIModelData } from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
+import { useTenrxApi } from '../includes/TenrxFunctions.js';
+import TenrxApiEngine from './TenrxApiEngine.js';
 
 /**
  * Represents a Tenrx user account.
@@ -67,7 +69,7 @@ export default class TenrxUserAccount {
 
   /**
    * Creates an instance of TenrxUserAccount.
-   * 
+   *
    * @param {TenrxLoginAPIModelData} data - The data to be used to create the instance.
    * @memberof TenrxUserAccount
    */
@@ -93,7 +95,7 @@ export default class TenrxUserAccount {
     return Object.setPrototypeOf(JSON.parse(data), TenrxUserAccount.prototype) as TenrxUserAccount;
   }
 
-  private static internalInstance: TenrxUserAccount;
+  private static internalInstance: TenrxUserAccount | null;
 
   /**
    * Gets the TenrxUserAccount singleton class.
@@ -129,6 +131,25 @@ export default class TenrxUserAccount {
       TenrxLibraryLogger.warn(
         `TenrxUserAccount has already been initialized. Call TenrxUserAccount.initialize() only once.`,
       );
+    }
+  }
+
+  /**
+   * Logs the user out of the Tenrx system. Returns true if the logout was successful.
+   *
+   * @static
+   * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The TenrxApiEngine to be used.
+   * @return {*}  {Promise<boolean>}
+   * @memberof TenrxUserAccount
+   */
+  public static async logout(apiengine: TenrxApiEngine = useTenrxApi()): Promise<boolean> {
+    const result = await apiengine.logout();
+    if (result.status === 200) {
+      TenrxUserAccount.internalInstance = null;
+      return true;
+    } else {
+      TenrxLibraryLogger.error('TenrxUserAccount(): Error occurred while logging out:', result.error);
+      return false;
     }
   }
 }

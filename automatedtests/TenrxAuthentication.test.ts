@@ -16,7 +16,7 @@ test('Authenticate Test Fail', async () => {
   expect(result).not.toBeNull();
   expect(result.accessToken).toBeNull();
   expect(result.expiresIn).toBeNull();
-  expect(result.accountData).toBeNull();
+  expect(result.accountData).toStrictEqual({});
   expect(result.patientData).toBeNull();
   expect(result.securityQuestions).toBeNull();
   expect(result.error).toBeNull();
@@ -33,7 +33,7 @@ test('Authenticate Test Security Questions', async () => {
   expect(result).not.toBeNull();
   expect(result.accessToken).toBeNull();
   expect(result.expiresIn).toBeNull();
-  expect(result.accountData).toBeNull();
+  expect(result.accountData).toStrictEqual({});
   expect(result.patientData).toBeNull();
   if (result.securityQuestions) {
     expect(result.securityQuestions).not.toBeNull();
@@ -57,7 +57,7 @@ test('Authenticate/Logout Test Success', async () => {
   expect(patientData.emailAddress).toBe(TEST_USERNAME_EXISTS);
   expect(result.securityQuestions).toBeNull();
   expect(result.error).toBeNull();
-  const result2 = await logoutTenrx();
-  expect(result2).not.toBeNull();
-  expect(result2.status).toBe(200);
+  await logoutTenrx((success: boolean) => {
+    expect(success).toBe(true);
+  });
 });

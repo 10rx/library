@@ -1,4 +1,6 @@
-import TenrxLoginSecurityQuestion from './TenrxLoginSecurityQuestion';
+import { TenrxLoginAPIModelData, TenrxLoginAPIModelPatientData } from '../apiModel/TenrxLoginAPIModel.js';
+import TenrxQuestionAPIModel from '../apiModel/TenrxQuestionAPIModel.js';
+import TenrxLoginSecurityQuestion from './TenrxLoginSecurityQuestion.js';
 /**
  * Representation of the Tenrx login response data.
  *
@@ -21,14 +23,14 @@ export default interface TenrxLoginResponseData {
    * @memberof TenrxLoginResponseData
    */
   expiresIn: number | null;
-
+  
   /**
    * The account information of the user.
    *
-   * @type {unknown}
+   * @type {(TenrxLoginAPIModelData | TenrxQuestionAPIModel[] | Record<string, never>)}
    * @memberof TenrxLoginResponseData
    */
-  accountData: unknown;
+  accountData: TenrxLoginAPIModelData | TenrxQuestionAPIModel[] | Record<string, never>;
 
   /**
    *
@@ -41,10 +43,10 @@ export default interface TenrxLoginResponseData {
   /**
    * The data of the patient.
    *
-   * @type {unknown}
+   * @type {(TenrxLoginAPIModelPatientData | null)}
    * @memberof TenrxLoginResponseData
    */
-  patientData: unknown;
+  patientData: TenrxLoginAPIModelPatientData | null;
 
   /**
    * Represents any notifications that the user needs to be aware of.

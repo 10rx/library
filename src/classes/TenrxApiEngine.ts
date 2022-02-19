@@ -41,6 +41,20 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Sets the access token to be used by the API Engine
+   *
+   * @param {string} accesstoken - The access token to use
+   * @param {number} expireDateStart - The date that the expire date starts
+   * @param {number} expiresIn - The amount of time that the token is valid for
+   * @memberof TenrxApiEngine
+   */
+  public setAccessToken(accesstoken: string, expireDateStart: number, expiresIn: number) {
+    this.accesstoken = accesstoken;
+    this.expiresIn = expiresIn;
+    this.expireDateStart = expireDateStart;
+  }
+
+  /**
    * Registers a new user to Tenrx
    *
    * @param {TenrxRegisterUserParameterAPIModel} registrationData - Contains the registration information

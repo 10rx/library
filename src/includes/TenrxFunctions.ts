@@ -1,6 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import isaac from 'isaac';
 import { DateTime } from 'luxon';
+import { ISettingsParam } from 'tslog';
 
 import { TenrxLibraryLogger } from './TenrxLogging.js';
 
@@ -17,9 +18,10 @@ import TenrxServerError from '../exceptions/TenrxServerError.js';
 import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxCheckIfEmailExistAPIModel from '../apiModel/TenrxCheckIfEmailExistAPIModel.js';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
-import { ISettingsParam } from 'tslog';
+
 import TenrxStorage from '../classes/TenrxStorage.js';
 import TenrxUserAccount from '../classes/TenrxUserAccount.js';
+import TenrxPatient from '../classes/TenrxPatient.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -96,6 +98,15 @@ export const useTenrxUserAccount = (): TenrxUserAccount => {
   return TenrxUserAccount.instance;
 };
 
+/**
+ * This functions retrieves the TenrxPatient single instance. It is used when there is no need to have multiple instances of the TenrxPatient.
+ *
+ * @return {*}  {TenrxPatient}
+ */
+export const useTenrxPatient = (): TenrxPatient => {
+  return TenrxPatient.instance;
+};
+
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
 
@@ -119,7 +130,7 @@ export const authenticateTenrx = async (
   const loginresponse: TenrxLoginResponseData = {
     accessToken: null,
     expiresIn: null,
-    accountData: null,
+    accountData: {},
     securityQuestions: null,
     patientData: null,
     notifications: null,
@@ -234,36 +245,28 @@ export const checkIfEmailExists = async (
 /**
  * Log outs from the Tenrx backend servers.
  *
+ * @param {(success: boolean) => void} onLogout - The callback to call when logout is executed. True is passed to callback if logout was successful, false otherwise.
  * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
- * @return {*}  {Promise<TenrxLoginResponseData>}
+ * @return {*}  {Promise<void>}
  */
-export const logoutTenrx = async (apiengine: TenrxApiEngine = useTenrxApi()): Promise<any> => {
+export const logoutTenrx = async (
+  onLogout: (success: boolean) => void,
+  apiengine: TenrxApiEngine = useTenrxApi(),
+): Promise<void> => {
   TenrxLibraryLogger.info('Logging out of Tenrx...');
-  const result = await apiengine.logout();
-  const response: TenrxLoginResponseData = {
-    accessToken: null,
-    expiresIn: null,
-    accountData: null,
-    securityQuestions: null,
-    patientData: null,
-    notifications: null,
-    firstTimeLogin: false,
-    message: null,
-    status: -1,
-    error: null,
-  };
-  if (result.status === 200) {
+  const userAccountLogout = await TenrxUserAccount.logout(apiengine);
+  if (userAccountLogout) {
+    TenrxPatient.logout();
+    if (onLogout) {
+      onLogout(userAccountLogout);
+    }
     TenrxLibraryLogger.info('Logout successful.');
-    const content = result.content as TenrxLoginAPIModel;
-    response.status = !(content == null)
-      ? !(content.statusCode == null)
-        ? content.statusCode
-        : result.status
-      : result.status;
   } else {
-    TenrxLibraryLogger.error('Error occurred while logging out:', result.error);
+    if (onLogout) {
+      onLogout(userAccountLogout);
+    }
+    TenrxLibraryLogger.error('Error occurred while logging out');
   }
-  return result;
 };
 
 /**
@@ -286,7 +289,7 @@ export const saveSecurityQuestionAnswers = async (
   const loginresponse: TenrxLoginResponseData = {
     accessToken: null,
     expiresIn: null,
-    accountData: null,
+    accountData: {},
     securityQuestions: null,
     patientData: null,
     notifications: null,
@@ -345,7 +348,7 @@ export const registerUser = async (
   const loginresponse: TenrxLoginResponseData = {
     accessToken: null,
     expiresIn: null,
-    accountData: null,
+    accountData: {},
     securityQuestions: null,
     patientData: null,
     notifications: null,
