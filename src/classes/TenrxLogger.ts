@@ -35,7 +35,7 @@ export default class TenrxLogger {
           maskValuesOfKeys: ['access_token', 'authorization', 'password', 'Authorization'],
           maskPlaceholder: '********',
         };
-    this.internalLogger = isBrowser ? null : new Logger({ignoreStackLevels: 4, ...this.internalSettings,});
+    this.internalLogger = isBrowser ? null : new Logger({ ignoreStackLevels: 4, ...this.internalSettings });
   }
 
   /**

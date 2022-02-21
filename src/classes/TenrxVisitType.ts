@@ -122,8 +122,8 @@ export default class TenrxVisitType {
     this.level = data.level;
     this.photoPath = data.photoPath;
     this.visitTypeListings = [];
-    this.shortDescription = (data.shortDescription) ? data.shortDescription : '';
-    this.description = (data.description) ? data.description : '';
+    this.shortDescription = data.shortDescription ? data.shortDescription : '';
+    this.description = data.description ? data.description : '';
     if (data.visitTypeListings) {
       for (const visitTypeListing of data.visitTypeListings) {
         this.visitTypeListings.push(new TenrxVisitType(visitTypeListing, language));

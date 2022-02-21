@@ -78,8 +78,8 @@ export default class TenrxGenderCategory {
     this.treatmentTypeId = data.treatmentTypeId;
     this.photoPath = data.photoPath;
     this.genderCategories = [];
-    this.shortDescription = (data.shortDescription) ? data.shortDescription : '';
-    this.description = (data.description) ? data.description : '';
+    this.shortDescription = data.shortDescription ? data.shortDescription : '';
+    this.description = data.description ? data.description : '';
     if (data.genderCategories) {
       data.genderCategories.forEach((element) => {
         this.genderCategories.push(new TenrxGenderCategory(element, language));

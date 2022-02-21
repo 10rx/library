@@ -23,7 +23,7 @@ export default interface TenrxLoginResponseData {
    * @memberof TenrxLoginResponseData
    */
   expiresIn: number | null;
-  
+
   /**
    * The account information of the user.
    *

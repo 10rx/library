@@ -367,7 +367,7 @@ export default class TenrxApiEngine {
       return response;
     }
   }
-  
+
   /**
    * Gets the product list from treatment.
    *

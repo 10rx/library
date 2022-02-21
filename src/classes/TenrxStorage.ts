@@ -69,7 +69,7 @@ export default abstract class TenrxStorage {
    * @returns {TenrxStorage} - The TenrxApiEngine instance
    * @throws {TenrxNotInitialized} - If the TenrxStorage instance is not initialized.
    */
-  public static get instance():TenrxStorage {
+  public static get instance(): TenrxStorage {
     if (TenrxStorage.internalInstance === null) {
       TenrxLibraryLogger.error('TenrxStorage is not initialized. Call TenrxStorage.initialize() first.');
       throw new TenrxNotInitialized(

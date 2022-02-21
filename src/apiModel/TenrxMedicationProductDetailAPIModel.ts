@@ -24,9 +24,9 @@ export default interface TenrxMedicationProductDetailAPIModel {
       productName: {
         description: string;
         descriptionEs: string;
-    };
-    price: number;
-    barcode: string;
+      };
+      price: number;
+      barcode: string;
     },
   ];
 }

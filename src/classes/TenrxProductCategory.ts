@@ -113,8 +113,8 @@ export default class TenrxProductCategory {
     this.loaded = false;
     this.productCatagories = [];
     this.internalProducts = [];
-    this.shortDescription = (data.shortDescription) ? data.shortDescription : '';
-    this.description = (data.description) ? data.description : '';
+    this.shortDescription = data.shortDescription ? data.shortDescription : '';
+    this.description = data.description ? data.description : '';
     if (load) {
       this.load(language, apiEngine).catch((e) => {
         throw new TenrxLoadError(

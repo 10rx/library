@@ -1,6 +1,6 @@
 // This is disabled due to properties coming from API.
 
-import TenrxQuestionAPIModel from "./TenrxQuestionAPIModel.js";
+import TenrxQuestionAPIModel from './TenrxQuestionAPIModel.js';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export default interface TenrxLoginAPIModel {

@@ -205,14 +205,12 @@ export default class TenrxPatient {
    */
   public static initialize(id: number, data: TenrxLoginAPIModelPatientData): void {
     if (!TenrxPatient.internalInstance) {
-        TenrxPatient.internalInstance = new TenrxPatient(id, data);
+      TenrxPatient.internalInstance = new TenrxPatient(id, data);
     } else {
-      TenrxLibraryLogger.warn(
-        `TenrxPatient has already been initialized. Call TenrxPatient.initialize() only once.`,
-      );
+      TenrxLibraryLogger.warn(`TenrxPatient has already been initialized. Call TenrxPatient.initialize() only once.`);
     }
   }
-  
+
   /**
    * Logs out the current patient stored in the singleton instance.
    *
