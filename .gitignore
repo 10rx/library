@@ -1,4 +1,5 @@
 node_modules
 /dist
 /docs
-persistent.test
+persistent.testasync
+persistent.testsync

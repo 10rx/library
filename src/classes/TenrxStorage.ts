@@ -10,7 +10,7 @@ import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
  */
 export default abstract class TenrxStorage {
   /**
-   * Saves the data to the storage.
+   * Saves the data to the storage asynchronous.
    *
    * @abstract - This method must be implemented by the derived classes.
    * @template T - The type of the data to be saved.
@@ -23,7 +23,7 @@ export default abstract class TenrxStorage {
   public abstract save<T>(scope: TenrxStorageScope, key: string, data: T): Promise<void>;
 
   /**
-   * Loads the data from the storage.
+   * Loads the data from the storage asynchronous.
    *
    * @abstract - This method must be implemented by the derived classes.
    * @template T - The type of the data to be loaded.
@@ -33,6 +33,30 @@ export default abstract class TenrxStorage {
    * @memberof TenrxBaseStorage
    */
   public abstract load<T>(scope: TenrxStorageScope, key: string): Promise<T>;
+
+  /**
+   * Saves the data to the storage synchronous.
+   *
+   * @abstract - This method must be implemented by the derived classes.
+   * @template T - The type of the data to be saved.
+   * @param {TenrxStorageScope} scope - The scope of the data to be saved.
+   * @param {'string'} key - The key of the data to be saved.
+   * @param {T} data - The data to be saved.
+   * @memberof TenrxStorage
+   */
+  public abstract saveSync<T>(scope: TenrxStorageScope, key: string, data: T): void;
+
+  /**
+   * Loads the data from the storage synchronous.
+   *
+   * @abstract - This method must be implemented by the derived classes.
+   * @template T - The type of the data to be loaded.
+   * @param {TenrxStorageScope} scope - The scope of the data to be loaded.
+   * @param {'string'} key - The key of the data to be loaded.
+   * @return {*}  {T}
+   * @memberof TenrxStorage
+   */
+  public abstract loadSync<T>(scope: TenrxStorageScope, key: string): T;
 
   /**
    * Contains the singleton instance of the storage.
