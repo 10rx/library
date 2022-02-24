@@ -2,6 +2,7 @@ import { TenrxLoginAPIModelPatientData } from '../apiModel/TenrxLoginAPIModel.js
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import { TenrxEnumCountry, TenrxEnumGender, TenrxEnumState } from '../includes/TenrxEnums.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
+import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 
 /**
  * Represents the patient. This contains PHI information. Therefore it must never be serialized on the client side. If it needs to be stored on the server side, then it must be encrypted.
@@ -75,44 +76,12 @@ export default class TenrxPatient {
   mrn: string;
 
   /**
-   * The apartment number of the patient.
-   *
-   * @type {string}
-   * @memberof TenrxPatient
-   */
-  aptNumber: string;
-
-  /**
    * The first line of the patient address.
    *
    * @type {string}
    * @memberof TenrxPatient
    */
-  address1: string;
-
-  /**
-   * The second line of the patient address.
-   *
-   * @type {string}
-   * @memberof TenrxPatient
-   */
-  address2: string;
-
-  /**
-   * The city of the patient address.
-   *
-   * @type {string}
-   * @memberof TenrxPatient
-   */
-  city: string;
-
-  /**
-   * The zip code the patient address.
-   *
-   * @type {string}
-   * @memberof TenrxPatient
-   */
-  zipCode: string;
+  address: TenrxStreetAddress;
 
   /**
    * The phone number of the patient.
@@ -129,14 +98,6 @@ export default class TenrxPatient {
    * @memberof TenrxPatient
    */
   countryId: TenrxEnumCountry;
-
-  /**
-   * The state where the patient is.
-   *
-   * @type {TenrxEnumState}
-   * @memberof TenrxPatient
-   */
-  stateId: TenrxEnumState;
 
   /**
    * The gender of the patient.
@@ -162,14 +123,16 @@ export default class TenrxPatient {
     this.emailAddress = data ? data.emailAddress : '';
     this.ssn = data ? data.ssn : '';
     this.mrn = data ? data.mrn : '';
-    this.aptNumber = data ? data.aptnumber : '';
-    this.address1 = data ? data.address1 : '';
-    this.address2 = data ? data.address2 : '';
-    this.city = data ? data.city : '';
-    this.zipCode = data ? data.zipCode : '';
+    this.address = {
+        aptNumber: data ? data.aptnumber : undefined,
+        address1: data ? data.address1 : '',
+        address2: data ? data.address2 : undefined,
+        city: data ? data.city : '',
+        stateId: data ? data.stateId : TenrxEnumState.Florida,
+        zipCode: data ? data.zipCode : '',
+    }
     this.phoneNumber = data ? data.phoneNumber : '';
     this.countryId = data ? data.countryId : TenrxEnumCountry.USA;
-    this.stateId = data ? data.stateId : TenrxEnumState.Florida;
     this.gender = data ? data.gender : TenrxEnumGender.Other;
   }
 
