@@ -277,4 +277,36 @@ export default class TenrxVisitType {
       return null;
     }
   }
+
+  /**
+   * Gets the visit type with the given id
+   *
+   * @static
+   * @param {number} id - The id of the visit type to be retrieved.
+   * @param {string} [language='en'] - The language to be used when creating the instance.
+   * @param {TenrxApiEngine} [apiEngine=useTenrxApi()] - The api engine to be used when creating the instance.
+   * @return {*}  {(Promise<TenrxVisitType | null>)}
+   * @memberof TenrxVisitType
+   */
+  public static async getVisitTypeById(
+    id: number,
+    language = 'en',
+    apiEngine: TenrxApiEngine = useTenrxApi(),
+  ): Promise<TenrxVisitType | null> {
+    TenrxLibraryLogger.silly('TenrxVisitType.GetVisitTypeById Started with id: ', id);
+    if (apiEngine) {
+      const visitTypes = await TenrxVisitType.getVisitTypes(language, apiEngine);
+      if (visitTypes) {
+        for (const element of visitTypes) {
+          if (element.id === id) {
+            TenrxLibraryLogger.debug('Visit type found. Visit type: ', element);
+            return element;
+          }
+        }
+      }
+    } else {
+      TenrxLibraryLogger.fatal('TenrxApiEngine is not initialized.');
+    }
+    return null;
+  }
 }
