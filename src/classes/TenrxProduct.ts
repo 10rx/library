@@ -133,6 +133,14 @@ export default class TenrxProduct {
   strengthLevels: TenrxMedicationStrength[];
 
   /**
+   * Maximum amount of product that can be purchased. 0 means unlimited.
+   *
+   * @type {number}
+   * @memberof TenrxProduct
+   */
+  maxQuantityPurchasable: number;
+
+  /**
    * Creates an instance of TenrxProduct.
    *
    * @param {TenrxTreatmentProductListAPIModel} data - The data to be used to create the instance.
@@ -175,6 +183,7 @@ export default class TenrxProduct {
     this.description = '';
     this.precautions = '';
     this.sellingPrice = '';
+    this.maxQuantityPurchasable = 0;
     if (load) {
       this.load(language, apiEngine).catch((e) => {
         throw new TenrxLoadError(
@@ -225,6 +234,7 @@ export default class TenrxProduct {
                 this.photoPath = data.photoPath;
                 this.defaultPrice = data.defaultPrice;
                 this.sellingPrice = data.sellingPrice;
+                this.maxQuantityPurchasable = (this.rx) ? 10 : 0; // TODO This needs to come from the API
                 if (data.medicationQuantityDetails) {
                   if (data.medicationQuantityDetails.length > 0) {
                     data.medicationQuantityDetails.forEach((strength) => {
