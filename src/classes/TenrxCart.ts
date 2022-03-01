@@ -1,7 +1,8 @@
-import { TenrxLibraryLogger } from '../index.js';
+import { TenrxLibraryLogger, useTenrxStorage } from '../index.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 import TenrxProduct from './TenrxProduct.js';
+import { TenrxStorageScope } from './TenrxStorage.js';
 
 /**
  * Represents the tenrx cart for products, and any other information. If entries are modified directly, then forceRecalculate must be manually called in order to keep everything in sync.
@@ -73,12 +74,7 @@ export default class TenrxCart {
    * @param {boolean} [hidden=false] - Whether or not the product is hidden.
    * @memberof TenrxCart
    */
-  public addItem(
-    item: TenrxProduct,
-    quantity: number,
-    strength = '',
-    hidden = false,
-  ): void {
+  public addItem(item: TenrxProduct, quantity: number, strength = '', hidden = false): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
     this.addEntry({
       productId: item.id,
@@ -181,7 +177,6 @@ export default class TenrxCart {
     return this.subTotal + this.tax + this.subHiddenTotal;
   }
 
-  
   /**
    * Gets the total of the cart including only visible items plus tax
    *
@@ -202,5 +197,72 @@ export default class TenrxCart {
     this.internalTaxAmount = -1;
     this.internalSubTotal = -1;
     this.internalSubHiddenTotal = -1;
+  }
+
+  /**
+   * Gets the cart content of the cart.
+   *
+   * @readonly
+   * @type {TenrxCartEntry[]}
+   * @memberof TenrxCart
+   */
+  public get cartEntries(): TenrxCartEntry[] {
+    return this.internalCartEntries;
+  }
+
+  /**
+   * Saves the cart to the local storage asynchronous.
+   *
+   * @param {TenrxStorageScope} [scope='persistent'] - The scope of the storage.
+   * @param {*} [storage=useTenrxStorage()] - The storage to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxCart
+   */
+  public async save(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): Promise<void> {
+    TenrxLibraryLogger.info('Saving cart entries asynchronous.');
+    await storage.save(scope, 'cart', this.internalCartEntries);
+  }
+
+  /**
+   * Loads the cart from the local storage asynchronous.
+   *
+   * @param {TenrxStorageScope} [scope='session'] - The scope of the storage.
+   * @param {*} [storage=useTenrxStorage()] - The storage to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxCart
+   */
+  public async load(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): Promise<void> {
+    TenrxLibraryLogger.info('Loading cart entries asynchronous.');
+    const cartEntries = await storage.load<TenrxCartEntry[]>(scope, 'cart');
+    if (cartEntries) {
+      this.internalCartEntries = cartEntries;
+    }
+  }
+
+  /**
+   * Saves the cart to the local storage synchronous.
+   *
+   * @param {TenrxStorageScope} [scope='session'] - The scope of the storage.
+   * @param {*} [storage=useTenrxStorage()] - The storage to use.
+   * @memberof TenrxCart
+   */
+  public saveSync(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): void {
+    TenrxLibraryLogger.info('Saving cart entries synchronous.');
+    storage.saveSync(scope, 'cart', this.internalCartEntries);
+  }
+
+  /**
+   * Loads the cart from the local storage synchronous.
+   *
+   * @param {TenrxStorageScope} [scope='session'] - The scope of the storage.
+   * @param {*} [storage=useTenrxStorage()] - The storage to use.
+   * @memberof TenrxCart
+   */
+  public loadSync(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): void {
+    TenrxLibraryLogger.info('Loading cart entries synchronous.');
+    const cartEntries = storage.loadSync<TenrxCartEntry[]>(scope, 'cart');
+    if (cartEntries) {
+      this.internalCartEntries = cartEntries;
+    }
   }
 }
