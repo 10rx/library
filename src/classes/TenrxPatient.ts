@@ -124,13 +124,13 @@ export default class TenrxPatient {
     this.ssn = data ? data.ssn : '';
     this.mrn = data ? data.mrn : '';
     this.address = {
-        aptNumber: data ? data.aptnumber : undefined,
-        address1: data ? data.address1 : '',
-        address2: data ? data.address2 : undefined,
-        city: data ? data.city : '',
-        stateId: data ? data.stateId : TenrxEnumState.Florida,
-        zipCode: data ? data.zipCode : '',
-    }
+      aptNumber: data ? data.aptnumber : undefined,
+      address1: data ? data.address1 : '',
+      address2: data ? data.address2 : undefined,
+      city: data ? data.city : '',
+      stateId: data ? data.stateId : TenrxEnumState.Florida,
+      zipCode: data ? data.zipCode : '',
+    };
     this.phoneNumber = data ? data.phoneNumber : '';
     this.countryId = data ? data.countryId : TenrxEnumCountry.USA;
     this.gender = data ? data.gender : TenrxEnumGender.Other;

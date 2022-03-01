@@ -234,7 +234,7 @@ export default class TenrxProduct {
                 this.photoPath = data.photoPath;
                 this.defaultPrice = data.defaultPrice;
                 this.sellingPrice = data.sellingPrice;
-                this.maxQuantityPurchasable = (this.rx) ? 10 : 0; // TODO This needs to come from the API
+                this.maxQuantityPurchasable = this.rx ? 10 : 0; // TODO This needs to come from the API
                 if (data.medicationQuantityDetails) {
                   if (data.medicationQuantityDetails.length > 0) {
                     data.medicationQuantityDetails.forEach((strength) => {

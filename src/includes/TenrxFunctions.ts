@@ -108,7 +108,6 @@ export const useTenrxPatient = (): TenrxPatient => {
   return TenrxPatient.instance;
 };
 
-
 /**
  * This functions retrieves the TenrxCart single instance. It is used when there is no need to have multiple instances of the TenrxCart.
  *
