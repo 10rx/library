@@ -263,6 +263,8 @@ export default class TenrxCart {
     const cartEntries = storage.loadSync<TenrxCartEntry[]>(scope, 'cart');
     if (cartEntries) {
       this.internalCartEntries = cartEntries;
+    } else {
+        this.internalCartEntries = [];
     }
   }
 
