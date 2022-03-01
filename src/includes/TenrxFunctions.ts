@@ -22,6 +22,7 @@ import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserPar
 import TenrxStorage from '../classes/TenrxStorage.js';
 import TenrxUserAccount from '../classes/TenrxUserAccount.js';
 import TenrxPatient from '../classes/TenrxPatient.js';
+import TenrxCart from '../classes/TenrxCart.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -105,6 +106,16 @@ export const useTenrxUserAccount = (): TenrxUserAccount => {
  */
 export const useTenrxPatient = (): TenrxPatient => {
   return TenrxPatient.instance;
+};
+
+
+/**
+ * This functions retrieves the TenrxCart single instance. It is used when there is no need to have multiple instances of the TenrxCart.
+ *
+ * @return {*}  {TenrxCart}
+ */
+export const useTenrxCart = (): TenrxCart => {
+  return TenrxCart.instance;
 };
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.

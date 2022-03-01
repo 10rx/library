@@ -265,4 +265,21 @@ export default class TenrxCart {
       this.internalCartEntries = cartEntries;
     }
   }
+
+  private static internalInstance: TenrxCart | null;
+
+  /**
+   * Gets the singleton instance of the cart.
+   *
+   * @readonly
+   * @static
+   * @type {TenrxCart}
+   * @memberof TenrxCart
+   */
+  public static get instance(): TenrxCart {
+    if (!TenrxCart.internalInstance) {
+      TenrxCart.internalInstance = new TenrxCart();
+    }
+    return TenrxCart.internalInstance;
+  }
 }
