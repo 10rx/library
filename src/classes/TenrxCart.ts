@@ -264,7 +264,7 @@ export default class TenrxCart {
     if (cartEntries) {
       this.internalCartEntries = cartEntries;
     } else {
-        this.internalCartEntries = [];
+      this.internalCartEntries = [];
     }
   }
 
