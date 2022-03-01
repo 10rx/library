@@ -1,6 +1,6 @@
 {
   "name": "@10rx/10rx-library",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Javascript Library for 10rx product",
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
@@ -10,11 +10,11 @@
   "scripts": {
     "test": "jest",
     "build": "shx rm -rf -fr dist/* && tsc -p tsconfig.json && tsc -p tsconfig-commonjs.json && shx cp -f package-esm.json ./dist/esm/package.json && shx cp -f package-commonjs.json ./dist/commonjs/package.json",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "format": "prettier --write \"src/**/*.(js|ts|jsx|tsx|md)\"",
     "lint": "eslint -c .eslintrc.cjs --ext .ts ./src",
     "docs": "typedoc --out docs ./src",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
+    "prepublishOnly": "tag-matches && npm test && npm run lint",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
@@ -37,6 +37,7 @@
     "@types/node-fetch": "^2.5.12",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.8.0",
+    "check-tag-matches": "^1.0.0",
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-typescript": "^2.5.0",

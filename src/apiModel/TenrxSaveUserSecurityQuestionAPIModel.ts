@@ -1,7 +1,7 @@
-import TenrxLoginSecurityQuestionAnswer from "../types/TenrxLoginSecurityQuestionAnswer.js";
+import TenrxLoginSecurityQuestionAnswer from '../types/TenrxLoginSecurityQuestionAnswer.js';
 export default interface TenrxSaveUserSecurityQuestionAPIModel {
-    username: string;
-    password: string;
-    macaddress: string;
-    securityQuestionList: TenrxLoginSecurityQuestionAnswer[];
+  username: string;
+  password: string;
+  macaddress: string;
+  securityQuestionList: TenrxLoginSecurityQuestionAnswer[];
 }

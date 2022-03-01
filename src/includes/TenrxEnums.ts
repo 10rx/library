@@ -9,20 +9,20 @@
  * @enum {number}
  */
 export enum TenrxEnumGender {
-    /**
-     * Male Gender
-     */
-    Male = 1,
-    
-    /**
-     * Female Gender
-     */
-    Female,
-    
-    /**
-     * Other Gender
-     */
-    Other
+  /**
+   * Male Gender
+   */
+  Male = 1,
+
+  /**
+   * Female Gender
+   */
+  Female,
+
+  /**
+   * Other Gender
+   */
+  Other,
 }
 
 /**
@@ -32,8 +32,8 @@ export enum TenrxEnumGender {
  * @enum {number}
  */
 export enum TenrxEnumCountry {
-    USA = 1,
-    Canada
+  USA = 1,
+  Canada,
 }
 
 /**
@@ -43,8 +43,8 @@ export enum TenrxEnumCountry {
  * @enum {number}
  */
 export enum TenrxEnumState {
-    California = 1,
-    Florida,
-    Alaska = 6,
-    Arizona = 7,
+  California = 1,
+  Florida,
+  Alaska = 6,
+  Arizona = 7,
 }
