@@ -16,6 +16,7 @@ export default class TenrxCart {
   private internalTaxAmount: number;
   private internalSubTotal: number;
   private internalSubHiddenTotal: number;
+  private internalLoaded: boolean;
 
   /**
    * Creates an instance of TenrxCart.
@@ -29,6 +30,7 @@ export default class TenrxCart {
     this.internalTaxAmount = -1;
     this.internalSubTotal = -1;
     this.internalSubHiddenTotal = -1;
+    this.internalLoaded = false;
   }
 
   /**
@@ -211,6 +213,17 @@ export default class TenrxCart {
   }
 
   /**
+   * Returns true if the cart has been loaded by calling either load or loadAsync functions. Otherwise returns false.
+   *
+   * @readonly
+   * @type {boolean}
+   * @memberof TenrxCart
+   */
+  public get loaded(): boolean {
+    return this.internalLoaded;
+  }
+
+  /**
    * Saves the cart to the local storage asynchronous.
    *
    * @param {TenrxStorageScope} [scope='persistent'] - The scope of the storage.
@@ -236,7 +249,10 @@ export default class TenrxCart {
     const cartEntries = await storage.load<TenrxCartEntry[]>(scope, 'cart');
     if (cartEntries) {
       this.internalCartEntries = cartEntries;
+    } else {
+        this.internalCartEntries = [];
     }
+    this.internalLoaded = true;
   }
 
   /**
@@ -266,6 +282,7 @@ export default class TenrxCart {
     } else {
       this.internalCartEntries = [];
     }
+    this.internalLoaded = true;
   }
 
   private static internalInstance: TenrxCart | null;
