@@ -235,7 +235,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async login(
+  public async login(
     username: string,
     password: string,
     language = 'en',
@@ -298,7 +298,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - All the visit types
    * @memberof TenrxApiEngine
    */
-  async getVisitTypes(): Promise<TenrxApiResult> {
+  public async getVisitTypes(): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the visit types from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetVisitTypes`);
@@ -321,7 +321,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the product category API call.
    * @memberof TenrxApiEngine
    */
-  async getProductCategories(visitId: number): Promise<TenrxApiResult> {
+  public async getProductCategories(visitId: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the product category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
@@ -348,7 +348,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async getGenderCategories(visitId: number): Promise<TenrxApiResult> {
+  public async getGenderCategories(visitId: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the Gender category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
@@ -385,7 +385,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async getTreatmentProductList(
+  public async getTreatmentProductList(
     treatmentTypeId: number,
     categoryId = 0,
     productId = 0,
@@ -434,7 +434,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
    * @memberof TenrxApiEngine
    */
-  async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
+  public async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the Medication Product Detail from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetMedicationProductDetails`, {
@@ -463,7 +463,11 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
    * @memberof TenrxApiEngine
    */
-  async authGet(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+  public async authGet(
+    url: string,
+    params: Record<string, string> = {},
+    headers: object = {},
+  ): Promise<TenrxApiResult> {
     this.ensureValidAccessToken();
     // Needed for the API since the API requires Authorization: {token}
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -481,7 +485,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the GET request
    * @memberof TenrxApiEngine
    */
-  async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+  public async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing GET WebCall: ', { url, params, headers });
     const internalurl: URL = new URL(url);
     const returnvalue: TenrxApiResult = {
@@ -524,7 +528,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request.
    * @memberof TenrxApiEngine
    */
-  async authPost(
+  public async authPost(
     url: string,
     params: object,
     headers: object = {},
@@ -547,7 +551,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request
    * @memberof TenrxApiEngine
    */
-  async post(
+  public async post(
     url: string,
     params: object = {},
     headers: object = {},
@@ -599,7 +603,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PUT request.
    * @memberof TenrxApiEngine
    */
-  async authPut(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
+  public async authPut(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
     this.ensureValidAccessToken();
     // Needed for the API since the API requires Authorization: {token}
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -617,7 +621,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PUT request.
    * @memberof TenrxApiEngine
    */
-  async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
+   public async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing PUT WebCall: ', { url, params, headers });
     const returnvalue: TenrxApiResult = {
       status: 0,
@@ -658,7 +662,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PATCH request.
    * @memberof TenrxApiEngine
    */
-  async authPatch(
+   public async authPatch(
     url: string,
     queryparams: Record<string, string> = {},
     bodyparams: object = {},
@@ -683,7 +687,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PATCH request.
    * @memberof TenrxApiEngine
    */
-  async patch(
+   public async patch(
     url: string,
     queryparams: Record<string, string> = {},
     bodyparams: object = {},
