@@ -8,6 +8,7 @@ import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 import TenrxUpdatePatientDetailsAPIModel from '../apiModel/TenrxUpdatePatientDetailsAPIModel.js';
+import TenrxChargeAPIModel from '../apiModel/TenrxChargeAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -52,6 +53,52 @@ export default class TenrxApiEngine {
     this.accesstoken = accesstoken;
     this.expiresIn = expiresIn;
     this.expireDateStart = expireDateStart;
+  }
+
+  /**
+   * Pays for a charge with authentication.
+   *
+   * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authSavePaymentDetails(charge: TenrxChargeAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving payment details to API (auth)');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Payment/SavePaymentDetails`, charge);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('AuthSavePaymentDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Pays for a charge without authentication.
+   *
+   * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async savePaymentDetails(charge: TenrxChargeAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving payment details to API');
+    try {
+      const response = await this.post(`${this.baseapi}/api/v1/Login/SavePaymentDetails`, charge);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('SavePaymentDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**
@@ -621,7 +668,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PUT request.
    * @memberof TenrxApiEngine
    */
-   public async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
+  public async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing PUT WebCall: ', { url, params, headers });
     const returnvalue: TenrxApiResult = {
       status: 0,
@@ -662,7 +709,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PATCH request.
    * @memberof TenrxApiEngine
    */
-   public async authPatch(
+  public async authPatch(
     url: string,
     queryparams: Record<string, string> = {},
     bodyparams: object = {},
@@ -687,7 +734,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PATCH request.
    * @memberof TenrxApiEngine
    */
-   public async patch(
+  public async patch(
     url: string,
     queryparams: Record<string, string> = {},
     bodyparams: object = {},
