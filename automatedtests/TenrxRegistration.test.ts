@@ -70,7 +70,7 @@ test('Registration Test Success', async () => {
     city: 'Fort Lauderdale',
     stateId: TenrxEnumState.Florida,
     zip: '33309',
-    countryId: TenrxEnumCountry.USA,
+    countryId: TenrxEnumCountry.US,
     photoBase64: '',
   };
   const result = await registerUser(registrationInfo);
