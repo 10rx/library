@@ -32,7 +32,7 @@ export enum TenrxEnumGender {
  * @enum {number}
  */
 export enum TenrxEnumCountry {
-  USA = 1,
+  US = 1,
   Canada,
 }
 
