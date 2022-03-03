@@ -132,7 +132,7 @@ export default class TenrxPatient {
       zipCode: data ? data.zipCode : '',
     };
     this.phoneNumber = data ? data.phoneNumber : '';
-    this.countryId = data ? data.countryId : TenrxEnumCountry.USA;
+    this.countryId = data ? data.countryId : TenrxEnumCountry.US;
     this.gender = data ? data.gender : TenrxEnumGender.Other;
   }
 
