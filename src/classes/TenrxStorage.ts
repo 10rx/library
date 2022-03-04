@@ -78,7 +78,7 @@ export default abstract class TenrxStorage {
    * @return {*}  {Promise<void>} - A promise that resolves when the key has been removed.
    * @memberof TenrxStorage
    */
-   public abstract removeKeySync(scope: TenrxStorageScope, key: string): Promise<void>;
+  public abstract removeKeySync(scope: TenrxStorageScope, key: string): Promise<void>;
 
   /**
    * Contains the singleton instance of the storage.
