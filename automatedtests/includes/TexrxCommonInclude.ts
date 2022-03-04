@@ -1,4 +1,13 @@
-import { initializeTenrx, TenrxApiEngine, TenrxLibraryLogger } from '../../src/index.js';
+import {
+  initializeTenrx,
+  TenrxApiEngine,
+  TenrxCart,
+  TenrxEnumState,
+  TenrxLibraryLogger,
+  TenrxProduct,
+  useTenrxCart,
+} from '../../src/index.js';
+import TenrxStreetAddress from '../../src/types/TenrxStreetAddress.js';
 import TenrxFileStorage from './TenrxFileStorage.js';
 
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
@@ -12,6 +21,13 @@ export const TEST_PASSWORD_FAILED = 'WrongPassword1!';
 
 export const TEST_PASSWORD_HASHED_SUCCESS = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkRvwEBleya7YQ4iVNllXCxQc8a';
 export const TEST_PASSWORD_HASHED_FAILED = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkRvwEBleya7YQ4iVNllXCxQc8a';
+
+export const TEST_ADDRESS: TenrxStreetAddress = {
+  address1: '123 Main St',
+  city: 'Fort Lauderdale',
+  stateId: TenrxEnumState.Florida,
+  zipCode: '33309'
+}
 
 TenrxLibraryLogger.setSettings({
   type: 'pretty',
@@ -30,4 +46,10 @@ export const MakeRandomString = (length: number): string => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+};
+
+export const getSampleFullCart = (product: TenrxProduct): TenrxCart => {
+  const cart = useTenrxCart();
+  cart.addItem(product, 1);
+  return cart;
 };

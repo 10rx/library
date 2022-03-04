@@ -5,7 +5,7 @@ export default interface TenrxChargeAPIModel {
     stripeToken: string;
     status: number;
     paymentCardDetails: {
-        cardId: number;
+        cardId: number | string;
         paymentMethod: string;
         name: string;
         addressCity: string;

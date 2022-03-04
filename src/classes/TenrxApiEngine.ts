@@ -9,6 +9,8 @@ import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecu
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 import TenrxUpdatePatientDetailsAPIModel from '../apiModel/TenrxUpdatePatientDetailsAPIModel.js';
 import TenrxChargeAPIModel from '../apiModel/TenrxChargeAPIModel.js';
+import TenrxSaveProductAPIModel from '../apiModel/TenrxSaveProductAPIModel.js';
+import TenrxGuestAddProductAPIModel from '../apiModel/TenrxGuestAddProductAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -53,6 +55,120 @@ export default class TenrxApiEngine {
     this.accesstoken = accesstoken;
     this.expiresIn = expiresIn;
     this.expireDateStart = expireDateStart;
+  }
+
+  /**
+   * Gets the payment cards for the current user.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getPaymentCardByUser(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting payment cards from API');
+    try {
+      const response = await this.authGet(`${this.baseapi}/api/v1/Payment/GetPaymentCardByUser`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getPaymentCardByUser() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account authenticated.
+   *
+   * @param {TenrxGuestAddProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authPlaceOrder(order: TenrxGuestAddProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Placing order to API (auth)');
+    try {
+      const response = await this.authPost(`${this.baseapi}/Patients/GuestAddProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('AuthPlaceOrder() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account unauthenticated.
+   *
+   * @param {TenrxGuestAddProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async placeOrder(order: TenrxGuestAddProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Placing order to API');
+    try {
+      const response = await this.post(`${this.baseapi}/Login/GuestAddProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('placeOrder() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account authenticated.
+   *
+   * @param {TenrxSaveProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authSaveProduct(order: TenrxSaveProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving product to API (auth)');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Patient/SaveProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('AuthSaveProduct() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account unauthenticated.
+   *
+   * @param {TenrxSaveProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async saveProduct(order: TenrxSaveProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving product to API');
+    try {
+      const response = await this.post(`${this.baseapi}/api/v1/Login/SaveProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('SaveProduct() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**

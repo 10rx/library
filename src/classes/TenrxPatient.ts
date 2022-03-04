@@ -3,6 +3,7 @@ import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import { TenrxEnumCountry, TenrxEnumGender, TenrxEnumState } from '../includes/TenrxEnums.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
+import TenrxWallet from './TenrxWallet.js';
 
 /**
  * Represents the patient. This contains PHI information. Therefore it must never be serialized on the client side. If it needs to be stored on the server side, then it must be encrypted.
@@ -114,7 +115,7 @@ export default class TenrxPatient {
    * @param {TenrxLoginAPIModelPatientData} [data] - The patient data that is used to create the patient.
    * @memberof TenrxPatient
    */
-  constructor(id: number, data?: TenrxLoginAPIModelPatientData) {
+  constructor(id: number, data?: TenrxLoginAPIModelPatientData, wallet?: TenrxWallet) {
     this.id = id;
     this.firstName = data ? data.firstName : '';
     this.lastName = data ? data.lastName : '';
@@ -134,6 +135,40 @@ export default class TenrxPatient {
     this.phoneNumber = data ? data.phoneNumber : '';
     this.countryId = data ? data.countryId : TenrxEnumCountry.US;
     this.gender = data ? data.gender : TenrxEnumGender.Other;
+    this.internalWallet = wallet ? wallet : new TenrxWallet([]);
+    this.internalWalletLoaded = wallet ? true : false;
+    this.internalAddressLoaded = data ? true : false;
+  }
+
+  private internalWallet: TenrxWallet;
+  private internalWalletLoaded: boolean;
+  private internalAddressLoaded: boolean;
+
+  public get wallet(): TenrxWallet {
+    return this.internalWallet;
+  }
+
+  public get loaded(): boolean {
+    return this.internalWalletLoaded && this.internalAddressLoaded;
+  }
+
+  public async load(): Promise<void> {
+    if (!this.internalWalletLoaded) {
+      try {
+        const wallet = await TenrxWallet.getWallet();
+        this.internalWallet = wallet !== null ? wallet : new TenrxWallet([]);
+        this.internalWalletLoaded = true;
+      } catch (error) {
+        TenrxLibraryLogger.error('Error while loading wallet.', error);
+      }
+      if (!this.internalAddressLoaded) {
+        try {
+          this.internalAddressLoaded = true;
+        } catch (error) {
+          TenrxLibraryLogger.error('Error while loading address.', error);
+        }
+      }
+    }
   }
 
   private static internalInstance: TenrxPatient | null;
