@@ -1,10 +1,10 @@
 import TenrxCreditCardAPIModel from '../apiModel/TenrxCreditCardAPIModel.js';
 import { TenrxEnumCountry } from '../includes/TenrxEnums.js';
-import { useTenrxApi } from '../includes/TenrxFunctions';
+import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxStateNameToStateId } from '../includes/TenrxStates.js';
 import { TenrxLibraryLogger } from '../index.js';
 import TenrxStripeCreditCard from '../types/TenrxStripeCreditCard.js';
-import TenrxApiEngine from './TenrxApiEngine';
+import TenrxApiEngine from './TenrxApiEngine.js';
 
 export default class TenrxWallet {
   private internalCards: TenrxStripeCreditCard[];
