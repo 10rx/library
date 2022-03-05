@@ -3,6 +3,7 @@ import {
   TenrxEnumCountry,
   TenrxLibraryLogger,
   TenrxPaymentResult,
+  tenrxRoundTo,
   TenrxStripeCreditCard,
   useTenrxApi,
   useTenrxStorage,
@@ -142,12 +143,12 @@ export default class TenrxCart {
    */
   public get tax(): number {
     if (this.internalTaxAmount === -1) {
-      this.internalTaxAmount = this.internalCartEntries.reduce((acc, curr) => {
+      this.internalTaxAmount = tenrxRoundTo(this.internalCartEntries.reduce((acc, curr) => {
         if (curr.taxable) {
           return acc + curr.price * this.internalTaxRate;
         }
         return acc;
-      }, 0);
+      }, 0));
     }
     return this.internalTaxAmount;
   }
@@ -161,12 +162,12 @@ export default class TenrxCart {
    */
   public get subTotal(): number {
     if (this.internalSubTotal === -1) {
-      this.internalSubTotal = this.internalCartEntries.reduce((acc, curr) => {
+      this.internalSubTotal = tenrxRoundTo(this.internalCartEntries.reduce((acc, curr) => {
         if (!curr.hidden) {
           return acc + curr.price * curr.quantity;
         }
         return acc;
-      }, 0);
+      }, 0));
     }
     return this.internalSubTotal;
   }
@@ -180,12 +181,12 @@ export default class TenrxCart {
    */
   public get subHiddenTotal(): number {
     if (this.internalSubHiddenTotal === -1) {
-      this.internalSubHiddenTotal = this.internalCartEntries.reduce((acc, curr) => {
+      this.internalSubHiddenTotal = tenrxRoundTo(this.internalCartEntries.reduce((acc, curr) => {
         if (curr.hidden) {
           return acc + curr.price * curr.quantity;
         }
         return acc;
-      }, 0);
+      }, 0));
     }
     return this.internalSubHiddenTotal;
   }
