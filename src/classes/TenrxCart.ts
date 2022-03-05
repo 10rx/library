@@ -46,6 +46,16 @@ export default class TenrxCart {
   }
 
   /**
+   * Clears the contents of the cart.
+   *
+   * @memberof TenrxCart
+   */
+  public clearCart(): void {
+    this.internalCartEntries = [];
+    this.forceRecalculate();
+  }
+
+  /**
    * Removes an entry from the cart.
    *
    * @param {number} index - The index of the entry to remove.
