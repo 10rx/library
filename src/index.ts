@@ -53,6 +53,7 @@ export {
   logoutTenrx,
   saveSecurityQuestionAnswers,
   registerUser,
+  tenrxRoundTo,
   isBrowser,
   isNode,
   isWebWorker,

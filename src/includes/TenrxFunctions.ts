@@ -431,6 +431,17 @@ export const registerUser = async (
 };
 
 /**
+ * Rounds number to specified number of decimal places.
+ *
+ * @param {number} num - The number to round.
+ * @param {number} [decimals=2] - The number of decimal places to round to.
+ * @return {*}  {number}
+ */
+export const tenrxRoundTo = (num: number, decimals = 2): number => {
+  return Number(Math.round(Number(`${num}e+${decimals}`)).toString() + `e-${decimals}`);
+};
+
+/**
  * Returns true if this script is being executed in the browser. Otherwise, it returns false.
  *
  * @type {boolean}
