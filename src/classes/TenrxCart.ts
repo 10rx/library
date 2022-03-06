@@ -143,12 +143,14 @@ export default class TenrxCart {
    */
   public get tax(): number {
     if (this.internalTaxAmount === -1) {
-      this.internalTaxAmount = tenrxRoundTo(this.internalCartEntries.reduce((acc, curr) => {
-        if (curr.taxable) {
-          return acc + curr.price * this.internalTaxRate;
-        }
-        return acc;
-      }, 0));
+      this.internalTaxAmount = tenrxRoundTo(
+        this.internalCartEntries.reduce((acc, curr) => {
+          if (curr.taxable) {
+            return acc + curr.price * this.internalTaxRate;
+          }
+          return acc;
+        }, 0),
+      );
     }
     return this.internalTaxAmount;
   }
@@ -162,12 +164,14 @@ export default class TenrxCart {
    */
   public get subTotal(): number {
     if (this.internalSubTotal === -1) {
-      this.internalSubTotal = tenrxRoundTo(this.internalCartEntries.reduce((acc, curr) => {
-        if (!curr.hidden) {
-          return acc + curr.price * curr.quantity;
-        }
-        return acc;
-      }, 0));
+      this.internalSubTotal = tenrxRoundTo(
+        this.internalCartEntries.reduce((acc, curr) => {
+          if (!curr.hidden) {
+            return acc + curr.price * curr.quantity;
+          }
+          return acc;
+        }, 0),
+      );
     }
     return this.internalSubTotal;
   }
@@ -181,12 +185,14 @@ export default class TenrxCart {
    */
   public get subHiddenTotal(): number {
     if (this.internalSubHiddenTotal === -1) {
-      this.internalSubHiddenTotal = tenrxRoundTo(this.internalCartEntries.reduce((acc, curr) => {
-        if (curr.hidden) {
-          return acc + curr.price * curr.quantity;
-        }
-        return acc;
-      }, 0));
+      this.internalSubHiddenTotal = tenrxRoundTo(
+        this.internalCartEntries.reduce((acc, curr) => {
+          if (curr.hidden) {
+            return acc + curr.price * curr.quantity;
+          }
+          return acc;
+        }, 0),
+      );
     }
     return this.internalSubHiddenTotal;
   }
@@ -332,6 +338,17 @@ export default class TenrxCart {
     return result;
   }
 
+  /**
+   * Proceeds to checkout the cart. It calls both sendPayment and placeOrder functions in the correct order.
+   *
+   * @param {string} userName - The user name of the user who is paying for the cart.
+   * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
+   * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
+   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
+   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
+   * @return {*}  {Promise<TenrxCartCheckoutResult>}
+   * @memberof TenrxCart
+   */
   public async checkout(
     userName: string,
     card: TenrxStripeCreditCard,
@@ -365,6 +382,16 @@ export default class TenrxCart {
     return result;
   }
 
+  /**
+   * Places an order for the cart's content to the backend servers.
+   *
+   * @param {number} paymentId - The payment id of the payment that is being used to place the order.
+   * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is placing the order.
+   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
+   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
+   * @return {*}  {Promise<TenrxOrderPlacementResult>}
+   * @memberof TenrxCart
+   */
   public async placeOrder(
     paymentId: number,
     shippingAddress: TenrxStreetAddress,
