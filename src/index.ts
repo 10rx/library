@@ -59,6 +59,8 @@ export {
   useTenrxLogger,
   useTenrxStorage,
   useTenrxCart,
+  useTenrxUserAccount,
+  useTenrxPatient,
   authenticateTenrx,
   checkIfEmailExists,
   logoutTenrx,
