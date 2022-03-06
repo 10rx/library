@@ -10,6 +10,9 @@ export { default as TenrxProduct } from './classes/TenrxProduct.js';
 export { default as TenrxLogger } from './classes/TenrxLogger.js';
 export { default as TenrxStorage } from './classes/TenrxStorage.js';
 export { default as TenrxCart } from './classes/TenrxCart.js';
+export { default as TenrxPatient } from './classes/TenrxPatient.js';
+export { default as TenrxUserAccount } from './classes/TenrxUserAccount.js';
+export { default as TenrxWallet } from './classes/TenrxWallet.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -22,6 +25,9 @@ export { TenrxStorageScope } from './classes/TenrxStorage.js';
 export { default as TenrxCartEntry } from './types/TenrxCartEntry.js';
 export { default as TenrxStripeCreditCard } from './types/TenrxStripeCreditCard.js';
 export { default as TenrxPaymentResult } from './types/TenrxPaymentResult.js';
+export { default as TenrxStreetAddress } from './types/TenrxStreetAddress.js';
+export { default as TenrxOrderPlacementResult } from './types/TenrxOrderPlacementResult.js';
+export { default as TenrxCartCheckoutResult } from './types/TenrxCartCheckoutResult.js';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -37,6 +43,7 @@ export { default as TenrxVisitTypeAPIModel } from './apiModel/TenrxVisitTypeAPIM
 export { default as TenrxProductCategoryAPIModel } from './apiModel/TenrxProductCategoryAPIModel.js';
 export { default as TenrxSaveUserSecurityQuestionAPIModel } from './apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
 export { default as TenrxRegisterUserParameterAPIModel } from './apiModel/TenrxRegisterUserParameterAPIModel.js';
+export { default as TenrxLoginAPIModel, TenrxLoginAPIModelData, TenrxLoginAPIModelPatientData } from './apiModel/TenrxLoginAPIModel.js';
 
 // Enums
 export { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from './includes/TenrxEnums.js';
