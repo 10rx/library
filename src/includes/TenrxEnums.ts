@@ -96,3 +96,8 @@ export enum TenrxEnumState {
   Wyoming,
   Alabama = 152,
 }
+
+export enum TenrxChatStatus {
+  Idle,
+  Active,
+}

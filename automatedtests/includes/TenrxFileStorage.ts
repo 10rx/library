@@ -7,7 +7,7 @@ export default class TenrxFileStorage extends TenrxStorage {
     public removeKey(scope: TenrxStorageScope, key: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
-    public removeKeySync(scope: TenrxStorageScope, key: string): Promise<void> {
+    public removeKeySync(scope: TenrxStorageScope, key: string): void {
         throw new Error("Method not implemented.");
     }
 

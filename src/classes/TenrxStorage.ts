@@ -75,10 +75,9 @@ export default abstract class TenrxStorage {
    * @abstract
    * @param {TenrxStorageScope} scope - The scope of the data to be removed.
    * @param {string} key - The key of the data to be removed.
-   * @return {*}  {Promise<void>} - A promise that resolves when the key has been removed.
    * @memberof TenrxStorage
    */
-  public abstract removeKeySync(scope: TenrxStorageScope, key: string): Promise<void>;
+  public abstract removeKeySync(scope: TenrxStorageScope, key: string): void;
 
   /**
    * Contains the singleton instance of the storage.
