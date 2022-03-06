@@ -43,7 +43,11 @@ export { default as TenrxVisitTypeAPIModel } from './apiModel/TenrxVisitTypeAPIM
 export { default as TenrxProductCategoryAPIModel } from './apiModel/TenrxProductCategoryAPIModel.js';
 export { default as TenrxSaveUserSecurityQuestionAPIModel } from './apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
 export { default as TenrxRegisterUserParameterAPIModel } from './apiModel/TenrxRegisterUserParameterAPIModel.js';
-export { default as TenrxLoginAPIModel, TenrxLoginAPIModelData, TenrxLoginAPIModelPatientData } from './apiModel/TenrxLoginAPIModel.js';
+export {
+  default as TenrxLoginAPIModel,
+  TenrxLoginAPIModelData,
+  TenrxLoginAPIModelPatientData,
+} from './apiModel/TenrxLoginAPIModel.js';
 
 // Enums
 export { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from './includes/TenrxEnums.js';
