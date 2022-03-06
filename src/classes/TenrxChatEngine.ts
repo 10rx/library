@@ -40,7 +40,6 @@ export default class TenrxChatEngine {
         TenrxLibraryLogger.silly(
           `Notifying ${value.nickName} with id '${key}' that ${participant.nickName} has joined the chat.`,
         );
-        
       });
       this.internalChatParticipants[id] = participant;
       return id;
