@@ -13,6 +13,8 @@ export { default as TenrxCart } from './classes/TenrxCart.js';
 export { default as TenrxPatient } from './classes/TenrxPatient.js';
 export { default as TenrxUserAccount } from './classes/TenrxUserAccount.js';
 export { default as TenrxWallet } from './classes/TenrxWallet.js';
+export { default as TenrxChatParticipant } from './classes/TenrxChatParticipant.js';
+export { default as TenrxChatEngine } from './classes/TenrxChatEngine.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -36,6 +38,7 @@ export { default as TenrxAccessTokenExpired } from './exceptions/TenrxAccessToke
 export { default as TenrxAccessTokenInvalid } from './exceptions/TenrxAccessTokenInvalid.js';
 export { default as TenrxNotLoaded } from './exceptions/TenrxNotLoaded.js';
 export { default as TenrxLoadError } from './exceptions/TenrxLoadError.js';
+export { default as TenrxChatNotActive } from './exceptions/TenrxChatNotActive.js';
 
 // The following is needed to get rid of warnings when creating documentation. The following are documented in swagger.
 // TODO: add links to swagger.
