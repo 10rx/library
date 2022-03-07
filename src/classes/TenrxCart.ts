@@ -23,6 +23,7 @@ import { TenrxStorageScope } from './TenrxStorage.js';
  */
 export default class TenrxCart {
   private internalCartEntries: TenrxCartEntry[];
+  private internalCartTotalItems: number;
   private internalTaxRate: number;
   private internalTaxAmount: number;
   private internalSubTotal: number;
@@ -37,6 +38,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   constructor(data: TenrxCartEntry[] = []) {
+    this.internalCartTotalItems = -1;
     this.internalCartEntries = data;
     this.internalTaxRate = 0.06;
     this.internalTaxAmount = -1;
@@ -54,6 +56,20 @@ export default class TenrxCart {
   public clearCart(): void {
     this.internalCartEntries = [];
     this.forceRecalculate();
+  }
+
+  /**
+   * Gets the total number of items in the cart.
+   *
+   * @readonly
+   * @type {number}
+   * @memberof TenrxCart
+   */
+  public get cartTotalItems(): number {
+    if (this.internalTaxAmount < 0) {
+        this.internalCartTotalItems = this.internalCartEntries.reduce((acc, cur) => acc + cur.quantity, 0);
+    }
+    return this.internalCartTotalItems;
   }
 
   /**
@@ -228,6 +244,7 @@ export default class TenrxCart {
     this.internalTaxAmount = -1;
     this.internalSubTotal = -1;
     this.internalSubHiddenTotal = -1;
+    this.internalCartTotalItems = -1;
   }
 
   /**
