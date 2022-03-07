@@ -158,7 +158,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get tax(): number {
-    if (this.internalTaxAmount === -1) {
+    if (this.internalTaxAmount < 0) {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
           if (curr.taxable) {
@@ -179,7 +179,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get subTotal(): number {
-    if (this.internalSubTotal === -1) {
+    if (this.internalSubTotal < 0) {
       this.internalSubTotal = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
           if (!curr.hidden) {
@@ -200,7 +200,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get subHiddenTotal(): number {
-    if (this.internalSubHiddenTotal === -1) {
+    if (this.internalSubHiddenTotal < -1) {
       this.internalSubHiddenTotal = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
           if (curr.hidden) {
