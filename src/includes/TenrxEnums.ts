@@ -101,3 +101,14 @@ export enum TenrxChatStatus {
   Idle,
   Active,
 }
+
+export enum TenrxChatEventType {
+  ChatStarted,
+  ChatEnded,
+  ChatMessage,
+  ChatTyping,
+  ChatTypingEnded,
+  ChatError,
+  ChatParticipantJoined,
+  ChatParticipantLeft,
+}

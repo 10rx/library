@@ -13,7 +13,7 @@ export { default as TenrxCart } from './classes/TenrxCart.js';
 export { default as TenrxPatient } from './classes/TenrxPatient.js';
 export { default as TenrxUserAccount } from './classes/TenrxUserAccount.js';
 export { default as TenrxWallet } from './classes/TenrxWallet.js';
-export { default as TenrxChatParticipant } from './classes/TenrxChatParticipant.js';
+export { default as TenrxChatInterface } from './classes/TenrxChatInterface.js';
 export { default as TenrxChatEngine } from './classes/TenrxChatEngine.js';
 
 // Types
@@ -30,6 +30,12 @@ export { default as TenrxPaymentResult } from './types/TenrxPaymentResult.js';
 export { default as TenrxStreetAddress } from './types/TenrxStreetAddress.js';
 export { default as TenrxOrderPlacementResult } from './types/TenrxOrderPlacementResult.js';
 export { default as TenrxCartCheckoutResult } from './types/TenrxCartCheckoutResult.js';
+export {
+  default as TenrxChatEvent,
+  TenrxChatEventPayload,
+  TenrxChatParticipantJoinedPayload,
+  TenrxChatMessagePayload,
+} from './types/TenrxChatEvent.js';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -53,7 +59,13 @@ export {
 } from './apiModel/TenrxLoginAPIModel.js';
 
 // Enums
-export { TenrxEnumGender, TenrxEnumCountry, TenrxEnumState } from './includes/TenrxEnums.js';
+export {
+  TenrxEnumGender,
+  TenrxEnumCountry,
+  TenrxEnumState,
+  TenrxChatEventType,
+  TenrxChatStatus,
+} from './includes/TenrxEnums.js';
 
 // Functions
 export {
