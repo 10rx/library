@@ -35,6 +35,7 @@ export {
   TenrxChatEventPayload,
   TenrxChatParticipantJoinedPayload,
   TenrxChatMessagePayload,
+  TenrxChatStartedPayload,
 } from './types/TenrxChatEvent.js';
 
 // Exceptions

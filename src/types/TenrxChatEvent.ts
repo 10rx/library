@@ -1,24 +1,130 @@
-import { TenrxChatEventType } from "../includes/TenrxEnums.js";
+import { DateTime } from 'luxon';
+import { TenrxChatEventType } from '../includes/TenrxEnums.js';
 
+/**
+ * Represents a chat event.
+ *
+ * @export
+ * @interface TenrxChatEvent
+ */
 export default interface TenrxChatEvent {
-    senderId: string | null;
-    recipientId: string | null;
-    type: TenrxChatEventType; // Need to switch to enum
-    payload: TenrxChatEventPayload | null;
+  /**
+   * The id of the sender of the event.
+   *
+   * @type {(string | null)}
+   * @memberof TenrxChatEvent
+   */
+  senderId: string | null;
+
+  /**
+   * The intended recipient of the event. If null, the event is broadcasted to all participants.
+   *
+   * @type {(string | null)}
+   * @memberof TenrxChatEvent
+   */
+  recipientId: string | null;
+
+  /**
+   * The type of the event.
+   *
+   * @type {TenrxChatEventType}
+   * @memberof TenrxChatEvent
+   */
+  type: TenrxChatEventType;
+
+  /**
+   * The payload of the event. Set to null if there is no payload.
+   *
+   * @type {(TenrxChatEventPayload | null)}
+   * @memberof TenrxChatEvent
+   */
+  payload: TenrxChatEventPayload | null;
+
+  /**
+   * The timestamp of the event.
+   *
+   * @type {DateTime}
+   * @memberof TenrxChatEvent
+   */
+  timestamp: DateTime;
 }
 
+/**
+ * Represents the payload of a participant joined event.
+ *
+ * @export
+ * @interface TenrxChatParticipantJoinedPayload
+ */
 export interface TenrxChatParticipantJoinedPayload {
-    nickName: string;
-    id: string;
-    avatar: string;
+  /**
+   * The nickname of the participant.
+   *
+   * @type {string}
+   * @memberof TenrxChatParticipantJoinedPayload
+   */
+  nickName: string;
+
+  /**
+   * The id of the participant.
+   *
+   * @type {string}
+   * @memberof TenrxChatParticipantJoinedPayload
+   */
+  id: string;
+
+  /**
+   * The avatar of the participant.
+   *
+   * @type {string}
+   * @memberof TenrxChatParticipantJoinedPayload
+   */
+  avatar: string;
 }
 
+/**
+ * Represents the payload of a chat message.
+ *
+ * @export
+ * @interface TenrxChatMessagePayload
+ */
 export interface TenrxChatMessagePayload {
-    message: string;
-    metadata: {
-        kind: string;
-        data: unknown;
-    } | null;
+  /**
+   * The actual message.
+   *
+   * @type {string}
+   * @memberof TenrxChatMessagePayload
+   */
+  message: string;
+
+  /**
+   * Any additional data.
+   *
+   * @type {({
+   * kind: string;
+   * data: unknown;
+   * } | null)}
+   * @memberof TenrxChatMessagePayload
+   */
+  metadata: {
+    /**
+     * The kind of metadata.
+     *
+     * @type {string}
+     */
+    kind: string;
+    
+    /**
+     * The actual metadata.
+     *
+     * @type {unknown}
+     */
+    data: unknown;
+  } | null;
 }
 
-export type TenrxChatEventPayload = TenrxChatParticipantJoinedPayload | TenrxChatMessagePayload;
+export type TenrxChatStartedPayload = TenrxChatParticipantJoinedPayload[];
+
+export type TenrxChatEventPayload =
+  | TenrxChatParticipantJoinedPayload
+  | TenrxChatMessagePayload
+  | TenrxChatStartedPayload;

@@ -97,16 +97,35 @@ export enum TenrxEnumState {
   Alabama = 152,
 }
 
+/**
+ * Represents the status of the chat engine.
+ *
+ * @export
+ * @enum {number}
+ */
 export enum TenrxChatStatus {
+  /**
+   * The chat is idle.
+   */
   Idle,
+
+  /**
+   * The chat is active.
+   */
   Active,
 }
 
+/**
+ * Represents a type of chat event.
+ *
+ * @export
+ * @enum {number}
+ */
 export enum TenrxChatEventType {
   ChatStarted,
   ChatEnded,
   ChatMessage,
-  ChatTyping,
+  ChatTypingStarted,
   ChatTypingEnded,
   ChatError,
   ChatParticipantJoined,
