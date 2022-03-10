@@ -131,3 +131,36 @@ export enum TenrxChatEventType {
   ChatParticipantJoined,
   ChatParticipantLeft,
 }
+
+/**
+ * Represents the type of a answer for a question in the questionnaire.
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxQuestionnaireAnswerType {
+  /**
+   * Answer is a free form text.
+   */
+  TEXT,
+  
+  /**
+   * Answer is a yes/no answer.
+   */
+  YESORNO,
+  
+  /**
+   * Answer is a single choice answer out of multiple choices.
+   */
+  MULTIPLECHOICE,
+  
+  /**
+   * Answer can be multiple choice answers out of multiple choices.
+   */
+  MULTIPLESELECT,
+  
+  /**
+   * Answer must be a US state.
+   */
+  STATEPICKER,
+}
