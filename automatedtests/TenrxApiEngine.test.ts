@@ -187,3 +187,9 @@ test('RegisterUser Test Success', async () => {
   });
   expect(result).not.toBeNull();
 });
+
+test('GetQuestionList Test Success', async () => {
+  const result = await tenrx.getQuestionList([{ visitTypeId: 1}])
+  Testlogger.warn(result);
+  expect(result).not.toBeNull();
+});

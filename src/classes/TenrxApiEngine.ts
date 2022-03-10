@@ -58,6 +58,40 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets the questionnaire from the backend server.
+   *
+   * @param {{ visitTypeId: number }[]} visitTypeId - The visit type to get the questionnaire for
+   * @param {number} [questionnaireCategoryID=0] - The questionnaire category to get the questionnaire for
+   * @param {number} [templateId=0] - The template to get the questionnaire for
+   * @return {*}  {Promise<TenrxApiResult>} - The response from the API
+   * @memberof TenrxApiEngine
+   */
+  public async getQuestionList(
+    visitTypeId: { visitTypeId: number }[],
+    questionnaireCategoryID = 0,
+    templateId = 0,
+  ): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting question list from API');
+    try {
+      const response = await this.post(`${this.baseapi}/Login/GetQuestionList`, {
+        id: 0,
+        visitTypeId,
+        questionnaireCategoryID,
+        templateId,
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getQuestionList() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Gets the payment cards for the current user.
    *
    * @return {*}  {Promise<TenrxApiResult>}
