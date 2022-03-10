@@ -66,6 +66,7 @@ export {
   TenrxEnumState,
   TenrxChatEventType,
   TenrxChatStatus,
+  TenrxQuestionnaireAnswerType,
 } from './includes/TenrxEnums.js';
 
 // Functions
