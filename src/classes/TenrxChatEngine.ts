@@ -241,6 +241,56 @@ export default class TenrxChatEngine {
   }
 
   /**
+   * Sends the start typing event to participants in the chat engine.
+   *
+   * @param {string} senderId - The id of the sender.
+   * @param {string} [participantId] - The id of the recipient.
+   * @memberof TenrxChatEngine
+   */
+  public startTyping(senderId: string, participantId?: string): void {
+    if (this.internalChatStatus === TenrxChatStatus.Active) {
+      this.notifyParticipants(
+        {
+          timestamp: DateTime.now(),
+          senderId,
+          recipientId: participantId ? participantId : null, // sending to all users
+          type: TenrxChatEventType.ChatTypingStarted,
+          payload: null,
+        },
+        senderId,
+      );
+    } else {
+      TenrxLibraryLogger.error('Unable to send typing notification to all recipients. Chat is not active.');
+      throw new TenrxChatNotActive('Unable to send typing notification to all recipients. Chat is not active.', 'TenrxChatEngine');
+    }
+  }
+
+  /**
+   * Sends the stop typing event to participants in the chat engine.
+   *
+   * @param {string} senderId - The id of the sender.
+   * @param {string} [participantId] - The id of the recipient.
+   * @memberof TenrxChatEngine
+   */
+  public stopTyping(senderId: string, participantId?: string): void {
+    if (this.internalChatStatus === TenrxChatStatus.Active) {
+      this.notifyParticipants(
+        {
+          timestamp: DateTime.now(),
+          senderId,
+          recipientId: participantId ? participantId : null, // sending to all users
+          type: TenrxChatEventType.ChatTypingEnded,
+          payload: null,
+        },
+        senderId,
+      );
+    } else {
+      TenrxLibraryLogger.error('Unable to send typing notification to all recipients. Chat is not active.');
+      throw new TenrxChatNotActive('Unable to send typing notification to all recipients. Chat is not active.', 'TenrxChatEngine');
+    }
+  }
+
+  /**
    * Generates a random id.
    *
    * @private
