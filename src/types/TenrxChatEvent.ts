@@ -108,21 +108,21 @@ export interface TenrxChatMessagePayload {
   metadata: TenrxChatMessageMetadata | null;
 }
 
-export type TenrxChatMessageMetadata =  {
-    /**
-     * The kind of metadata.
-     *
-     * @type {string}
-     */
-    kind: string;
-    
-    /**
-     * The actual metadata.
-     *
-     * @type {unknown}
-     */
-    data: unknown;
-  } | null;
+export type TenrxChatMessageMetadata = {
+  /**
+   * The kind of metadata.
+   *
+   * @type {string}
+   */
+  kind: string;
+
+  /**
+   * The actual metadata.
+   *
+   * @type {unknown}
+   */
+  data: unknown;
+} | null;
 
 export type TenrxChatStartedPayload = TenrxChatParticipantJoinedPayload[];
 

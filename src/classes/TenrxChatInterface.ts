@@ -16,7 +16,7 @@ export default abstract class TenrxChatInterface {
    * @memberof TenrxChatInterface
    */
   public id: string;
-  
+
   /**
    * Handles the chat events.
    *
@@ -26,10 +26,10 @@ export default abstract class TenrxChatInterface {
    * @memberof TenrxChatInterface
    */
   public abstract onEvent(event: TenrxChatEvent, engine: TenrxChatEngine): void;
-  
+
   /**
    * Creates an instance of TenrxChatInterface.
-   * 
+   *
    * @param {string} [id] - The id of the interface.
    * @memberof TenrxChatInterface
    */

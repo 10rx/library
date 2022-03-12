@@ -67,7 +67,7 @@ export default class TenrxCart {
    */
   public get cartTotalItems(): number {
     if (this.internalTaxAmount < 0) {
-        this.internalCartTotalItems = this.internalCartEntries.reduce((acc, cur) => acc + cur.quantity, 0);
+      this.internalCartTotalItems = this.internalCartEntries.reduce((acc, cur) => acc + cur.quantity, 0);
     }
     return this.internalCartTotalItems;
   }
