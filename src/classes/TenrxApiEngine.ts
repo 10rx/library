@@ -11,6 +11,8 @@ import TenrxUpdatePatientDetailsAPIModel from '../apiModel/TenrxUpdatePatientDet
 import TenrxChargeAPIModel from '../apiModel/TenrxChargeAPIModel.js';
 import TenrxSaveProductAPIModel from '../apiModel/TenrxSaveProductAPIModel.js';
 import TenrxGuestAddProductAPIModel from '../apiModel/TenrxGuestAddProductAPIModel.js';
+import TenrxQuestionnaireSaveAnswersAPIModel from '../apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
+import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -55,6 +57,54 @@ export default class TenrxApiEngine {
     this.accesstoken = accesstoken;
     this.expiresIn = expiresIn;
     this.expireDateStart = expireDateStart;
+  }
+
+  /**
+   * Saves questionnaire answers to the backend server.
+   *
+   * @param {number} patientId - The patient id to save the answers for
+   * @param {number} userId - The user id to save the answers for
+   * @param {{ visitTypeId: number }[]} visitTypeId - The visit type to save the answers for
+   * @param {number} paymentId - The payment id to save the answers for
+   * @param {TenrxQuestionnaireSurveyResponseAPIModel[]} surveyResponses - The answers to save
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async saveAnswers(
+    patientId: number,
+    userId: number,
+    visitTypeId: { visitTypeId: number }[],
+    paymentId: number,
+    surveyResponses: TenrxQuestionnaireSurveyResponseAPIModel[],
+  ): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving answers to API');
+    const answers: TenrxQuestionnaireSaveAnswersAPIModel = {
+      surveyResponses,
+      paymentId,
+      appointmentId: 0,
+      visitTypeId,
+      guestMasterId: 0,
+      surgeryMasterId: 0,
+      patientId,
+      userId,
+      patientComment: '',
+      paymentStatus: true,
+      patientEncounterId: 0,
+      isClientAccepted: true,
+      isSurgeryRequest: false,
+    };
+    try {
+      const response = await this.authPost(`${this.baseapi}/Questionnaire/SaveAnswers`, answers);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('SaveAnswers() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**
