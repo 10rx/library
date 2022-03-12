@@ -23,6 +23,8 @@ import TenrxChatInterface from './TenrxChatInterface.js';
 
 const defaultWelcomeMessage = 'Welcome to 10rx!';
 const defaultEndMessage = 'Thank you for your time!';
+const defaultUnableToUnderstandMessage = "I'm sorry, I didn't understand that.";
+const defaultCouldYouRepeatThatMessage = "I'm sorry. Could you repeat that?";
 const defaultTypingDelay = 1000;
 
 export default class TenrxQuestionnaireBot extends TenrxChatInterface {
@@ -177,13 +179,24 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
         this.currentQuestion++;
         this.askQuestion(this.currentQuestion, engine);
       } else {
-        this.sendMessage(`I am sorry ${participant.nickName}, could you please repeat that?`, null, engine);
+        this.sendMessage(
+          this.questionnaireBotOptions.couldYouRepeatThatMessage
+            ? this.questionnaireBotOptions.couldYouRepeatThatMessage
+            : defaultCouldYouRepeatThatMessage,
+          null,
+          engine,
+        );
       }
     } else {
-    this.sendMessage(`I'm sorry ${participant.nickName}, I didn't understand that.`, null, engine);
-    this.askQuestion(this.currentQuestion, engine);
+      this.sendMessage(
+        this.questionnaireBotOptions.unableToUnderstandMessage
+          ? this.questionnaireBotOptions.unableToUnderstandMessage
+          : defaultUnableToUnderstandMessage,
+        null,
+        engine,
+      );
+      this.askQuestion(this.currentQuestion, engine);
     }
-    
   }
 
   constructor(
@@ -203,6 +216,8 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
       welcomeMessage: defaultWelcomeMessage,
       endMessage: defaultEndMessage,
       delayTyping: defaultTypingDelay,
+      unableToUnderstandMessage: defaultUnableToUnderstandMessage,
+      couldYouRepeatThatMessage: defaultCouldYouRepeatThatMessage,
       ...options,
       nickName,
       avatar,
@@ -248,50 +263,52 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
                   if (questionnaireTemplateList.length > 0) {
                     if (questionnaireTemplateList[0].questionLists) {
                       if (questionnaireTemplateList[0].questionLists.length > 0) {
-                      for (const question of questionnaireTemplateList[0].questionLists) {
-                        const possibleAnswers: TenrxQuestionnaireAnswerOption[] = [];
-                        if (question.answers) {
-                          for (const answer of question.answers) {
-                            possibleAnswers.push({
-                              id: answer.questionnaireOptionsID,
-                              questionnaireId: question.questionnaireMasterID,
-                              optionValue:
-                                language === 'en'
-                                  ? answer.optionValue
-                                  : language === 'es'
-                                  ? answer.optionValueEs
-                                  : answer.optionValue,
-                              optionInfo:
-                                language === 'en'
-                                  ? answer.optionInfo
-                                  : language === 'es'
-                                  ? answer.optionInfoEs
-                                  : answer.optionInfo,
-                              numericValue: answer.numericValue,
-                              displayOrder: answer.displayOrder,
-                            });
+                        for (const question of questionnaireTemplateList[0].questionLists) {
+                          const possibleAnswers: TenrxQuestionnaireAnswerOption[] = [];
+                          if (question.answers) {
+                            for (const answer of question.answers) {
+                              possibleAnswers.push({
+                                id: answer.questionnaireOptionsID,
+                                questionnaireId: question.questionnaireMasterID,
+                                optionValue:
+                                  language === 'en'
+                                    ? answer.optionValue
+                                    : language === 'es'
+                                    ? answer.optionValueEs
+                                    : answer.optionValue,
+                                optionInfo:
+                                  language === 'en'
+                                    ? answer.optionInfo
+                                    : language === 'es'
+                                    ? answer.optionInfoEs
+                                    : answer.optionInfo,
+                                numericValue: answer.numericValue,
+                                displayOrder: answer.displayOrder,
+                              });
+                            }
                           }
+                          this.internalQuestions.push({
+                            questionId: question.questionnaireMasterID,
+                            question:
+                              language === 'en'
+                                ? question.question
+                                : language === 'es'
+                                ? question.questionEs
+                                : question.question,
+                            answerType: this.translateQuestionTypeCodeToAnswerType(question.questionTypeCode),
+                            answerValue: '',
+                            possibleAnswers,
+                            conditionValue1: question.conditionValue1 ? question.conditionValue1 : '',
+                            conditionValue2: question.conditionValue2 ? question.conditionValue2 : '',
+                            conditionValue3: question.conditionValue3 ? question.conditionValue3 : '',
+                          });
                         }
-                        this.internalQuestions.push({
-                          questionId: question.questionnaireMasterID,
-                          question:
-                            language === 'en'
-                              ? question.question
-                              : language === 'es'
-                              ? question.questionEs
-                              : question.question,
-                          answerType: this.translateQuestionTypeCodeToAnswerType(question.questionTypeCode),
-                          answerValue: '',
-                          possibleAnswers,
-                          conditionValue1: question.conditionValue1 ? question.conditionValue1 : '',
-                          conditionValue2: question.conditionValue2 ? question.conditionValue2 : '',
-                          conditionValue3: question.conditionValue3 ? question.conditionValue3 : '',
-                        });
+                        this.internalState = TenrxQuestionnaireBotStatus.READY;
+                      } else {
+                        throw new TenrxQuestionnaireError(
+                          'No questions found: Questionnaire question list length is 0.',
+                        );
                       }
-                      this.internalState = TenrxQuestionnaireBotStatus.READY;
-                    } else {
-                      throw new TenrxQuestionnaireError('No questions found: Questionnaire question list length is 0.');
-                    }
                     } else {
                       throw new TenrxQuestionnaireError('No questions found: Questionnaire question list is null.');
                     }
@@ -332,5 +349,7 @@ export type TenrxQuestionnaireBotOptions = {
   visitTypeId?: number;
   welcomeMessage?: string;
   endMessage?: string;
+  unableToUnderstandMessage?: string;
+  couldYouRepeatThatMessage?: string;
   delayTyping?: number;
 };
