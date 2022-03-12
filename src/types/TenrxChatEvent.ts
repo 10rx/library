@@ -105,7 +105,10 @@ export interface TenrxChatMessagePayload {
    * } | null)}
    * @memberof TenrxChatMessagePayload
    */
-  metadata: {
+  metadata: TenrxChatMessageMetadata | null;
+}
+
+export type TenrxChatMessageMetadata =  {
     /**
      * The kind of metadata.
      *
@@ -120,7 +123,6 @@ export interface TenrxChatMessagePayload {
      */
     data: unknown;
   } | null;
-}
 
 export type TenrxChatStartedPayload = TenrxChatParticipantJoinedPayload[];
 

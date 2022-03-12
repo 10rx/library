@@ -164,3 +164,10 @@ export enum TenrxQuestionnaireAnswerType {
    */
   STATEPICKER,
 }
+
+export enum TenrxQuestionnaireBotStatus {
+  NOTREADY,
+  READY,
+  BUSY,
+  ERROR,
+}

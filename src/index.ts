@@ -15,6 +15,7 @@ export { default as TenrxUserAccount } from './classes/TenrxUserAccount.js';
 export { default as TenrxWallet } from './classes/TenrxWallet.js';
 export { default as TenrxChatInterface } from './classes/TenrxChatInterface.js';
 export { default as TenrxChatEngine } from './classes/TenrxChatEngine.js';
+export { default as TenrxQuestionnaireBot, TenrxQuestionnaireBotOptions } from './classes/TenrxQuestionnaireBot.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -30,12 +31,15 @@ export { default as TenrxPaymentResult } from './types/TenrxPaymentResult.js';
 export { default as TenrxStreetAddress } from './types/TenrxStreetAddress.js';
 export { default as TenrxOrderPlacementResult } from './types/TenrxOrderPlacementResult.js';
 export { default as TenrxCartCheckoutResult } from './types/TenrxCartCheckoutResult.js';
+export { default as TenrxQuestionnaireQuestion } from './types/TenrxQuestionnaireQuestion.js';
+export { default as TenrxQuestionnaireAnswerOption } from './types/TenrxQuestionnaireAnswerOption.js';
 export {
   default as TenrxChatEvent,
   TenrxChatEventPayload,
   TenrxChatParticipantJoinedPayload,
   TenrxChatMessagePayload,
   TenrxChatStartedPayload,
+  TenrxChatMessageMetadata,
 } from './types/TenrxChatEvent.js';
 
 // Exceptions
@@ -46,6 +50,7 @@ export { default as TenrxAccessTokenInvalid } from './exceptions/TenrxAccessToke
 export { default as TenrxNotLoaded } from './exceptions/TenrxNotLoaded.js';
 export { default as TenrxLoadError } from './exceptions/TenrxLoadError.js';
 export { default as TenrxChatNotActive } from './exceptions/TenrxChatNotActive.js';
+export { default as TenrxQuestionnaireError } from './exceptions/TenrxQuestionnaireError.js';
 
 // The following is needed to get rid of warnings when creating documentation. The following are documented in swagger.
 // TODO: add links to swagger.
@@ -67,6 +72,7 @@ export {
   TenrxChatEventType,
   TenrxChatStatus,
   TenrxQuestionnaireAnswerType,
+  TenrxQuestionnaireBotStatus,
 } from './includes/TenrxEnums.js';
 
 // Functions
