@@ -13,16 +13,13 @@ import TenrxChatInterface from './TenrxChatInterface.js';
  * @class TenrxChatEngine
  */
 export default class TenrxChatEngine {
-  private internalChatParticipants: Record<
-    string,
-    { nickName: string; avatar: string; interfaceId: string }
-  >;
+  private internalChatParticipants: Record<string, { nickName: string; avatar: string; interfaceId: string }>;
   private internalChatStatus: TenrxChatStatus;
   private internalInterfaces: Record<string, TenrxChatInterface>;
 
   /**
    * Creates an instance of TenrxChatEngine.
-   * 
+   *
    * @memberof TenrxChatEngine
    */
   constructor() {
@@ -93,26 +90,30 @@ export default class TenrxChatEngine {
   }
 
   private notifyParticipants(event: TenrxChatEvent, excludeParticipant?: string): void {
-    if (this.internalChatStatus === TenrxChatStatus.Active) {
-      Object.keys(this.internalChatParticipants).forEach((id) => {
-        if (excludeParticipant !== id) {
-          const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
-          this.internalInterfaces[this.internalChatParticipants[id].interfaceId].onEvent(actualEvent, this);
-        }
-      });
-    } else {
-      TenrxLibraryLogger.error(`Unable to notify participants. Chat is not active.`);
-      throw new TenrxChatNotActive(`Unable to notify participants. Chat is not active.`, 'TenrxChatEngine');
-    }
+    setTimeout(() => {
+      if (this.internalChatStatus === TenrxChatStatus.Active) {
+        Object.keys(this.internalChatParticipants).forEach((id) => {
+          if (excludeParticipant !== id) {
+            const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
+            this.internalInterfaces[this.internalChatParticipants[id].interfaceId].onEvent(actualEvent, this);
+          }
+        });
+      } else {
+        TenrxLibraryLogger.error(`Unable to notify participants. Chat is not active.`);
+        throw new TenrxChatNotActive(`Unable to notify participants. Chat is not active.`, 'TenrxChatEngine');
+      }
+    }, 0);
   }
 
   private notifyInterfaces(event: TenrxChatEvent, excludeInterface?: string): void {
-    Object.keys(this.internalInterfaces).forEach((id) => {
-      if (excludeInterface !== id) {
-        const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
-        this.internalInterfaces[id].onEvent(actualEvent, this);
-      }
-    });
+    setTimeout(() => {
+      Object.keys(this.internalInterfaces).forEach((id) => {
+        if (excludeInterface !== id) {
+          const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
+          this.internalInterfaces[id].onEvent(actualEvent, this);
+        }
+      });
+    }, 0);
   }
 
   /**
@@ -210,10 +211,13 @@ export default class TenrxChatEngine {
       );
     } else {
       TenrxLibraryLogger.error(`Unable to remove participant with id '${participantId}' to the chat.`);
-      throw new TenrxChatInternalError(`Unable to remove participant with id '${participantId}' to the chat.`, 'TenrxChatEngine');
+      throw new TenrxChatInternalError(
+        `Unable to remove participant with id '${participantId}' to the chat.`,
+        'TenrxChatEngine',
+      );
     }
   }
-  
+
   /**
    * Sends a message to participants in the chat engine.
    *
@@ -261,7 +265,10 @@ export default class TenrxChatEngine {
       );
     } else {
       TenrxLibraryLogger.error('Unable to send typing notification to all recipients. Chat is not active.');
-      throw new TenrxChatNotActive('Unable to send typing notification to all recipients. Chat is not active.', 'TenrxChatEngine');
+      throw new TenrxChatNotActive(
+        'Unable to send typing notification to all recipients. Chat is not active.',
+        'TenrxChatEngine',
+      );
     }
   }
 
@@ -286,7 +293,10 @@ export default class TenrxChatEngine {
       );
     } else {
       TenrxLibraryLogger.error('Unable to send typing notification to all recipients. Chat is not active.');
-      throw new TenrxChatNotActive('Unable to send typing notification to all recipients. Chat is not active.', 'TenrxChatEngine');
+      throw new TenrxChatNotActive(
+        'Unable to send typing notification to all recipients. Chat is not active.',
+        'TenrxChatEngine',
+      );
     }
   }
 
