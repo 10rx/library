@@ -25,7 +25,12 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
   public onParticipantJoined: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
   public onParticipantLeft: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
   public onMessageReceived:
-    | ((chatInterface: TenrxPatientChatInterface, participantId: string | null, message: string, metadata: TenrxChatMessageMetadata) => void)
+    | ((
+        chatInterface: TenrxPatientChatInterface,
+        participantId: string | null,
+        message: string,
+        metadata: TenrxChatMessageMetadata,
+      ) => void)
     | undefined;
   public onTypingStarted: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
   public onTypingEnded: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
@@ -105,7 +110,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
     this.participants = {};
     this.avatar = avatar;
   }
-  
+
   /**
    * Enters the chat session.
    *
@@ -118,7 +123,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
       TenrxLibraryLogger.debug('TenrxPatientChatInterface: Participant id:', this.participantId);
     }
   }
-  
+
   /**
    * Leaves the chat session.
    *
@@ -131,7 +136,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
       this.participantId = '';
     }
   }
-  
+
   /**
    * Sends a message to the chat session. Most interfaces will automatically assume that after each sendMessage call, that the user stopped typing.
    *
@@ -143,10 +148,10 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
   public sendMessage(message: string, metadata: TenrxChatMessageMetadata, receipentId?: string) {
     TenrxLibraryLogger.debug('TenrxPatientChatInterface: Sending message.');
     if (this.chatEngine) {
-      this.chatEngine.sendMessage(this.participantId, { message , metadata}, receipentId);
+      this.chatEngine.sendMessage(this.participantId, { message, metadata }, receipentId);
     }
   }
-  
+
   /**
    * Notifies the chat session that the user is typing.
    *
@@ -158,7 +163,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
       this.chatEngine.startTyping(this.participantId);
     }
   }
-  
+
   /**
    * Notifies the chat session that the user stopped typing.
    *
