@@ -14,7 +14,9 @@ import {
   TenrxQuestionnaireAnswerOption,
   TenrxQuestionnaireBot,
   TenrxQuestionnaireBotStatus,
+  TenrxQuestionnairePossibleAnswers,
 } from '../src/index.js';
+import TenrxQuestionnaireAnswer from '../src/types/TenrxQuestionnaireAnswer.js';
 
 Testlogger.setSettings({
   type: 'pretty',
@@ -39,10 +41,27 @@ test('Questionnaire Test Successful', async () => {
       const participant = chatInterface.participants[participantId];
       Testlogger.info(`${participant.nickName}: ${message}`);
       if (metadata && metadata.kind === 'QuestionnairePossibleAnswers') {
-        const possibleAnswers = metadata.data as TenrxQuestionnaireAnswerOption[];
+        const possibleAnswers = metadata.data as TenrxQuestionnairePossibleAnswers;
+        const answer: TenrxQuestionnaireAnswer = {
+          questionId: possibleAnswers.questionId,
+          questionTypeId: possibleAnswers.questionTypeId,
+          questionType: possibleAnswers.answerType,
+          answers: [
+            possibleAnswers.possibleAnswers
+              ? possibleAnswers.possibleAnswers[0]
+              : {
+                  id: 0,
+                  questionnaireMasterId: 0,
+                  optionValue: 'random response here',
+                  optionInfo: '',
+                  numericValue: 1,
+                  displayOrder: 0,
+                },
+          ],
+        };
         chatInterface.sendMessage('', {
           kind: 'QuestionnaireAnswer',
-          data: possibleAnswers[0],
+          data: answer,
         });
       }
     }

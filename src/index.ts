@@ -34,6 +34,9 @@ export { default as TenrxOrderPlacementResult } from './types/TenrxOrderPlacemen
 export { default as TenrxCartCheckoutResult } from './types/TenrxCartCheckoutResult.js';
 export { default as TenrxQuestionnaireQuestion } from './types/TenrxQuestionnaireQuestion.js';
 export { default as TenrxQuestionnaireAnswerOption } from './types/TenrxQuestionnaireAnswerOption.js';
+export { default as TenrxQuestionnaireAnswer } from './types/TenrxQuestionnaireAnswer.js';
+export { default as TenrxQuestionnairePossibleAnswers } from './types/TenrxQuestionnairePossibleAnswers.js';
+export { default as TenrxSendAnswersResult } from './types/TenrxSendAnswersResult.js';
 export {
   default as TenrxChatEvent,
   TenrxChatEventPayload,

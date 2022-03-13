@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 export default interface TenrxQuestionnaireSurveyResponseAPIModel {
-  questionnaireMasterID: number;
   id: number;
   answerMasterServerId: number;
   answerOptionServerId: number;

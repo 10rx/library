@@ -15,9 +15,11 @@ import {
   TenrxLibraryLogger,
   TenrxQuestionnaireAnswerOption,
   TenrxQuestionnaireError,
+  TenrxQuestionnairePossibleAnswers,
   TenrxQuestionnaireQuestion,
   useTenrxApi,
 } from '../index.js';
+import TenrxQuestionnaireAnswer from '../types/TenrxQuestionnaireAnswer.js';
 import TenrxChatInterface from './TenrxChatInterface.js';
 
 const defaultWelcomeMessage = 'Welcome to 10rx!';
@@ -38,9 +40,9 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
 
   private internalParticipantId: string;
 
-  private internalAnswers: TenrxQuestionnaireAnswerOption[];
+  private internalAnswers: TenrxQuestionnaireAnswer[];
 
-  public get answers(): TenrxQuestionnaireAnswerOption[] {
+  public get answers(): TenrxQuestionnaireAnswer[] {
     return this.internalAnswers;
   }
 
@@ -118,7 +120,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
         }
       }
     } else {
-      TenrxLibraryLogger.warn('Questionnaire (handleChatStarted): Chat does not exists.',);
+      TenrxLibraryLogger.warn('Questionnaire (handleChatStarted): Chat does not exists.');
     }
   }
 
@@ -126,16 +128,22 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     TenrxLibraryLogger.debug('Asking question: ' + index.toString());
     if (index < this.internalQuestions.length) {
       const question = this.internalQuestions[index];
+      const data: TenrxQuestionnairePossibleAnswers = {
+        questionId: question.questionId,
+        questionTypeId: question.questionTypeId,
+        answerType: question.answerType,
+        possibleAnswers: question.possibleAnswers,
+      };
       this.sendMessage(question.question, {
         kind: 'QuestionnairePossibleAnswers',
-        data: { answerType: question.answerType, possibleAnswers: question.possibleAnswers },
+        data,
       });
     } else {
+      this.internalState = TenrxQuestionnaireBotStatus.COMPLETED;
       this.sendMessage(
         this.questionnaireBotOptions.endMessage ? this.questionnaireBotOptions.endMessage : defaultEndMessage,
         { kind: 'QuestionnaireEnd', data: null },
       );
-      this.internalState = TenrxQuestionnaireBotStatus.COMPLETED;
     }
   }
 
@@ -172,11 +180,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     }
   }
 
-  private handleReceivedMessage(
-    senderId: string | null,
-    messagePayload: TenrxChatMessagePayload,
-    timestamp: DateTime,
-  ) {
+  private handleReceivedMessage(senderId: string | null, messagePayload: TenrxChatMessagePayload, timestamp: DateTime) {
     if (senderId === null) {
       return;
     }
@@ -184,7 +188,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     TenrxLibraryLogger.debug(`${participant.nickName} (${timestamp.toString()}): ${messagePayload.message}`);
     if (messagePayload.metadata != null) {
       if (messagePayload.metadata.kind === 'QuestionnaireAnswer') {
-        this.internalAnswers.push(messagePayload.metadata.data as TenrxQuestionnaireAnswerOption);
+        this.internalAnswers.push(messagePayload.metadata.data as TenrxQuestionnaireAnswer);
         this.currentQuestion++;
         this.askQuestion(this.currentQuestion);
       } else {
@@ -276,7 +280,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
                             for (const answer of question.answers) {
                               possibleAnswers.push({
                                 id: answer.questionnaireOptionsID,
-                                questionnaireId: question.questionnaireMasterID,
+                                questionnaireMasterId: question.questionnaireMasterID,
                                 optionValue:
                                   language === 'en'
                                     ? answer.optionValue
@@ -296,6 +300,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
                           }
                           this.internalQuestions.push({
                             questionId: question.questionnaireMasterID,
+                            questionTypeId: question.questionTypeID,
                             question:
                               language === 'en'
                                 ? question.question

@@ -1,6 +1,6 @@
 export default interface TenrxQuestionnaireAnswerOption {
   id: number;
-  questionnaireId: number;
+  questionnaireMasterId: number;
   optionValue: string;
   optionInfo: string;
   numericValue: number;

@@ -5,7 +5,7 @@ import {
   TEST_PASSWORD_SUCCESS,
   TEST_USERNAME_EXISTS,
 } from './includes/TexrxCommonInclude.js';
-import { authenticateTenrx, TenrxProduct } from '../src/index.js';
+import { authenticateTenrx, TenrxProduct, TenrxQuestionnaireAnswer, TenrxQuestionnaireAnswerOption, TenrxQuestionnaireAnswerType } from '../src/index.js';
 import TenrxUserAccount from '../src/classes/TenrxUserAccount.js';
 import { TenrxLoginAPIModelData } from '../src/apiModel/TenrxLoginAPIModel.js';
 import TenrxPatient from '../src/classes/TenrxPatient.js';
@@ -38,6 +38,21 @@ test('GetPaymentCards Test Successful', async () => {
 test('PlaceOrder Test Successful', async () => {
   const sampleProduct = (await TenrxProduct.getProductByID(2290)) as TenrxProduct;
   const cart = getSampleFullCart(sampleProduct);
+  const answerOption: TenrxQuestionnaireAnswerOption = {
+    id: 0,
+    questionnaireMasterId: 0,
+    optionValue: 'Test answer',
+    optionInfo: '',
+    numericValue: 0,
+    displayOrder: 0
+  }
+  const answer: TenrxQuestionnaireAnswer = {
+    questionId: 668,
+    questionTypeId: 1,
+    questionType: TenrxQuestionnaireAnswerType.TEXT,
+    answers: [answerOption],
+  };
+  cart.attachAnswers(1, [answer]);
   await cart.getTaxInformation(TEST_ADDRESS);
   const loginData = await authenticateTenrx('456@xyz.com', 'Password1!');
   if (loginData.status === 200) {

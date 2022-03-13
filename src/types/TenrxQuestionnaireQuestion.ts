@@ -4,6 +4,7 @@ import TenrxQuestionnaireAnswerOption from './TenrxQuestionnaireAnswerOption.js'
 export default interface TenrxQuestionnaireQuestion {
   questionId: number;
   question: string;
+  questionTypeId: number;
   answerType: TenrxQuestionnaireAnswerType;
   answerValue: string;
   possibleAnswers: TenrxQuestionnaireAnswerOption[];

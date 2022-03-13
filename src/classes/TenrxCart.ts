@@ -1,9 +1,13 @@
+import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
 import { TenrxStateIdToStateName } from '../includes/TenrxStates.js';
 import {
   TenrxEnumCountry,
   TenrxLibraryLogger,
   TenrxPaymentResult,
+  TenrxQuestionnaireAnswer,
+  TenrxQuestionnaireAnswerType,
   tenrxRoundTo,
+  TenrxSendAnswersResult,
   TenrxStripeCreditCard,
   useTenrxApi,
   useTenrxStorage,
@@ -30,6 +34,7 @@ export default class TenrxCart {
   private internalSubHiddenTotal: number;
   private internalLoaded: boolean;
   private internalShippingCost: number;
+  private internalAnswers: Record<string, TenrxQuestionnaireAnswer[]>;
 
   /**
    * Creates an instance of TenrxCart.
@@ -46,6 +51,7 @@ export default class TenrxCart {
     this.internalSubHiddenTotal = -1;
     this.internalLoaded = false;
     this.internalShippingCost = 0;
+    this.internalAnswers = {};
   }
 
   /**
@@ -361,6 +367,8 @@ export default class TenrxCart {
    * @param {string} userName - The user name of the user who is paying for the cart.
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
+   * @param {number} [userId=0] - The user id of the user who is paying for the cart.
+   * @param {number} [patientId=0] - The patient id of the user who is paying for the cart.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxCartCheckoutResult>}
@@ -370,6 +378,8 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
+    userId = 0,
+    patientId = 0,
     isGuest = false,
     apiEngine = useTenrxApi(),
   ): Promise<TenrxCartCheckoutResult> {
@@ -378,6 +388,7 @@ export default class TenrxCart {
       checkoutSuccessful: false,
       paymentDetails: null,
       orderDetails: null,
+      questionnaireDetails: null,
     };
     try {
       result.paymentDetails = await this.sendPayment(userName, card, shippingAddress, isGuest, apiEngine);
@@ -388,11 +399,25 @@ export default class TenrxCart {
       if (result.paymentDetails.paymentSuccessful) {
         try {
           result.orderDetails = await this.placeOrder(result.paymentDetails.paymentId, shippingAddress, isGuest);
-          if (result.orderDetails.orderPlacementSuccessful) {
-            result.checkoutSuccessful = true;
-          }
         } catch (error) {
           TenrxLibraryLogger.error('cart.checkout().placeOrder():', error);
+        }
+        if (result.orderDetails) {
+          if (result.orderDetails.orderPlacementSuccessful) {
+            if (Object.keys(this.internalAnswers).length > 0) {
+              result.questionnaireDetails = await this.sendAnswers(
+                patientId,
+                userId,
+                result.paymentDetails.paymentId,
+                apiEngine,
+              );
+            }
+            if (result.questionnaireDetails) {
+              if (result.questionnaireDetails.answersSent) {
+                result.checkoutSuccessful = true;
+              }
+            }
+          }
         }
       }
     }
@@ -475,6 +500,124 @@ export default class TenrxCart {
       } catch (error) {
         TenrxLibraryLogger.error('placeOrder(): ', error);
         result.orderPlacementMessage = 'Exception has occurred when placing the order: ' + JSON.stringify(error);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Attaches the answers of the questionnaires to the cart per visit type.
+   *
+   * @param {number} visitTypeId
+   * @param {TenrxQuestionnaireAnswerOption[]} answers
+   * @memberof TenrxCart
+   */
+  public attachAnswers(visitTypeId: number, answers: TenrxQuestionnaireAnswer[]) {
+    this.internalAnswers[visitTypeId] = answers;
+  }
+
+  /**
+   * Sends the answers of the questionnaires to the backend servers.
+   *
+   * @param {number} patientId - The id of the patient who is answering the questionnaires.
+   * @param {number} userId - The id of the user who is answering the questionnaires.
+   * @param {number} paymentId - The id of the payment of the order that this questionnaire answers belong to.
+   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
+   * @return {*}  {Promise<TenrxSendAnswersResult>} - The result of the sending of the answers.
+   * @memberof TenrxCart
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await
+  public async sendAnswers(
+    // Disabling linter to avoid compile issues
+    patientId: number,
+    userId: number,
+    paymentId: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    apiEngine = useTenrxApi(), // Disabling linter to avoid compile issues
+  ): Promise<TenrxSendAnswersResult> {
+    TenrxLibraryLogger.info('Sending answers.');
+    const result: TenrxSendAnswersResult = {
+      answersSent: false,
+      answersSentMessage: 'Unable to send answers.',
+      answersSentStatusCode: 500,
+    };
+    if (Object.keys(this.internalAnswers).length > 0) {
+      try {
+        const visitTypeIds: { visitTypeId: number }[] = [];
+        const answers: TenrxQuestionnaireSurveyResponseAPIModel[] = [];
+        Object.keys(this.internalAnswers).forEach((visitTypeId) => {
+          visitTypeIds.push({ visitTypeId: Number(visitTypeId) });
+          this.internalAnswers[visitTypeId].forEach((answer) => {
+            const baseAnswer: TenrxQuestionnaireSurveyResponseAPIModel = {
+              id: 0,
+              answerMasterServerId: 0,
+              answerOptionServerId: 0,
+              answerValue: 'string',
+              categoryId: 0,
+              patientAppointmentId: 0,
+              patientEncrytedId: 'string',
+              patientId,
+              questionMasterId: answer.questionId,
+              questionMatrixDetailsId: 0,
+              questionMatrixDetailsServerId: 0,
+              questionMatrixMasterId: 0,
+              questionMatrixMasterServerId: 0,
+              questionOptionId: 0,
+              questionTypeId: answer.questionTypeId,
+              templateMasterId: 0,
+              userID: userId,
+              visitTypeId: parseInt(visitTypeId, 10),
+              isDeleted: false,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
+              access_token: 'string',
+            };
+            switch (answer.questionType) {
+              case TenrxQuestionnaireAnswerType.TEXT:
+                baseAnswer.answerValue =
+                  answer.answers.length > 0 ? answer.answers[0].optionValue : 'Invalid response.';
+                answers.push(baseAnswer);
+                break;
+              case TenrxQuestionnaireAnswerType.YESORNO:
+              case TenrxQuestionnaireAnswerType.MULTIPLECHOICE:
+                baseAnswer.answerValue =
+                  answer.answers.length > 0 ? answer.answers[0].optionValue : 'Invalid response.';
+                baseAnswer.questionOptionId = answer.answers.length > 0 ? answer.answers[0].id : 0;
+                answers.push(baseAnswer);
+                break;
+              case TenrxQuestionnaireAnswerType.MULTIPLESELECT:
+                answer.answers.forEach((answerOption) => {
+                  const answerCopy = Object.assign({}, baseAnswer);
+                  answerCopy.answerValue = answerOption.optionValue;
+                  answerCopy.questionOptionId = answerOption.id;
+                  answers.push(answerCopy);
+                });
+                break;
+            }
+          });
+        });
+        // Faking the actual send of answers in the meantime.
+        result.answersSentMessage = 'Answers sent successfully.';
+        result.answersSentStatusCode = 200;
+        result.answersSent = true;
+        /*
+        const sendAnswers = await apiEngine.saveAnswers(patientId, userId, visitTypeIds, paymentId, answers);
+        if (sendAnswers.content) {
+          const content = sendAnswers.content as {
+            message: string;
+            statusCode: number;
+          };
+          TenrxLibraryLogger.info('Answers servers responded: ' + content.message);
+          result.answersSentMessage = content.message;
+          result.answersSentStatusCode = content.statusCode;
+          if (content.statusCode === 200) {
+            result.answersSent = true;
+          }
+        } else {
+          TenrxLibraryLogger.error('sendAnswers() content is null:', sendAnswers.error);
+        }*/
+      } catch (error) {
+        TenrxLibraryLogger.error('sendAnswers(): ', error);
+        result.answersSentMessage = 'Exception has occurred when sending answers: ' + JSON.stringify(error);
       }
     }
     return result;
