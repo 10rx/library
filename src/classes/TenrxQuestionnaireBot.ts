@@ -18,7 +18,6 @@ import {
   TenrxQuestionnaireQuestion,
   useTenrxApi,
 } from '../index.js';
-import TenrxChatEngine from './TenrxChatEngine.js';
 import TenrxChatInterface from './TenrxChatInterface.js';
 
 const defaultWelcomeMessage = 'Welcome to 10rx!';
@@ -41,7 +40,11 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
 
   private internalAnswers: TenrxQuestionnaireAnswerOption[];
 
-  public onEvent(event: TenrxChatEvent, engine: TenrxChatEngine): void {
+  public get answers(): TenrxQuestionnaireAnswerOption[] {
+    return this.internalAnswers;
+  }
+
+  public onEvent(event: TenrxChatEvent): void {
     TenrxLibraryLogger.silly('TenrxQuestionnaireBot.onEvent', event);
     if (this.internalState === TenrxQuestionnaireBotStatus.READY) {
       switch (event.type) {
@@ -50,18 +53,18 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
           break;
         case TenrxChatEventType.ChatStarted:
           TenrxLibraryLogger.debug('TenrxQuestionnaireBot.onEvent: Chat started.');
-          this.handleChatStarted(event.payload as TenrxChatStartedPayload, engine);
+          this.handleChatStarted(event.payload as TenrxChatStartedPayload);
           break;
         case TenrxChatEventType.ChatParticipantJoined:
           TenrxLibraryLogger.debug('TenrxQuestionnaireBot.onEvent: Participant joined');
-          this.handleParticipantJoined(event.payload as TenrxChatParticipantJoinedPayload, engine);
+          this.handleParticipantJoined(event.payload as TenrxChatParticipantJoinedPayload);
           break;
         case TenrxChatEventType.ChatParticipantLeft:
           TenrxLibraryLogger.debug('TenrxQuestionnaireBot.onEvent: Participant left');
           break;
         case TenrxChatEventType.ChatMessage:
           TenrxLibraryLogger.debug('TenrxQuestionnaireBot.onEvent: Message received');
-          this.handleReceivedMessage(event.senderId, event.payload as TenrxChatMessagePayload, event.timestamp, engine);
+          this.handleReceivedMessage(event.senderId, event.payload as TenrxChatMessagePayload, event.timestamp);
           break;
         default:
           TenrxLibraryLogger.warn('Unknown event type', event);
@@ -70,7 +73,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     // TODO explore if we just reschedule this event for processing
   }
 
-  private handleParticipantJoined(payload: TenrxChatParticipantJoinedPayload, engine: TenrxChatEngine) {
+  private handleParticipantJoined(payload: TenrxChatParticipantJoinedPayload) {
     this.participants[payload.id] = payload;
     TenrxLibraryLogger.debug('Adding Participant: "' + payload.nickName + '" wit id: ' + payload.id);
     if (Object.keys(this.participants).length > 0) {
@@ -81,82 +84,90 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
             ? this.questionnaireBotOptions.welcomeMessage
             : defaultWelcomeMessage,
           null,
-          engine,
         );
-        this.askQuestion(this.currentQuestion, engine);
+        this.askQuestion(this.currentQuestion);
       }
     }
   }
 
-  private handleChatStarted(payload: TenrxChatStartedPayload, engine: TenrxChatEngine) {
+  private handleChatStarted(payload: TenrxChatStartedPayload) {
     payload.forEach((participant) => {
       this.participants[participant.id] = participant;
       TenrxLibraryLogger.debug('Adding Participant: "' + participant.nickName + '" wit id: ' + participant.id);
     });
-    const nickName = this.questionnaireBotOptions.nickName
-      ? this.questionnaireBotOptions.nickName
-      : 'Questionnaire bot';
-    this.internalParticipantId = engine.addParticipant(this.id, nickName, this.questionnaireBotOptions.avatar);
-    TenrxLibraryLogger.silly(`TenrxQuestionnaireBot participant id is: ${this.internalParticipantId}`);
-    if (Object.keys(this.participants).length > 0) {
-      if (this.currentQuestion < 0) {
-        this.currentQuestion = 0;
-        this.sendMessage(
-          this.questionnaireBotOptions.welcomeMessage
-            ? this.questionnaireBotOptions.welcomeMessage
-            : defaultWelcomeMessage,
-          { kind: 'QuestionnaireStart', data: null },
-          engine,
-        );
-        this.askQuestion(this.currentQuestion, engine);
+    if (this.chatEngine) {
+      const nickName = this.questionnaireBotOptions.nickName
+        ? this.questionnaireBotOptions.nickName
+        : 'Questionnaire bot';
+      this.internalParticipantId = this.chatEngine.addParticipant(
+        this.id,
+        nickName,
+        this.questionnaireBotOptions.avatar,
+      );
+      TenrxLibraryLogger.silly(`TenrxQuestionnaireBot participant id is: ${this.internalParticipantId}`);
+      if (Object.keys(this.participants).length > 0) {
+        if (this.currentQuestion < 0) {
+          this.currentQuestion = 0;
+          this.sendMessage(
+            this.questionnaireBotOptions.welcomeMessage
+              ? this.questionnaireBotOptions.welcomeMessage
+              : defaultWelcomeMessage,
+            { kind: 'QuestionnaireStart', data: null },
+          );
+          this.askQuestion(this.currentQuestion);
+        }
       }
+    } else {
+      TenrxLibraryLogger.warn('Questionnaire (handleChatStarted): Chat does not exists.',);
     }
   }
 
-  private askQuestion(index: number, engine: TenrxChatEngine): void {
+  private askQuestion(index: number): void {
     TenrxLibraryLogger.debug('Asking question: ' + index.toString());
     if (index < this.internalQuestions.length) {
       const question = this.internalQuestions[index];
-      this.sendMessage(
-        question.question,
-        {
-          kind: 'QuestionnairePossibleAnswers',
-          data: { answerType: question.answerType, possibleAnswers: question.possibleAnswers },
-        },
-        engine,
-      );
+      this.sendMessage(question.question, {
+        kind: 'QuestionnairePossibleAnswers',
+        data: { answerType: question.answerType, possibleAnswers: question.possibleAnswers },
+      });
     } else {
       this.sendMessage(
         this.questionnaireBotOptions.endMessage ? this.questionnaireBotOptions.endMessage : defaultEndMessage,
         { kind: 'QuestionnaireEnd', data: null },
-        engine,
       );
+      this.internalState = TenrxQuestionnaireBotStatus.COMPLETED;
     }
   }
 
-  private sendMessage(message: string, metadata: TenrxChatMessageMetadata, engine: TenrxChatEngine): void {
-    if (engine.getChatStatus() === TenrxChatStatus.Active) {
-      const delayTyping =
-        this.questionnaireBotOptions.delayTyping !== undefined
-          ? this.questionnaireBotOptions.delayTyping
-          : defaultTypingDelay;
-      engine.startTyping(this.internalParticipantId);
-      if (delayTyping > 0) {
-        setTimeout(() => {
-          if (engine.getChatStatus() === TenrxChatStatus.Active) {
-            engine.sendMessage(this.internalParticipantId, {
-              message,
-              metadata,
-            });
-          } else {
-            TenrxLibraryLogger.warn('Questionnaire: Chat is no longer active. Unable to send message.', message);
-          }
-        }, delayTyping);
-      } else {
-        engine.sendMessage(this.internalParticipantId, {
-          message,
-          metadata,
-        });
+  private sendMessage(message: string, metadata: TenrxChatMessageMetadata): void {
+    if (this.chatEngine) {
+      if (this.chatEngine.getChatStatus() === TenrxChatStatus.Active) {
+        const delayTyping =
+          this.questionnaireBotOptions.delayTyping !== undefined
+            ? this.questionnaireBotOptions.delayTyping
+            : defaultTypingDelay;
+        this.chatEngine.startTyping(this.internalParticipantId);
+        if (delayTyping > 0) {
+          setTimeout(() => {
+            if (this.chatEngine) {
+              if (this.chatEngine.getChatStatus() === TenrxChatStatus.Active) {
+                this.chatEngine.sendMessage(this.internalParticipantId, {
+                  message,
+                  metadata,
+                });
+              } else {
+                TenrxLibraryLogger.warn('Questionnaire: Chat is no longer active. Unable to send message.', message);
+              }
+            } else {
+              TenrxLibraryLogger.warn('Questionnaire: Chat is no longer exists. Unable to send message.', message);
+            }
+          }, delayTyping);
+        } else {
+          this.chatEngine.sendMessage(this.internalParticipantId, {
+            message,
+            metadata,
+          });
+        }
       }
     }
   }
@@ -165,7 +176,6 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     senderId: string | null,
     messagePayload: TenrxChatMessagePayload,
     timestamp: DateTime,
-    engine: TenrxChatEngine,
   ) {
     if (senderId === null) {
       return;
@@ -173,18 +183,16 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     const participant = this.participants[senderId];
     TenrxLibraryLogger.debug(`${participant.nickName} (${timestamp.toString()}): ${messagePayload.message}`);
     if (messagePayload.metadata != null) {
-      // TODO save answer that is in metadata. Then ask next question.
       if (messagePayload.metadata.kind === 'QuestionnaireAnswer') {
         this.internalAnswers.push(messagePayload.metadata.data as TenrxQuestionnaireAnswerOption);
         this.currentQuestion++;
-        this.askQuestion(this.currentQuestion, engine);
+        this.askQuestion(this.currentQuestion);
       } else {
         this.sendMessage(
           this.questionnaireBotOptions.couldYouRepeatThatMessage
             ? this.questionnaireBotOptions.couldYouRepeatThatMessage
             : defaultCouldYouRepeatThatMessage,
           null,
-          engine,
         );
       }
     } else {
@@ -193,9 +201,8 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
           ? this.questionnaireBotOptions.unableToUnderstandMessage
           : defaultUnableToUnderstandMessage,
         null,
-        engine,
       );
-      this.askQuestion(this.currentQuestion, engine);
+      this.askQuestion(this.currentQuestion);
     }
   }
 

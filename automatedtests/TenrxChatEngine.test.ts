@@ -19,7 +19,7 @@ class DummyChatInterface extends TenrxChatInterface {
   public dummyNumber: string;
   private participantId: string;
   private participants: Record<string, TenrxChatParticipantJoinedPayload>;
-  public onEvent(event: TenrxChatEvent, engine: TenrxChatEngine) {
+  public onEvent(event: TenrxChatEvent) {
     Testlogger.silly(event);
     switch (event.type) {
       case TenrxChatEventType.ChatEnded:
@@ -32,7 +32,7 @@ class DummyChatInterface extends TenrxChatInterface {
           this.participants[participant.id] = participant;
           Testlogger.info('Adding Participant:', participant);
         });
-        this.participantId = engine.addParticipant(
+        if (this.chatEngine) this.participantId = this.chatEngine.addParticipant(
           this.id,
           `Dummy-${this.dummyNumber}`,
           `Dummy-${this.dummyNumber}.jpg`,
@@ -43,7 +43,7 @@ class DummyChatInterface extends TenrxChatInterface {
         this.participants[participantJoinedPayload.id] = participantJoinedPayload;
         Testlogger.info(`${this.dummyNumber}: ${participantJoinedPayload.nickName} has joined the chat.`);
         if (participantJoinedPayload.nickName === 'Dummy-2') {
-          engine.removeParticipant(this.participantId, this.id);
+          if (this.chatEngine) this.chatEngine.removeParticipant(this.participantId, this.id);
         }
         break;
       case TenrxChatEventType.ChatParticipantLeft:
@@ -70,8 +70,8 @@ test('TenrxChatEngine Test Successful', async () => {
   const chatEngine = new TenrxChatEngine();
   const chatInterfaceOne = new DummyChatInterface('1');
   const chatInterfaceTwo = new DummyChatInterface('2');
-  chatInterfaceOne.id = chatEngine.bindInterface(chatInterfaceOne);
-  chatInterfaceTwo.id = chatEngine.bindInterface(chatInterfaceTwo);
+  chatEngine.bindInterface(chatInterfaceOne);
+  chatEngine.bindInterface(chatInterfaceTwo);
   chatEngine.startChat();
   expect(chatEngine.getChatStatus()).toBe(TenrxChatStatus.Active);
   chatEngine.cleanupChat();

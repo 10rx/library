@@ -169,5 +169,6 @@ export enum TenrxQuestionnaireBotStatus {
   NOTREADY,
   READY,
   BUSY,
+  COMPLETED,
   ERROR,
 }

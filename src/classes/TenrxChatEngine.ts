@@ -95,7 +95,7 @@ export default class TenrxChatEngine {
         Object.keys(this.internalChatParticipants).forEach((id) => {
           if (excludeParticipant !== id) {
             const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
-            this.internalInterfaces[this.internalChatParticipants[id].interfaceId].onEvent(actualEvent, this);
+            this.internalInterfaces[this.internalChatParticipants[id].interfaceId].onEvent(actualEvent);
           }
         });
       } else {
@@ -110,7 +110,7 @@ export default class TenrxChatEngine {
       Object.keys(this.internalInterfaces).forEach((id) => {
         if (excludeInterface !== id) {
           const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
-          this.internalInterfaces[id].onEvent(actualEvent, this);
+          this.internalInterfaces[id].onEvent(actualEvent);
         }
       });
     }, 0);
@@ -127,6 +127,7 @@ export default class TenrxChatEngine {
     const index = TenrxChatEngine.getRandomId();
     this.internalInterfaces[index] = chatInterface;
     chatInterface.id = index;
+    chatInterface.chatEngine = this;
     return index;
   }
 

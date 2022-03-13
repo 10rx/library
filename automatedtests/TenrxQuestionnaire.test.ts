@@ -4,13 +4,16 @@ import {
   TenrxChatEvent,
   TenrxChatEventType,
   TenrxChatInterface,
+  TenrxChatMessageMetadata,
   TenrxChatMessagePayload,
   TenrxChatParticipantJoinedPayload,
   TenrxChatStartedPayload,
   TenrxChatStatus,
   TenrxLibraryLogger,
+  TenrxPatientChatInterface,
   TenrxQuestionnaireAnswerOption,
   TenrxQuestionnaireBot,
+  TenrxQuestionnaireBotStatus,
 } from '../src/index.js';
 
 Testlogger.setSettings({
@@ -18,84 +21,69 @@ Testlogger.setSettings({
   minLevel: 'info',
 });
 
-class PatientChatInterface extends TenrxChatInterface {
-  private participantId: string;
-  private participants: Record<string, TenrxChatParticipantJoinedPayload>;
-  private nickName: string;
-  public onEvent(event: TenrxChatEvent, engine: TenrxChatEngine) {
-    Testlogger.silly(event);
-    switch (event.type) {
-      case TenrxChatEventType.ChatEnded:
-        Testlogger.info('Chat ended');
-        break;
-      case TenrxChatEventType.ChatStarted:
-        Testlogger.info('Chat started');
-        const startedPayload = event.payload as TenrxChatStartedPayload;
-        startedPayload.forEach((participant) => {
-          this.participants[participant.id] = participant;
-          Testlogger.info(`${participant.nickName} has joined the chat.`);
-        });
-        this.participantId = engine.addParticipant(this.id, this.nickName, '');
-        break;
-      case TenrxChatEventType.ChatParticipantJoined:
-        const participantJoinedPayload = event.payload as TenrxChatParticipantJoinedPayload;
-        this.participants[participantJoinedPayload.id] = participantJoinedPayload;
-        Testlogger.info(`${participantJoinedPayload.nickName} has joined the chat.`);
-        break;
-      case TenrxChatEventType.ChatParticipantLeft:
-        if (event.senderId) {
-          const participantId = event.senderId;
-          const nickName = this.participants[participantId] ? this.participants[participantId].nickName : 'Unknown';
-          Testlogger.info(`${nickName} has participant left the chat.`);
-          delete this.participants[event.senderId];
-        }
-        break;
-      case TenrxChatEventType.ChatMessage:
-        const message = event.payload as TenrxChatMessagePayload;
-        const senderone = event.senderId ? this.participants[event.senderId].nickName : 'Unknown';
-        Testlogger.info(`${senderone}: ${message.message}`);
-        if (message.metadata && message.metadata.kind === 'QuestionnairePossibleAnswers') {
-          const possibleAnswers = message.metadata.data as TenrxQuestionnaireAnswerOption[];
-          engine.sendMessage(this.participantId, {
-            message: '',
-            metadata: {
-              kind: 'QuestionnaireAnswer',
-              data: possibleAnswers[0],
-            },
-          });
-        }
-        break;
-      case TenrxChatEventType.ChatTypingStarted:
-        const sender = event.senderId ? this.participants[event.senderId].nickName : 'Unknown';
-        Testlogger.info(`${sender} started typing`);
-        break;
-      default:
-        Testlogger.info(`Unknown event`, event);
-    }
-  }
-  constructor(nickName: string) {
-    super();
-    this.nickName = nickName;
-    this.participantId = '';
-    this.participants = {};
-  }
-}
-
 test('Questionnaire Test Successful', async () => {
+  const onChatStarted = (chatInterface: TenrxPatientChatInterface, participantsList: string[]): void => {
+    Testlogger.info('Chat started');
+    chatInterface.enterChat();
+  };
+  const onChatEnded = (chatInterface: TenrxPatientChatInterface): void => {
+    Testlogger.info('Chat ended');
+  };
+  const onChatMessage = (
+    chatInterface: TenrxPatientChatInterface,
+    participantId: string | null,
+    message: string,
+    metadata: TenrxChatMessageMetadata,
+  ): void => {
+    if (participantId) {
+      const participant = chatInterface.participants[participantId];
+      Testlogger.info(`${participant.nickName}: ${message}`);
+      if (metadata && metadata.kind === 'QuestionnairePossibleAnswers') {
+        const possibleAnswers = metadata.data as TenrxQuestionnaireAnswerOption[];
+        chatInterface.sendMessage('', {
+          kind: 'QuestionnaireAnswer',
+          data: possibleAnswers[0],
+        });
+      }
+    }
+  };
+  const onChatTypingStarted = (chatInterface: TenrxPatientChatInterface, participantId: string): void => {
+    const participant = chatInterface.participants[participantId];
+    Testlogger.info(`${participant.nickName} started typing`);
+  };
+  const onChatParticipantJoined = (chatInterface: TenrxPatientChatInterface, participantId: string): void => {
+    const participant = chatInterface.participants[participantId];
+    Testlogger.info(`${participant.nickName} has joined the chat.`);
+  };
+  const onChatParticipantLeft = (chatInterface: TenrxPatientChatInterface, participantId: string): void => {
+    const participant = chatInterface.participants[participantId];
+    Testlogger.info(`${participant.nickName} has participant left the chat.`);
+  };
   const chatEngine = new TenrxChatEngine();
-  const human = new PatientChatInterface('BotOne');
+  const human = new TenrxPatientChatInterface('Patient', '');
+  human.onChatStarted = onChatStarted;
+  human.onChatEnded = onChatEnded;
+  human.onMessageReceived = onChatMessage;
+  human.onTypingStarted = onChatTypingStarted;
+  human.onParticipantJoined = onChatParticipantJoined;
+  human.onParticipantLeft = onChatParticipantLeft;
   const questionnaireBot = new TenrxQuestionnaireBot('Questionnaire Bot', '', 2, { delayTyping: 0 });
   try {
     const ready = await questionnaireBot.start();
     expect(ready).toBe(true);
     if (ready) {
       questionnaireBot.id = chatEngine.bindInterface(questionnaireBot);
-      human.id = chatEngine.bindInterface(human);
+      chatEngine.bindInterface(human);
       chatEngine.startChat();
       expect(chatEngine.getChatStatus()).toBe(TenrxChatStatus.Active);
+      expect(questionnaireBot.status).toBe(TenrxQuestionnaireBotStatus.COMPLETED);
+      chatEngine.stopChat();
+      expect(questionnaireBot.answers).not.toBeNull();
+      if (questionnaireBot.answers) {
+        expect(questionnaireBot.answers.length).toBeGreaterThan(0);
+      }
     }
   } catch (error) {
     Testlogger.error(error);
-    fail(error);
   }
 });

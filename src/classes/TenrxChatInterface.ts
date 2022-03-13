@@ -18,14 +18,21 @@ export default abstract class TenrxChatInterface {
   public id: string;
 
   /**
+   * The chat engine that this interface is associated with.
+   *
+   * @type {(TenrxChatEngine | undefined)}
+   * @memberof TenrxChatInterface
+   */
+  public chatEngine: TenrxChatEngine | undefined;
+
+  /**
    * Handles the chat events.
    *
    * @abstract
-   * @param {TenrxChatEvent} event - The chat event.
-   * @param {TenrxChatEngine} engine - The chat engine.
+   * @param {TenrxChatEvent} event - The chat event received.
    * @memberof TenrxChatInterface
    */
-  public abstract onEvent(event: TenrxChatEvent, engine: TenrxChatEngine): void;
+  public abstract onEvent(event: TenrxChatEvent): void;
 
   /**
    * Creates an instance of TenrxChatInterface.
@@ -33,7 +40,8 @@ export default abstract class TenrxChatInterface {
    * @param {string} [id] - The id of the interface.
    * @memberof TenrxChatInterface
    */
-  constructor(id?: string) {
+  constructor(id?: string, chatEngine?: TenrxChatEngine) {
     this.id = id ? id : '';
+    this.chatEngine = chatEngine;
   }
 }

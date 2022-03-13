@@ -16,6 +16,7 @@ export { default as TenrxWallet } from './classes/TenrxWallet.js';
 export { default as TenrxChatInterface } from './classes/TenrxChatInterface.js';
 export { default as TenrxChatEngine } from './classes/TenrxChatEngine.js';
 export { default as TenrxQuestionnaireBot, TenrxQuestionnaireBotOptions } from './classes/TenrxQuestionnaireBot.js';
+export { default as TenrxPatientChatInterface } from './classes/TenrxPatientChatInterface.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
