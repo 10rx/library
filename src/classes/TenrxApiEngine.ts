@@ -502,9 +502,7 @@ export default class TenrxApiEngine {
           const content = response.content as TenrxLoginAPIModel;
           if (content.data) {
             if (content.access_token) {
-              this.accesstoken = content.access_token;
-              this.expiresIn = content.expires_in;
-              this.expireDateStart = Date.now();
+              this.setAccessToken(content.access_token, content.expires_in, Date.now());
               TenrxLibraryLogger.silly(
                 'Login() Updated Access Token in API Engine: ******* Expires In: ',
                 this.expiresIn,
