@@ -122,6 +122,28 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets the current patient profile data. The api engine and backend servers uses the current token to determine which patient profile to get.
+   *
+   * @return {*}
+   * @memberof TenrxApiEngine
+   */
+  public async getPatientProfileData() {
+    TenrxLibraryLogger.silly('Getting patient profile data');
+    try {
+      const response = await this.authGet(`${this.baseapi}/api/v1/Patient/GetPatientProfileData`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getPatientProfileData() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Gets the questionnaire from the backend server.
    *
    * @param {{ visitTypeId: number }[]} visitTypeId - The visit type to get the questionnaire for

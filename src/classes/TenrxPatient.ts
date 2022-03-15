@@ -1,6 +1,7 @@
 import { TenrxLoginAPIModelPatientData } from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import { TenrxEnumCountry, TenrxEnumGender, TenrxEnumState } from '../includes/TenrxEnums.js';
+import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 import TenrxWallet from './TenrxWallet.js';
@@ -117,58 +118,114 @@ export default class TenrxPatient {
    */
   constructor(id: number, data?: TenrxLoginAPIModelPatientData, wallet?: TenrxWallet) {
     this.id = id;
-    this.firstName = data ? data.firstName : '';
-    this.lastName = data ? data.lastName : '';
-    this.middleName = data ? data.middleName : '';
-    this.dob = data ? new Date(data.dateOfBirth) : new Date();
-    this.emailAddress = data ? data.emailAddress : '';
-    this.ssn = data ? data.ssn : '';
-    this.mrn = data ? data.mrn : '';
+    this.firstName = '';
+    this.lastName = '';
+    this.middleName = '';
+    this.dob = new Date();
+    this.emailAddress = '';
+    this.ssn = '';
+    this.mrn = '';
     this.address = {
-      aptNumber: data ? data.aptnumber : undefined,
-      address1: data ? data.address1 : '',
-      address2: data ? data.address2 : undefined,
-      city: data ? data.city : '',
-      stateId: data ? data.stateId : TenrxEnumState.Florida,
-      zipCode: data ? data.zipCode : '',
+      aptNumber: undefined,
+      address1: '',
+      address2: undefined,
+      city: '',
+      stateId: TenrxEnumState.Florida,
+      zipCode: '',
     };
-    this.phoneNumber = data ? data.phoneNumber : '';
-    this.countryId = data ? data.countryId : TenrxEnumCountry.US;
-    this.gender = data ? data.gender : TenrxEnumGender.Other;
+    this.phoneNumber = '';
+    this.countryId = TenrxEnumCountry.US;
+    this.gender = TenrxEnumGender.Other;
+    if (data) this.processApiData(data);
     this.internalWallet = wallet ? wallet : new TenrxWallet([]);
     this.internalWalletLoaded = wallet ? true : false;
-    this.internalAddressLoaded = data ? true : false;
+    this.internalPatientInfoLoaded = data ? true : false;
+  }
+
+  private processApiData(data: TenrxLoginAPIModelPatientData): void {
+    this.firstName = data.firstName;
+    this.lastName = data.lastName;
+    this.middleName = data.middleName;
+    this.dob = new Date(data.dateOfBirth);
+    this.emailAddress = data.emailAddress;
+    this.ssn = data.ssn;
+    this.mrn = data.mrn;
+    this.address = {
+      aptNumber: data.aptnumber,
+      address1: data.address1,
+      address2: data.address2,
+      city: data.city,
+      stateId: data.stateId,
+      zipCode: data.zipCode,
+    };
+    this.phoneNumber = data.phoneNumber;
+    this.countryId = data.countryId;
+    this.gender = data.gender;
   }
 
   private internalWallet: TenrxWallet;
   private internalWalletLoaded: boolean;
-  private internalAddressLoaded: boolean;
+  private internalPatientInfoLoaded: boolean;
 
+  /**
+   * Gets the patient's wallet information.
+   *
+   * @readonly
+   * @type {TenrxWallet}
+   * @memberof TenrxPatient
+   */
   public get wallet(): TenrxWallet {
     return this.internalWallet;
   }
 
+  /**
+   * True if patient information has been loaded from backend servers. Otherwise, false.
+   *
+   * @readonly
+   * @type {boolean}
+   * @memberof TenrxPatient
+   */
   public get loaded(): boolean {
-    return this.internalWalletLoaded && this.internalAddressLoaded;
+    return this.internalWalletLoaded && this.internalPatientInfoLoaded;
   }
 
-  public async load(): Promise<void> {
+  /**
+   * Loads patient data from backend servers.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<boolean>}
+   * @memberof TenrxPatient
+   */
+  public async load(apiEngine = useTenrxApi()): Promise<boolean> {
     if (!this.internalWalletLoaded) {
       try {
-        const wallet = await TenrxWallet.getWallet();
+        const wallet = await TenrxWallet.getWallet(apiEngine);
         this.internalWallet = wallet !== null ? wallet : new TenrxWallet([]);
         this.internalWalletLoaded = true;
       } catch (error) {
         TenrxLibraryLogger.error('Error while loading wallet.', error);
       }
-      if (!this.internalAddressLoaded) {
+      if (!this.internalPatientInfoLoaded) {
         try {
-          this.internalAddressLoaded = true;
+          const patientProfileApiResponse = await apiEngine.getPatientProfileData();
+          if (patientProfileApiResponse.content) {
+            const content = patientProfileApiResponse.content as { data: TenrxLoginAPIModelPatientData };
+            if (content.data) {
+              const data: TenrxLoginAPIModelPatientData = content.data;
+              this.processApiData(data);
+              this.internalPatientInfoLoaded = true;
+            } else {
+              TenrxLibraryLogger.error('Error while loading patient profile data: data is null');
+            }
+          } else {
+            TenrxLibraryLogger.error('Error while loading patient data: content is null.');
+          }
         } catch (error) {
           TenrxLibraryLogger.error('Error while loading address.', error);
         }
       }
     }
+    return this.loaded;
   }
 
   private static internalInstance: TenrxPatient | null;
@@ -198,10 +255,10 @@ export default class TenrxPatient {
    *
    * @static
    * @param {number} id - The patient's id.
-   * @param {TenrxLoginAPIModelPatientData} data - The patient data that is used to create the patient.
+   * @param {TenrxLoginAPIModelPatientData} [data] - The patient data that is used to create the patient.
    * @memberof TenrxPatient
    */
-  public static initialize(id: number, data: TenrxLoginAPIModelPatientData): void {
+  public static initialize(id: number, data?: TenrxLoginAPIModelPatientData): void {
     if (!TenrxPatient.internalInstance) {
       TenrxPatient.internalInstance = new TenrxPatient(id, data);
     } else {
