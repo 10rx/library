@@ -16,14 +16,71 @@ import TenrxChatInterface from './TenrxChatInterface.js';
  * @extends {TenrxChatInterface}
  */
 export default class TenrxPatientChatInterface extends TenrxChatInterface {
+  /**
+   * The participant id of the patient in the chat engine.
+   *
+   * @type {string}
+   * @memberof TenrxPatientChatInterface
+   */
   public participantId: string;
+
+  /**
+   * List of participants in the chat session.
+   *
+   * @type {Record<string, TenrxChatParticipantJoinedPayload>}
+   * @memberof TenrxPatientChatInterface
+   */
   public participants: Record<string, TenrxChatParticipantJoinedPayload>;
+
+  /**
+   * The nickname of the patient.
+   *
+   * @type {string}
+   * @memberof TenrxPatientChatInterface
+   */
   public nickName: string;
+
+  /**
+   * The avatar of the patient.
+   *
+   * @type {string}
+   * @memberof TenrxPatientChatInterface
+   */
   public avatar: string;
+
+  /**
+   * Event when chat session has ended.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onChatEnded: ((chatInterface: TenrxPatientChatInterface) => void) | undefined;
+
+  /**
+   * Event when chat session is started.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onChatStarted: ((chatInterface: TenrxPatientChatInterface, participantsList: string[]) => void) | undefined;
+
+  /**
+   * Event when a participant joins the chat session.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onParticipantJoined: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
+
+  /**
+   * Evenet when a participant leaves the chat session.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onParticipantLeft: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
+
+  /**
+   * Event when a message is received from the chat session.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onMessageReceived:
     | ((
         chatInterface: TenrxPatientChatInterface,
@@ -32,9 +89,34 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         metadata: TenrxChatMessageMetadata,
       ) => void)
     | undefined;
+
+  /**
+   * Event when a participant starts typing.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onTypingStarted: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
+
+  /**
+   * Event when a participant stops typing.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onTypingEnded: ((chatInterface: TenrxPatientChatInterface, participantId: string) => void) | undefined;
+
+  /**
+   * An unknown event has been received from the chat engine. This is usually a bug in the engine.
+   *
+   * @memberof TenrxPatientChatInterface
+   */
   public onUnknownEvent: ((chatInterface: TenrxPatientChatInterface, event: TenrxChatEvent) => void) | undefined;
+
+  /**
+   * This is the main event handler for the chat interface. It will be called by the chat engine when an event is received.
+   *
+   * @param {TenrxChatEvent} event - The event that was received.
+   * @memberof TenrxPatientChatInterface
+   */
   public onEvent(event: TenrxChatEvent) {
     TenrxLibraryLogger.silly('TenrxPatientChatInterface: Received chat event:', event);
     switch (event.type) {
@@ -103,6 +185,15 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         if (this.onUnknownEvent) this.onUnknownEvent(this, event);
     }
   }
+
+  /**
+   * Creates an instance of TenrxPatientChatInterface.
+   *
+   * @param {string} nickName - The nick name of the patient.
+   * @param {string} avatar - The avatar of the patient.
+   * @param {string} [id] - The id of the interface in the chat. This is usually created by the chatengine.
+   * @memberof TenrxPatientChatInterface
+   */
   constructor(nickName: string, avatar: string, id?: string) {
     super(id);
     this.nickName = nickName;

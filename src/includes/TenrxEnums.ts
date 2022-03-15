@@ -122,13 +122,44 @@ export enum TenrxChatStatus {
  * @enum {number}
  */
 export enum TenrxChatEventType {
+  /**
+   * Chat session has started.
+   */
   ChatStarted,
+  
+  /**
+   * Chat session has ended.
+   */
   ChatEnded,
+  
+  /**
+   * Chat message has been received.
+   */
   ChatMessage,
+  
+  /**
+   * Participant has started typing.
+   */
   ChatTypingStarted,
+  
+  /**
+   * Participant has stopped typing.
+   */
   ChatTypingEnded,
+  
+  /**
+   * A chat error has occurred in session.
+   */
   ChatError,
+  
+  /**
+   * Participant has joined the session.
+   */
   ChatParticipantJoined,
+  
+  /**
+   * Participant has left the session.
+   */
   ChatParticipantLeft,
 }
 
@@ -165,10 +196,35 @@ export enum TenrxQuestionnaireAnswerType {
   STATEPICKER,
 }
 
+/**
+ * Represents the status of the questionnaire bot.
+ *
+ * @export
+ * @enum {number}
+ */
 export enum TenrxQuestionnaireBotStatus {
+  /**
+   * Questionnaire bot is not ready.
+   */
   NOTREADY,
+  
+  /**
+   * Questionnaire bot is ready to either send questions or received responses.
+   */
   READY,
+  
+  /**
+   * Questionnaire bot is busy processing a task.
+   */
   BUSY,
+  
+  /**
+   * Questionnaire bot finished sending all questions and received all answers.
+   */
   COMPLETED,
+  
+  /**
+   * Questionnaire bot has encountered an error.
+   */
   ERROR,
 }
