@@ -37,6 +37,8 @@ export { default as TenrxQuestionnaireAnswerOption } from './types/TenrxQuestion
 export { default as TenrxQuestionnaireAnswer } from './types/TenrxQuestionnaireAnswer.js';
 export { default as TenrxQuestionnairePossibleAnswers } from './types/TenrxQuestionnairePossibleAnswers.js';
 export { default as TenrxSendAnswersResult } from './types/TenrxSendAnswersResult.js';
+export { default as TenrxAccessToken } from './types/TenrxAccessToken.js';
+export { default as TenrxAccessTokenExpirationInformation } from './types/TenrxAccessTokenExpirationInformation.js';
 export {
   default as TenrxChatEvent,
   TenrxChatEventPayload,
@@ -88,6 +90,7 @@ export {
   useTenrxCart,
   useTenrxUserAccount,
   useTenrxPatient,
+  refreshTokenTenrx,
   authenticateTenrx,
   checkIfEmailExists,
   logoutTenrx,

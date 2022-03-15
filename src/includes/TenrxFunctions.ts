@@ -23,6 +23,8 @@ import TenrxStorage from '../classes/TenrxStorage.js';
 import TenrxUserAccount from '../classes/TenrxUserAccount.js';
 import TenrxPatient from '../classes/TenrxPatient.js';
 import TenrxCart from '../classes/TenrxCart.js';
+import TenrxAccessToken from '../types/TenrxAccessToken.js';
+import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -119,6 +121,43 @@ export const useTenrxCart = (): TenrxCart => {
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
+
+/**
+ * Refreshes the current token that the api engine has.
+ *
+ * @param {string} [language='en'] - The language to use.
+ * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+ * @return {*}  {(Promise<TenrxAccessToken | null>)} - The promise that resolves to the new token or null if the token could not be refreshed.
+ */
+export const refreshTokenTenrx = async (apiEngine = useTenrxApi()): Promise<TenrxAccessToken | null> => {
+  try {
+    TenrxLibraryLogger.info('Refreshing token...');
+    const response = await apiEngine.refreshToken();
+    TenrxLibraryLogger.debug('Refresh token response:', response);
+    if (response.status === 200) {
+      // Disabling linter due to the api returning this object.
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const content = response.content as { access_token: string; expires_in: number };
+      if (content) {
+        const expiringInformation: TenrxAccessTokenExpirationInformation =
+          apiEngine.getAccessTokenExpirationInformation();
+        TenrxLibraryLogger.info('Token refreshed successfully.');
+        return {
+          accessToken: content.access_token,
+          expiresIn: expiringInformation.expiresIn,
+          expireDateStart: expiringInformation.expireDateStart,
+        };
+      }
+      TenrxLibraryLogger.error('Token refresh failed: content is null.');
+      return null;
+    }
+    TenrxLibraryLogger.error('Token refresh failed:', response.error);
+    return null;
+  } catch (error) {
+    TenrxLibraryLogger.error('Error refreshing token:', error);
+    return null;
+  }
+};
 
 /**
  * Authenticates to the Tenrx backend servers.

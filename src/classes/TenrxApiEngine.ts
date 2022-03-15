@@ -13,6 +13,7 @@ import TenrxSaveProductAPIModel from '../apiModel/TenrxSaveProductAPIModel.js';
 import TenrxGuestAddProductAPIModel from '../apiModel/TenrxGuestAddProductAPIModel.js';
 import TenrxQuestionnaireSaveAnswersAPIModel from '../apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
 import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
+import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -43,6 +44,19 @@ export default class TenrxApiEngine {
     this.accesstoken = '';
     this.expiresIn = -1;
     this.expireDateStart = 0;
+  }
+
+  /**
+   * Gets the current access token expiration information.
+   *
+   * @return {*}  {{ expiresIn: number, expireDateStart: number }}
+   * @memberof TenrxApiEngine
+   */
+  public getAccessTokenExpirationInformation(): TenrxAccessTokenExpirationInformation {
+    return {
+      expiresIn: this.expiresIn,
+      expireDateStart: this.expireDateStart,
+    };
   }
 
   /**
@@ -502,7 +516,7 @@ export default class TenrxApiEngine {
         const content = response.content as TenrxLoginAPIModel;
         if (content.data) {
           if (content.access_token) {
-            this.setAccessToken(content.access_token, content.expires_in, Date.now());
+            this.setAccessToken(content.access_token, Date.now(), content.expires_in);
             TenrxLibraryLogger.silly(
               `${callerForLogPurposes} Updated Access Token in API Engine: ******* Expires In: `,
               this.expiresIn,
