@@ -20,7 +20,6 @@ import TenrxQuestionnaireAnswer from '../src/types/TenrxQuestionnaireAnswer.js';
 
 Testlogger.setSettings({
   type: 'pretty',
-  minLevel: 'info',
 });
 
 test('Questionnaire Test Successful', async () => {
