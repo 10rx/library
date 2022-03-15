@@ -193,3 +193,17 @@ test('GetQuestionList Test Success', async () => {
   Testlogger.warn(result);
   expect(result).not.toBeNull();
 });
+
+test('RefreshToken Test successful', async () => {
+  const originalToken = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en');
+  Testlogger.info(originalToken);
+  expect(tenrx.isAuthenticated).toBe(true);
+  if (tenrx.isAuthenticated) {
+    const refreshToken = await tenrx.refreshToken();
+    Testlogger.info(refreshToken);
+    expect(refreshToken).not.toBeNull();
+    const originalContent = originalToken.content as { access_token: string };
+    const refreshContent = refreshToken.content as { access_token: string };
+    expect(originalContent.access_token).not.toBe(refreshContent.access_token);
+  }
+});

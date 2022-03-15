@@ -473,6 +473,61 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Refreshes the current access token in the engine.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async refreshToken(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Refreshing access token');
+    try {
+      const response = await this.authGet(`${this.baseapi}/api/v1/Common/RefreshToekn`);
+      this.processLoginResponse(response, 'refreshToken()');
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('RefreshToken() Error: ', error);
+      const response: TenrxApiResult = {
+        status: -1,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  private processLoginResponse(response: TenrxApiResult, callerForLogPurposes: string): void {
+    if (response && response.status === 200) {
+      TenrxLibraryLogger.silly(`${callerForLogPurposes} Response: `, response.content);
+      if (response.content) {
+        const content = response.content as TenrxLoginAPIModel;
+        if (content.data) {
+          if (content.access_token) {
+            this.setAccessToken(content.access_token, content.expires_in, Date.now());
+            TenrxLibraryLogger.silly(
+              `${callerForLogPurposes} Updated Access Token in API Engine: ******* Expires In: `,
+              this.expiresIn,
+            );
+          } else {
+            TenrxLibraryLogger.silly(`${callerForLogPurposes} No Access Token in API Response`);
+          }
+        } else {
+          TenrxLibraryLogger.error(
+            `${callerForLogPurposes} API returned data as null when logging in. Content of error is: `,
+            response.error,
+          );
+        }
+      } else {
+        TenrxLibraryLogger.error(
+          `${callerForLogPurposes} API returned content as null when logging in. Content of error is: `,
+          response.error,
+        );
+      }
+    } else {
+      TenrxLibraryLogger.error(`${callerForLogPurposes} Error: `, response.error);
+    }
+  }
+
+  /**
    * Authenticates the TenrxApiEngine instance
    *
    * @param {string} username
@@ -496,35 +551,7 @@ export default class TenrxApiEngine {
         macaddress,
         language,
       });
-      if (response.status === 200) {
-        TenrxLibraryLogger.silly('Login() Response: ', response.content);
-        if (response.content) {
-          const content = response.content as TenrxLoginAPIModel;
-          if (content.data) {
-            if (content.access_token) {
-              this.setAccessToken(content.access_token, content.expires_in, Date.now());
-              TenrxLibraryLogger.silly(
-                'Login() Updated Access Token in API Engine: ******* Expires In: ',
-                this.expiresIn,
-              );
-            } else {
-              TenrxLibraryLogger.silly('Login() No Access Token in API Response');
-            }
-          } else {
-            TenrxLibraryLogger.error(
-              'API returned data as null when logging in. Content of error is: ',
-              response.error,
-            );
-          }
-        } else {
-          TenrxLibraryLogger.error(
-            'API returned content as null when logging in. Content of error is: ',
-            response.error,
-          );
-        }
-      } else {
-        TenrxLibraryLogger.error('Login() Error: ', response.error);
-      }
+      this.processLoginResponse(response, 'login()');
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('Login() Error: ', error);
