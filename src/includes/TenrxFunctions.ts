@@ -124,6 +124,12 @@ export const useTenrxCart = (): TenrxCart => {
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
 
+/**
+ * Returns a list of state ids that are valid to issue prescriptions.
+ *
+ * @param {*} [apiEngine=useTenrxApi()] - The api engine to be used.
+ * @return {*}  {(Promise<TenrxEnumState[] | null>)} - The list of state ids that are valid to issue prescriptions. Null is returned if the request failed.
+ */
 export const getStatesValidForTenrx = async (apiEngine = useTenrxApi()): Promise<TenrxEnumState[] | null> => {
   const result: TenrxEnumState[] = [];
   const response = await apiEngine.getStatesValidForRx();
