@@ -90,6 +90,7 @@ export {
   useTenrxCart,
   useTenrxUserAccount,
   useTenrxPatient,
+  getStatesValidForTenrx,
   refreshTokenTenrx,
   authenticateTenrx,
   checkIfEmailExists,

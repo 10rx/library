@@ -25,6 +25,8 @@ import TenrxPatient from '../classes/TenrxPatient.js';
 import TenrxCart from '../classes/TenrxCart.js';
 import TenrxAccessToken from '../types/TenrxAccessToken.js';
 import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
+import { TenrxEnumState } from './TenrxEnums.js';
+import { TenrxStateNameToStateId } from './TenrxStates.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -121,6 +123,35 @@ export const useTenrxCart = (): TenrxCart => {
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
+
+export const getStatesValidForTenrx = async (apiEngine = useTenrxApi()): Promise<TenrxEnumState[] | null> => {
+  const result: TenrxEnumState[] = [];
+  const response = await apiEngine.getStatesValidForRx();
+  if (response.status === 200) {
+    if (response.content) {
+      const content = response.content as { data: { stateName: string; stateCode: string }[] };
+      if (content.data) {
+        if (content.data.length > 0) {
+          for (const state of content.data) {
+            result.push(TenrxStateNameToStateId[state.stateName]);
+          } 
+        } else {
+          TenrxLibraryLogger.warn('There are no states valid for prescriptions.');
+        }
+      } else {
+        TenrxLibraryLogger.error('No data in response.');
+        return null;
+      }
+    } else {
+      TenrxLibraryLogger.error('No content in response.');
+      return null;
+    }
+  } else {
+    TenrxLibraryLogger.error(`Backend returned status code: ${response.status}`);
+    return null;
+  }
+  return result;
+};
 
 /**
  * Refreshes the current token that the api engine has.

@@ -74,6 +74,28 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets the states valid for prescriptions from the backend server.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getStatesValidForRx(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting states valid for rx from API');
+    try {
+      const response = await this.get(`${this.baseapi}/Login/GetStatesValidForRX`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getStatesValidForRx() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Saves questionnaire answers to the backend server.
    *
    * @param {number} patientId - The patient id to save the answers for
