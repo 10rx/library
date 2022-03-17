@@ -67,6 +67,18 @@ export { default as TenrxVisitTypeAPIModel } from './apiModel/TenrxVisitTypeAPIM
 export { default as TenrxProductCategoryAPIModel } from './apiModel/TenrxProductCategoryAPIModel.js';
 export { default as TenrxSaveUserSecurityQuestionAPIModel } from './apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
 export { default as TenrxRegisterUserParameterAPIModel } from './apiModel/TenrxRegisterUserParameterAPIModel.js';
+export { default as TenrxTreatmentProductListAPIModel } from './apiModel/TenrxTreatmentProductListAPIModel.js';
+export { default as TenrxGuestAddProductAPIModel } from './apiModel/TenrxGuestAddProductAPIModel.js';
+export { default as TenrxChargeAPIModel } from './apiModel/TenrxChargeAPIModel.js';
+export { default as TenrxSaveProductAPIModel } from './apiModel/TenrxSaveProductAPIModel.js';
+export { default as TenrxQuestionnaireSurveyResponsesAPIModel } from './apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
+export { default as TenrxUpdatePatientDetailsAPIModel } from './apiModel/TenrxUpdatePatientDetailsAPIModel.js';
+export { default as TenrxUpdatePatientInfoAPIModel } from './apiModel/TenrxUpdatePatientInfoAPIModel.js';
+export { default as TenrxGenderCategoryAPIModel } from './apiModel/TenrxGenderCategoryAPIModel.js';
+export { default as TenrxOrderAPIModel } from './apiModel/TenrxOrderAPIModel.js';
+export { default as TenrxCreditCardAPIModel } from './apiModel/TenrxCreditCardAPIModel.js';
+export { default as TenrxQuestionAPIModel } from './apiModel/TenrxQuestionAPIModel.js';
+export { default as TenrxOrderProductAPIModel } from './apiModel/TenrxOrderProductAPIModel.js';
 export {
   default as TenrxLoginAPIModel,
   TenrxLoginAPIModelData,
