@@ -14,6 +14,7 @@ import TenrxGuestAddProductAPIModel from '../apiModel/TenrxGuestAddProductAPIMod
 import TenrxQuestionnaireSaveAnswersAPIModel from '../apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
 import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
 import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
+import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -550,6 +551,29 @@ export default class TenrxApiEngine {
       throw new TenrxAccessTokenExpired('Access Token has expired.', this.expireDateStart, this.expiresIn, now);
     }
     TenrxLibraryLogger.silly('Access Token is valid.');
+  }
+
+  /**
+   * Update patient information in the API
+   *
+   * @param {TenrxUpdatePatientInfoAPIModel} details - The patient information to update
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async updatePatientInfo(details: TenrxUpdatePatientInfoAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving patient info to API');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Patient/UpdatePatientInfo`, details);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('updatePatientInfo() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**

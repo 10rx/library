@@ -1,6 +1,9 @@
+import { DateTime } from 'luxon';
 import { TenrxLoginAPIModelPatientData } from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
+import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
+import TenrxSaveError from '../exceptions/TenrxSaveError.js';
 import { TenrxEnumCountry, TenrxEnumGender, TenrxEnumState } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
@@ -144,6 +147,7 @@ export default class TenrxPatient {
     this.internalOrdersLoaded = false;
     if (data) this.processApiData(data);
     this.internalPatientInfoLoaded = data ? true : false;
+    this.photoBase64 = null;
   }
 
   private processApiData(data: TenrxLoginAPIModelPatientData): void {
@@ -373,5 +377,49 @@ export default class TenrxPatient {
     TenrxPatient.internalInstance = null;
   }
 
-  // TODO implement call to updatePatientAddress. Figure out how to pull patient data from API.
+  public photoBase64: string | null;
+
+  /**
+   * Saves the patient object to the backend servers.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxPatient
+   * @throws {TenrxSaveError} - Throws an exception if an errors occur when saving the object.
+   */
+  public async save(apiEngine = useTenrxApi()): Promise<void> {
+    if (this.internalPatientInfoLoaded) {
+      try {
+        let saveObject: TenrxUpdatePatientInfoAPIModel = {
+          patientProfile: {
+            userName: this.emailAddress,
+            email: this.emailAddress,
+            firstName: this.firstName,
+            lastName: this.lastName,
+            middleName: this.middleName,
+            dob: DateTime.fromJSDate(this.dob).toUTC().toISO({ suppressMilliseconds: true }),
+            gender: this.gender,
+            phoneNumber: this.phoneNumber
+          },
+          patientAddress: {
+            address1: this.address.address1,
+            address2: this.address.address2 ? this.address.address2 : '',
+            city: this.address.city,
+            countryId: this.countryId,
+            stateId: this.address.stateId,
+            zip: this.address.zipCode
+          },
+        }
+        if (this.photoBase64) saveObject = { ... saveObject, photoBase64: this.photoBase64 };
+        const patientProfileApiResponse = await apiEngine.updatePatientInfo(saveObject);
+        if (patientProfileApiResponse.status !== 200) {
+          TenrxLibraryLogger.error('Error while saving patient profile data.', patientProfileApiResponse.error);
+          throw new TenrxSaveError('Error while saving patient profile data.', 'TenrxPatient', patientProfileApiResponse.error);
+        }
+      } catch (error) {
+        TenrxLibraryLogger.error('Error while saving patient data.', error);
+        throw new TenrxSaveError('Error while saving patient data.', 'TenrxPatient', error);
+      }
+    }
+  }
 }

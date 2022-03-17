@@ -59,6 +59,7 @@ export { default as TenrxNotLoaded } from './exceptions/TenrxNotLoaded.js';
 export { default as TenrxLoadError } from './exceptions/TenrxLoadError.js';
 export { default as TenrxChatNotActive } from './exceptions/TenrxChatNotActive.js';
 export { default as TenrxQuestionnaireError } from './exceptions/TenrxQuestionnaireError.js';
+export { default as TenrxSaveError } from './exceptions/TenrxSaveError.js';
 
 // The following is needed to get rid of warnings when creating documentation. The following are documented in swagger.
 // TODO: add links to swagger.
