@@ -96,6 +96,28 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets all the orders from the current patient. The api engine and backend servers uses the current token to determine which patient profile to get.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getPatientOrders(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting patient orders from API');
+    try {
+      const response = this.authGet(`${this.baseapi}/api/v1/Patient/GetPatientOrders`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getPatientOrders() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Saves questionnaire answers to the backend server.
    *
    * @param {number} patientId - The patient id to save the answers for

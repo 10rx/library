@@ -17,6 +17,7 @@ export { default as TenrxChatInterface } from './classes/TenrxChatInterface.js';
 export { default as TenrxChatEngine } from './classes/TenrxChatEngine.js';
 export { default as TenrxQuestionnaireBot, TenrxQuestionnaireBotOptions } from './classes/TenrxQuestionnaireBot.js';
 export { default as TenrxPatientChatInterface } from './classes/TenrxPatientChatInterface.js';
+export { default as TenrxOrder } from './classes/TenrxOrder.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -39,6 +40,7 @@ export { default as TenrxQuestionnairePossibleAnswers } from './types/TenrxQuest
 export { default as TenrxSendAnswersResult } from './types/TenrxSendAnswersResult.js';
 export { default as TenrxAccessToken } from './types/TenrxAccessToken.js';
 export { default as TenrxAccessTokenExpirationInformation } from './types/TenrxAccessTokenExpirationInformation.js';
+export { default as TenrxOrderProductEntry } from './types/TenrxOrderProductEntry.js';
 export {
   default as TenrxChatEvent,
   TenrxChatEventPayload,

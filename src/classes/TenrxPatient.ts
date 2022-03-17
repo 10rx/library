@@ -1,9 +1,11 @@
 import { TenrxLoginAPIModelPatientData } from '../apiModel/TenrxLoginAPIModel.js';
+import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import { TenrxEnumCountry, TenrxEnumGender, TenrxEnumState } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
+import TenrxOrder from './TenrxOrder.js';
 import TenrxWallet from './TenrxWallet.js';
 
 /**
@@ -136,9 +138,11 @@ export default class TenrxPatient {
     this.phoneNumber = '';
     this.countryId = TenrxEnumCountry.US;
     this.gender = TenrxEnumGender.Other;
-    if (data) this.processApiData(data);
     this.internalWallet = wallet ? wallet : new TenrxWallet([]);
     this.internalWalletLoaded = wallet ? true : false;
+    this.internalOrders = [];
+    this.internalOrdersLoaded = false;
+    if (data) this.processApiData(data);
     this.internalPatientInfoLoaded = data ? true : false;
   }
 
@@ -166,6 +170,8 @@ export default class TenrxPatient {
   private internalWallet: TenrxWallet;
   private internalWalletLoaded: boolean;
   private internalPatientInfoLoaded: boolean;
+  private internalOrders: TenrxOrder[];
+  private internalOrdersLoaded: boolean;
 
   /**
    * Gets the patient's wallet information.
@@ -179,6 +185,17 @@ export default class TenrxPatient {
   }
 
   /**
+   * Gets the patient's order.
+   *
+   * @readonly
+   * @type {TenrxOrder[]}
+   * @memberof TenrxPatient
+   */
+  public get orders(): TenrxOrder[] {
+    return this.internalOrders;
+  }
+
+  /**
    * True if patient information has been loaded from backend servers. Otherwise, false.
    *
    * @readonly
@@ -186,7 +203,105 @@ export default class TenrxPatient {
    * @memberof TenrxPatient
    */
   public get loaded(): boolean {
-    return this.internalWalletLoaded && this.internalPatientInfoLoaded;
+    return this.internalWalletLoaded && this.internalPatientInfoLoaded && this.internalOrdersLoaded;
+  }
+
+  /**
+   * Re-loads the patient's order information from the backend servers.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxPatient
+   */
+  public async refreshOrders(apiEngine = useTenrxApi()): Promise<void> {
+    TenrxLibraryLogger.info('Refreshing patient order information.');
+    try {
+      this.internalOrders = [];
+      const response = await apiEngine.getPatientOrders();
+      if (response) {
+        if (response.content) {
+          const content = response.content as { data: { patientOrders: TenrxOrderAPIModel[] } };
+          if (content) {
+            if (content.data) {
+              const data = content.data;
+              if (data.patientOrders) {
+                if (data.patientOrders) {
+                  for (const order of data.patientOrders) {
+                    this.internalOrders.push(new TenrxOrder(order));
+                  }
+                  this.internalOrdersLoaded = true;
+                }
+              } else {
+                TenrxLibraryLogger.error('Error while loading order data: patientOrders is null');
+                this.internalOrdersLoaded = false;
+              }
+            } else {
+              TenrxLibraryLogger.error('Error while loading order data: data is null');
+              this.internalOrdersLoaded = false;
+            }
+          }
+        } else {
+          TenrxLibraryLogger.error('Error while loading order data: content is null');
+          this.internalOrdersLoaded = false;
+        }
+      } else {
+        TenrxLibraryLogger.error('Error while loading order data: response is null');
+        this.internalOrdersLoaded = false;
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error('Error while loading order data.', error);
+      this.internalOrdersLoaded = false;
+    }
+  }
+
+  /**
+   * Re-loads the patient's wallet information from the backend servers.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxPatient
+   */
+  public async refreshWallet(apiEngine = useTenrxApi()): Promise<void> {
+    TenrxLibraryLogger.info('Refreshing patient wallet information.');
+    try {
+      const wallet = await TenrxWallet.getWallet(apiEngine);
+      this.internalWallet = wallet !== null ? wallet : new TenrxWallet([]);
+      this.internalWalletLoaded = true;
+    } catch (error) {
+      TenrxLibraryLogger.error('Error while loading wallet.', error);
+      this.internalWalletLoaded = false;
+    }
+  }
+
+  /**
+   * Re-loads the patient's information from the backend servers.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxPatient
+   */
+  public async refreshPatientInfo(apiEngine = useTenrxApi()): Promise<void> {
+    TenrxLibraryLogger.info('Refreshing patient personal information.');
+    try {
+      const patientProfileApiResponse = await apiEngine.getPatientProfileData();
+      if (patientProfileApiResponse.content) {
+        const content = patientProfileApiResponse.content as { data: TenrxLoginAPIModelPatientData };
+        if (content.data) {
+          const data: TenrxLoginAPIModelPatientData = content.data;
+          this.processApiData(data);
+          this.internalPatientInfoLoaded = true;
+        } else {
+          TenrxLibraryLogger.error('Error while loading patient profile data: data is null');
+          this.internalWalletLoaded = false;
+        }
+      } else {
+        TenrxLibraryLogger.error('Error while loading patient data: content is null.');
+        this.internalWalletLoaded = false;
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error('Error while loading patient data.', error);
+      this.internalWalletLoaded = false;
+    }
   }
 
   /**
@@ -197,33 +312,15 @@ export default class TenrxPatient {
    * @memberof TenrxPatient
    */
   public async load(apiEngine = useTenrxApi()): Promise<boolean> {
+    TenrxLibraryLogger.info('Loading patient data.');
     if (!this.internalWalletLoaded) {
-      try {
-        const wallet = await TenrxWallet.getWallet(apiEngine);
-        this.internalWallet = wallet !== null ? wallet : new TenrxWallet([]);
-        this.internalWalletLoaded = true;
-      } catch (error) {
-        TenrxLibraryLogger.error('Error while loading wallet.', error);
-      }
-      if (!this.internalPatientInfoLoaded) {
-        try {
-          const patientProfileApiResponse = await apiEngine.getPatientProfileData();
-          if (patientProfileApiResponse.content) {
-            const content = patientProfileApiResponse.content as { data: TenrxLoginAPIModelPatientData };
-            if (content.data) {
-              const data: TenrxLoginAPIModelPatientData = content.data;
-              this.processApiData(data);
-              this.internalPatientInfoLoaded = true;
-            } else {
-              TenrxLibraryLogger.error('Error while loading patient profile data: data is null');
-            }
-          } else {
-            TenrxLibraryLogger.error('Error while loading patient data: content is null.');
-          }
-        } catch (error) {
-          TenrxLibraryLogger.error('Error while loading address.', error);
-        }
-      }
+      await this.refreshWallet(apiEngine);
+    }
+    if (!this.internalPatientInfoLoaded) {
+      await this.refreshPatientInfo(apiEngine);
+    }
+    if (!this.internalOrdersLoaded) {
+      await this.refreshOrders(apiEngine);
     }
     return this.loaded;
   }
