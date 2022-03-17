@@ -245,7 +245,7 @@ export const authenticateTenrx = async (
         loginresponse.accessToken = content.access_token;
         loginresponse.expiresIn = content.expires_in;
         loginresponse.accountData = content.data;
-        loginresponse.patientData = content.patientData;
+        loginresponse.patientData = (content.patientData?.data) ? content.patientData.data : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Authentication successful.');
       } else {
@@ -410,7 +410,7 @@ export const saveSecurityQuestionAnswers = async (
         loginresponse.accessToken = content.access_token;
         loginresponse.expiresIn = content.expires_in;
         loginresponse.accountData = content.data;
-        loginresponse.patientData = content.patientData;
+        loginresponse.patientData = (content.patientData?.data) ? content.patientData.data : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Security question answers were saved successfully.');
       }
@@ -497,7 +497,7 @@ export const registerUser = async (
         loginresponse.accessToken = content.access_token;
         loginresponse.expiresIn = content.expires_in;
         loginresponse.accountData = content.data;
-        loginresponse.patientData = content.patientData;
+        loginresponse.patientData = (content.patientData?.data) ? content.patientData.data : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Registration was successful.');
       }

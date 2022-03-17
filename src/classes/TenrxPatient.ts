@@ -150,8 +150,8 @@ export default class TenrxPatient {
     this.firstName = data.firstName;
     this.lastName = data.lastName;
     this.middleName = data.middleName;
-    this.dob = new Date(data.dateOfBirth);
-    this.emailAddress = data.emailAddress;
+    this.dob = new Date(data.dob);
+    this.emailAddress = data.emailId;
     this.ssn = data.ssn;
     this.mrn = data.mrn;
     this.address = {

@@ -5,7 +5,7 @@ import {
   TEST_PASSWORD_FAILED,
   Testlogger,
 } from './includes/TexrxCommonInclude.js';
-import { authenticateTenrx, logoutTenrx, refreshTokenTenrx, useTenrxApi } from '../src/index.js';
+import { authenticateTenrx, logoutTenrx, refreshTokenTenrx, TenrxLoginAPIModelPatientData, useTenrxApi } from '../src/index.js';
 
 Testlogger.setSettings({
   type: 'pretty',
@@ -53,8 +53,8 @@ test('Authenticate/Logout Test Success', async () => {
   expect(accountData.id).toBeGreaterThan(0);
   expect(accountData.userName).toBe(TEST_USERNAME_EXISTS);
   expect(result.patientData).not.toBeNull();
-  const patientData = result.patientData as any;
-  expect(patientData.emailAddress).toBe(TEST_USERNAME_EXISTS);
+  const patientData = result.patientData as TenrxLoginAPIModelPatientData;
+  expect(patientData.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(result.securityQuestions).toBeNull();
   expect(result.error).toBeNull();
   await logoutTenrx((success: boolean) => {

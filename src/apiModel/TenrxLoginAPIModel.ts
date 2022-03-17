@@ -9,7 +9,7 @@ export default interface TenrxLoginAPIModel {
   data: TenrxLoginAPIModelData | TenrxQuestionAPIModel[] | Record<string, never>;
   message: string;
   statusCode: number;
-  patientData: TenrxLoginAPIModelPatientData | null;
+  patientData: { data: TenrxLoginAPIModelPatientData} | null;
   notifications: unknown;
   firstTimeLogin: boolean;
 }
@@ -28,8 +28,8 @@ export interface TenrxLoginAPIModelPatientData {
   firstName: string;
   middleName: string;
   lastName: string;
-  dateOfBirth: string;
-  emailAddress: string;
+  dob: string;
+  emailId: string;
   ssn: string;
   mrn: string;
   aptnumber: string;
@@ -38,10 +38,10 @@ export interface TenrxLoginAPIModelPatientData {
   city: string;
   zipCode: string;
   phoneNumber: string;
-  healthPlanBeneficiaryNumber: string;
+  patienUniqueIdentifer: string;
   countryId: number;
   stateId: number;
-  stateName: string;
+  state: string;
   country: string;
   gender: number;
 }

@@ -23,6 +23,7 @@ test('Patient Test Successful', async () => {
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
       expect(patient.firstName).toBe(loginData.patientData.firstName);
       expect(patient.lastName).toBe(loginData.patientData.lastName);
+      expect(patient.emailAddress).toBe(loginData.patientData.emailId);
       // TODO we need to do more field validations between patient and loginData.patientData
     }
   }
