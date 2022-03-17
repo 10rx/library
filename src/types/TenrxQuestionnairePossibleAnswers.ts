@@ -15,7 +15,7 @@ export default interface TenrxQuestionnairePossibleAnswers {
    * @memberof TenrxQuestionnairePossibleAnswers
    */
   questionId: number;
-  
+
   /**
    * The id of the type of the question.
    *
@@ -23,7 +23,7 @@ export default interface TenrxQuestionnairePossibleAnswers {
    * @memberof TenrxQuestionnairePossibleAnswers
    */
   questionTypeId: number;
-  
+
   /**
    * The type of answers it can be.
    *
@@ -31,7 +31,7 @@ export default interface TenrxQuestionnairePossibleAnswers {
    * @memberof TenrxQuestionnairePossibleAnswers
    */
   answerType: TenrxQuestionnaireAnswerType;
-  
+
   /**
    * The actual possible answers to a question.
    *

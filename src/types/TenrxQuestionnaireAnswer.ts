@@ -15,7 +15,7 @@ export default interface TenrxQuestionnaireAnswer {
    * @memberof TenrxQuestionnaireAnswer
    */
   questionId: number;
-  
+
   /**
    * The id of the type of the question.
    *
@@ -23,7 +23,7 @@ export default interface TenrxQuestionnaireAnswer {
    * @memberof TenrxQuestionnaireAnswer
    */
   questionTypeId: number;
-  
+
   /**
    * The type of the question.
    *
@@ -31,7 +31,7 @@ export default interface TenrxQuestionnaireAnswer {
    * @memberof TenrxQuestionnaireAnswer
    */
   questionType: TenrxQuestionnaireAnswerType;
-  
+
   /**
    * The actual answer to the question.
    *

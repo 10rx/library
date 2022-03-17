@@ -225,7 +225,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
 
   /**
    * Creates an instance of TenrxQuestionnaireBot.
-   * 
+   *
    * @param {string} nickName - The nickname of the bot.
    * @param {string} avatar - The avatar of the bot.
    * @param {number} visitTypeId - The visit type id of the bot.
@@ -398,7 +398,6 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     return this.internalState;
   }
 }
-
 
 export type TenrxQuestionnaireBotOptions = {
   nickName?: string;

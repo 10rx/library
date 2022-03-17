@@ -9,7 +9,7 @@ export default interface TenrxLoginAPIModel {
   data: TenrxLoginAPIModelData | TenrxQuestionAPIModel[] | Record<string, never>;
   message: string;
   statusCode: number;
-  patientData: { data: TenrxLoginAPIModelPatientData} | null;
+  patientData: { data: TenrxLoginAPIModelPatientData } | null;
   notifications: unknown;
   firstTimeLogin: boolean;
 }

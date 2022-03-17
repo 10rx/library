@@ -399,7 +399,7 @@ export default class TenrxPatient {
             middleName: this.middleName,
             dob: DateTime.fromJSDate(this.dob).toUTC().toISO({ suppressMilliseconds: true }),
             gender: this.gender,
-            phoneNumber: this.phoneNumber
+            phoneNumber: this.phoneNumber,
           },
           patientAddress: {
             address1: this.address.address1,
@@ -407,14 +407,18 @@ export default class TenrxPatient {
             city: this.address.city,
             countryId: this.countryId,
             stateId: this.address.stateId,
-            zip: this.address.zipCode
+            zip: this.address.zipCode,
           },
-        }
-        if (this.photoBase64) saveObject = { ... saveObject, photoBase64: this.photoBase64 };
+        };
+        if (this.photoBase64) saveObject = { ...saveObject, photoBase64: this.photoBase64 };
         const patientProfileApiResponse = await apiEngine.updatePatientInfo(saveObject);
         if (patientProfileApiResponse.status !== 200) {
           TenrxLibraryLogger.error('Error while saving patient profile data.', patientProfileApiResponse.error);
-          throw new TenrxSaveError('Error while saving patient profile data.', 'TenrxPatient', patientProfileApiResponse.error);
+          throw new TenrxSaveError(
+            'Error while saving patient profile data.',
+            'TenrxPatient',
+            patientProfileApiResponse.error,
+          );
         }
       } catch (error) {
         TenrxLibraryLogger.error('Error while saving patient data.', error);

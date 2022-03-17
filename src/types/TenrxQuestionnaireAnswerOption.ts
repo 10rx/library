@@ -12,7 +12,7 @@ export default interface TenrxQuestionnaireAnswerOption {
    * @memberof TenrxQuestionnaireAnswerOption
    */
   id: number;
-  
+
   /**
    * The id of the questionnaire that this answer belongs to.
    *
@@ -20,7 +20,7 @@ export default interface TenrxQuestionnaireAnswerOption {
    * @memberof TenrxQuestionnaireAnswerOption
    */
   questionnaireMasterId: number;
-  
+
   /**
    * The actual value of the answer option.
    *
@@ -28,7 +28,7 @@ export default interface TenrxQuestionnaireAnswerOption {
    * @memberof TenrxQuestionnaireAnswerOption
    */
   optionValue: string;
-  
+
   /**
    * Any information regarding the answer option..
    *
@@ -36,7 +36,7 @@ export default interface TenrxQuestionnaireAnswerOption {
    * @memberof TenrxQuestionnaireAnswerOption
    */
   optionInfo: string;
-  
+
   /**
    * Any numeric value that the answer might or might not have.
    *
@@ -44,7 +44,7 @@ export default interface TenrxQuestionnaireAnswerOption {
    * @memberof TenrxQuestionnaireAnswerOption
    */
   numericValue: number;
-  
+
   /**
    * Any specific display order. If display order is the same, then the order is random.
    *

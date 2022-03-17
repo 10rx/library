@@ -12,7 +12,7 @@ export default interface TenrxSendAnswersResult {
    * @memberof TenrxSendAnswersResult
    */
   answersSent: boolean;
-  
+
   /**
    * This is the message from the backend servers.
    *
@@ -20,7 +20,7 @@ export default interface TenrxSendAnswersResult {
    * @memberof TenrxSendAnswersResult
    */
   answersSentMessage: string;
-  
+
   /**
    * The server response code.
    *
