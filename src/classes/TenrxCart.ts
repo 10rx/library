@@ -101,7 +101,7 @@ export default class TenrxCart {
   }
 
   /**
-   * Adds an entry to the cart.
+   * Adds a product to the cart using an cart entry object.
    *
    * @param {TenrxCartEntry} item - The entry to add to the cart.
    * @memberof TenrxCart
@@ -112,7 +112,7 @@ export default class TenrxCart {
   }
 
   /**
-   * Adds a product to the cart.
+   * Adds a product to the cart using a product class.
    *
    * @param {TenrxProduct} item - The product to add to the cart.
    * @param {number} quantity - The quantity of the product to add to the cart.
