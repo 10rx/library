@@ -45,7 +45,7 @@ export default class TenrxCart {
   constructor(data: TenrxCartEntry[] = []) {
     this.internalCartTotalItems = -1;
     this.internalCartEntries = data;
-    this.internalTaxRate = 0.06;
+    this.internalTaxRate = 0.07;
     this.internalTaxAmount = -1;
     this.internalSubTotal = -1;
     this.internalSubHiddenTotal = -1;
