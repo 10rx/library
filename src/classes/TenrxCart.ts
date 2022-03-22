@@ -506,6 +506,23 @@ export default class TenrxCart {
   }
 
   /**
+   * Returns true if there is an answer for a specific visit type id. Otherwise, false
+   *
+   * @param {number} visitTypeId - The visit type id to check.
+   * @return {*}  {boolean} - True if there is an answer for the visit type id, otherwise false.
+   * @memberof TenrxCart
+   */
+  public isThereAnAnswerForVisitTypeId(visitTypeId: number): boolean {
+    let result = false;
+    if (this.internalAnswers) {
+      if (this.internalAnswers[visitTypeId]) {
+        result = true;
+      }
+    }
+    return result;
+  }
+
+  /**
    * Attaches the answers of the questionnaires to the cart per visit type.
    *
    * @param {number} visitTypeId
