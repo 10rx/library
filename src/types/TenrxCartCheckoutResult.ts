@@ -1,6 +1,7 @@
 import TenrxOrderPlacementResult from './TenrxOrderPlacementResult.js';
 import TenrxPaymentResult from './TenrxPaymentResult.js';
 import TenrxSendAnswersResult from './TenrxSendAnswersResult.js';
+import TenrxSendPatientImagesResult from './TenrxSendPatientImagesResult.js';
 
 /**
  * Represents the result of checking out the cart.
@@ -40,4 +41,12 @@ export default interface TenrxCartCheckoutResult {
    * @memberof TenrxCartCheckoutResult
    */
   questionnaireDetails: TenrxSendAnswersResult | null;
+
+  /**
+   * The images sent from the checkout.
+   *
+   * @type {(TenrxSendPatientImagesResult | null)}
+   * @memberof TenrxCartCheckoutResult
+   */
+  patientImagesDetails: TenrxSendPatientImagesResult | null;
 }

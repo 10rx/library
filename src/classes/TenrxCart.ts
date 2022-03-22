@@ -1,4 +1,5 @@
 import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
+import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { TenrxStateIdToStateName } from '../includes/TenrxStates.js';
 import {
   TenrxEnumCountry,
@@ -15,6 +16,8 @@ import {
 import TenrxCartCheckoutResult from '../types/TenrxCartCheckoutResult.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
 import TenrxOrderPlacementResult from '../types/TenrxOrderPlacementResult.js';
+import TenrxPatientImage from '../types/TenrxPatientImage.js';
+import TenrxSendPatientImagesResult from '../types/TenrxSendPatientImagesResult.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 import TenrxProduct from './TenrxProduct.js';
 import { TenrxStorageScope } from './TenrxStorage.js';
@@ -35,6 +38,7 @@ export default class TenrxCart {
   private internalLoaded: boolean;
   private internalShippingCost: number;
   private internalAnswers: Record<string, TenrxQuestionnaireAnswer[]>;
+  private internalPatientImages: Record<string, TenrxPatientImage[]>;
 
   /**
    * Creates an instance of TenrxCart.
@@ -52,16 +56,46 @@ export default class TenrxCart {
     this.internalLoaded = false;
     this.internalShippingCost = 0;
     this.internalAnswers = {};
+    this.internalPatientImages = {};
   }
 
   /**
-   * Clears the contents of the cart.
+   * Clears the entire contents of the cart.
    *
    * @memberof TenrxCart
    */
   public clearCart(): void {
+    this.clearAnswers();
+    this.clearPatientImages();
+    this.clearProducts();
+  }
+
+  /**
+   * Only clears the products from the cart.
+   *
+   * @memberof TenrxCart
+   */
+  public clearProducts(): void {
     this.internalCartEntries = [];
     this.forceRecalculate();
+  }
+
+  /**
+   * Only clears the questionnaire answers from the cart.
+   *
+   * @memberof TenrxCart
+   */
+  public clearAnswers(): void {
+    this.internalAnswers = {};
+  }
+
+  /**
+   * Only clears the patient images from the cart.
+   *
+   * @memberof TenrxCart
+   */
+  public clearPatientImages(): void {
+    this.internalPatientImages = {};
   }
 
   /**
@@ -389,6 +423,7 @@ export default class TenrxCart {
       paymentDetails: null,
       orderDetails: null,
       questionnaireDetails: null,
+      patientImagesDetails: null,
     };
     try {
       result.paymentDetails = await this.sendPayment(userName, card, shippingAddress, isGuest, apiEngine);
@@ -412,14 +447,24 @@ export default class TenrxCart {
                 apiEngine,
               );
             }
-            if (result.questionnaireDetails) {
-              if (result.questionnaireDetails.answersSent) {
+            if (Object.keys(this.internalPatientImages).length > 0) {
+              result.patientImagesDetails = await this.sendPatientImages(patientId, apiEngine);
+            }
+            if (result.patientImagesDetails && result.questionnaireDetails) {
+              if (result.patientImagesDetails.patientImagesSent && result.questionnaireDetails.answersSent) {
+                result.checkoutSuccessful = true;
+              }
+            } else {
+              if (result.patientImagesDetails == null && result.questionnaireDetails == null) {
                 result.checkoutSuccessful = true;
               }
             }
           }
         }
       }
+    }
+    if (result.checkoutSuccessful) {
+      this.clearCart();
     }
     return result;
   }
@@ -523,6 +568,40 @@ export default class TenrxCart {
   }
 
   /**
+   * Attaches a single patient image to the cart for the specified visit type id.
+   *
+   * @param {number} visitTypeId - The visit type id to attach the image to.
+   * @param {TenrxPatientImage} image - The image to attach.
+   * @memberof TenrxCart
+   */
+  public attachSinglePatientImage(visitTypeId: number, image: TenrxPatientImage): void {
+    if (this.internalPatientImages) {
+      if (this.internalPatientImages[visitTypeId]) {
+        this.internalPatientImages[visitTypeId].push(image);
+      } else {
+        this.internalPatientImages[visitTypeId] = [image];
+      }
+    }
+  }
+
+  /**
+   * Attaches a list of patient images to the cart for the specified visit type id.
+   *
+   * @param {number} visitTypeId - The visit type id to attach the images to.
+   * @param {TenrxPatientImage[]} images - The images to attach.
+   * @memberof TenrxCart
+   */
+  public attachPatientImages(visitTypeId: number, images: TenrxPatientImage[]): void {
+    if (this.internalPatientImages) {
+      if (this.internalPatientImages[visitTypeId]) {
+        this.internalPatientImages[visitTypeId].concat(images);
+      } else {
+        this.internalPatientImages[visitTypeId] = images;
+      }
+    }
+  }
+
+  /**
    * Attaches the answers of the questionnaires to the cart per visit type.
    *
    * @param {number} visitTypeId
@@ -531,6 +610,66 @@ export default class TenrxCart {
    */
   public attachAnswers(visitTypeId: number, answers: TenrxQuestionnaireAnswer[]) {
     this.internalAnswers[visitTypeId] = answers;
+  }
+
+  /**
+   * Sends the patient images to the backend servers.
+   *
+   * @param {number} patientId - The id of the patient who is sending the images.
+   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
+   * @return {*}  {Promise<TenrxSendPatientImagesResult>} - The result of the sending of the images.
+   * @memberof TenrxCart
+   */
+  public async sendPatientImages(patientId: number, apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
+    const result: TenrxSendPatientImagesResult = {
+      patientImagesSentMessage: 'Unable to send patient images.',
+      patientImagesSent: false,
+      patientImagesSentStatusCode: 500,
+    };
+    if (this.internalPatientImages) {
+      const patientImagesApiPayloads: TenrxUploadPatientAffectedImagesAPIModel[] = [];
+      try {
+        Object.keys(this.internalPatientImages).forEach((visitTypeId) => {
+          if (this.internalPatientImages[visitTypeId] && this.internalPatientImages[visitTypeId].length > 0) {
+            patientImagesApiPayloads.push({
+              patientId,
+              visitTypeId: Number(visitTypeId),
+              patientImages: this.internalPatientImages[visitTypeId],
+            });
+          }
+        });
+
+        if (patientImagesApiPayloads.length > 0) {
+          for (const patientImagesApiPayload of patientImagesApiPayloads) {
+            const sendPatientImagesResult = await apiEngine.uploadPatientAffectedImages(patientImagesApiPayload);
+            if (sendPatientImagesResult.content) {
+              const content = sendPatientImagesResult.content as {
+                apiStatus: { statusCode: number; message: string };
+              };
+              if (content.apiStatus) {
+                TenrxLibraryLogger.info('sendPatientImages() servers responded: ' + content.apiStatus.message);
+                result.patientImagesSentMessage = content.apiStatus.message;
+                result.patientImagesSentStatusCode = content.apiStatus.statusCode;
+                if (content.apiStatus.statusCode === 200) {
+                  result.patientImagesSent = true;
+                } else {
+                  break;
+                }
+              } else {
+                TenrxLibraryLogger.error('sendPatientImages() apiStatus is null:', content);
+              }
+            } else {
+              TenrxLibraryLogger.error('sendPatientImages() content is null:', sendPatientImagesResult.error);
+            }
+          }
+        }
+      } catch (error) {
+        TenrxLibraryLogger.error('sendPatientImages(): ', error);
+        result.patientImagesSentMessage =
+          'Exception has occurred when sending patient images: ' + JSON.stringify(error);
+      }
+    }
+    return result;
   }
 
   /**
@@ -632,6 +771,7 @@ export default class TenrxCart {
         } else {
           TenrxLibraryLogger.error('sendAnswers() content is null:', sendAnswers.error);
         }*/
+        this.clearAnswers();
       } catch (error) {
         TenrxLibraryLogger.error('sendAnswers(): ', error);
         result.answersSentMessage = 'Exception has occurred when sending answers: ' + JSON.stringify(error);

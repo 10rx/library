@@ -41,6 +41,8 @@ export { default as TenrxSendAnswersResult } from './types/TenrxSendAnswersResul
 export { default as TenrxAccessToken } from './types/TenrxAccessToken.js';
 export { default as TenrxAccessTokenExpirationInformation } from './types/TenrxAccessTokenExpirationInformation.js';
 export { default as TenrxOrderProductEntry } from './types/TenrxOrderProductEntry.js';
+export { default as TenrxPatientImage } from './types/TenrxPatientImage.js';
+export { default as TenrxSendPatientImagesResult } from './types/TenrxSendPatientImagesResult.js';
 export {
   default as TenrxChatEvent,
   TenrxChatEventPayload,
@@ -79,6 +81,7 @@ export { default as TenrxOrderAPIModel } from './apiModel/TenrxOrderAPIModel.js'
 export { default as TenrxCreditCardAPIModel } from './apiModel/TenrxCreditCardAPIModel.js';
 export { default as TenrxQuestionAPIModel } from './apiModel/TenrxQuestionAPIModel.js';
 export { default as TenrxOrderProductAPIModel } from './apiModel/TenrxOrderProductAPIModel.js';
+export { default as TenrxUploadPatientAffectedImagesAPIModel } from './apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 export {
   default as TenrxLoginAPIModel,
   TenrxLoginAPIModelData,

@@ -15,6 +15,7 @@ import TenrxQuestionnaireSaveAnswersAPIModel from '../apiModel/TenrxQuestionnair
 import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
 import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
 import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
+import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -551,6 +552,29 @@ export default class TenrxApiEngine {
       throw new TenrxAccessTokenExpired('Access Token has expired.', this.expireDateStart, this.expiresIn, now);
     }
     TenrxLibraryLogger.silly('Access Token is valid.');
+  }
+
+  /**
+   * Uploads photos or images of the current patient determined by the access token to the API.
+   *
+   * @param {TenrxUploadPatientAffectedImagesAPIModel} details - The details of the photos to upload
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async uploadPatientAffectedImages(details: TenrxUploadPatientAffectedImagesAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Uploading patient affected images to API');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Patient/UploadPatientAffectedImgaes`, details);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('uploadPatientAffectedImages() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**
