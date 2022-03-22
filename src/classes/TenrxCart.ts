@@ -184,7 +184,7 @@ export default class TenrxCart {
     // TODO - Implement this using API.
     TenrxLibraryLogger.info('Getting tax information for items in cart.');
     TenrxLibraryLogger.silly(address); // This needs to be removed when the tax information is implemented using API calls.
-    this.internalTaxRate = 0.06;
+    this.internalTaxRate = 0.07;
     this.internalCartEntries.forEach((entry) => {
       entry.taxable = entry.rx ? false : true;
     });
