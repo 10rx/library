@@ -50,6 +50,28 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets the appointments for the current patient identified by the access token.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getAppointmentsForPatient(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting appointments for patient from API');
+    try {
+      const response = this.authGet(`${this.baseapi}/api/v1/Patient/GetAppointmentsForPatient`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getAppointmentsForPatient() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Creates an appointment for the given order.
    *
    * @param {string} orderId - The order id to create the appointment for.

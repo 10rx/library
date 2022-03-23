@@ -2,11 +2,13 @@ import { DateTime } from 'luxon';
 import { TenrxLoginAPIModelPatientData } from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
 import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
+import TenrxGetAppointmentsForPatientAPIModel from '../apiModel/TenrxGetAppointmentsForPatientAPIModel.js';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
 import TenrxSaveError from '../exceptions/TenrxSaveError.js';
 import { TenrxEnumCountry, TenrxEnumGender, TenrxEnumState } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
+import TenrxAppointment from '../types/TenrxAppointment.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 import TenrxOrder from './TenrxOrder.js';
 import TenrxWallet from './TenrxWallet.js';
@@ -145,6 +147,8 @@ export default class TenrxPatient {
     this.internalWalletLoaded = wallet ? true : false;
     this.internalOrders = [];
     this.internalOrdersLoaded = false;
+    this.internalAppointments = [];
+    this.internalAppointmentsLoaded = false;
     if (data) this.processApiData(data);
     this.internalPatientInfoLoaded = data ? true : false;
     this.photoBase64 = null;
@@ -176,6 +180,8 @@ export default class TenrxPatient {
   private internalPatientInfoLoaded: boolean;
   private internalOrders: TenrxOrder[];
   private internalOrdersLoaded: boolean;
+  private internalAppointments: TenrxAppointment[];
+  private internalAppointmentsLoaded: boolean;
 
   /**
    * Gets the patient's wallet information.
@@ -200,6 +206,17 @@ export default class TenrxPatient {
   }
 
   /**
+   * Gets the patient's appointments.
+   *
+   * @readonly
+   * @type {TenrxAppointment[]}
+   * @memberof TenrxPatient
+   */
+  public get appointments(): TenrxAppointment[] {
+    return this.internalAppointments;
+  }
+
+  /**
    * True if patient information has been loaded from backend servers. Otherwise, false.
    *
    * @readonly
@@ -207,7 +224,59 @@ export default class TenrxPatient {
    * @memberof TenrxPatient
    */
   public get loaded(): boolean {
-    return this.internalWalletLoaded && this.internalPatientInfoLoaded && this.internalOrdersLoaded;
+    return (
+      this.internalWalletLoaded &&
+      this.internalPatientInfoLoaded &&
+      this.internalOrdersLoaded &&
+      this.internalAppointmentsLoaded
+    );
+  }
+
+  /**
+   * Re-loads the patient's appointment information from the backend servers.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxPatient
+   */
+  public async refreshAppointments(apiEngine = useTenrxApi()): Promise<void> {
+    TenrxLibraryLogger.info('Refreshing appointments.');
+    try {
+      this.internalAppointments = [];
+      const response = await apiEngine.getAppointmentsForPatient();
+      if (response.status === 200) {
+        if (response.content) {
+          const content = response.content as { apiStatus: { statusCode: number; }, data: TenrxGetAppointmentsForPatientAPIModel[];};
+          if (content.apiStatus) {
+            if (content.apiStatus.statusCode === 200) {
+              if (content.data) {
+                for (const appointment of content.data) {
+                  this.internalAppointments.push({
+                    doctorName: "Unknown doctor.",
+                    startDate: new Date(appointment.startDateTime),
+                    endDate: new Date(appointment.endDateTime),
+                  });
+                }
+                this.internalAppointmentsLoaded = true;
+              } else {
+                TenrxLibraryLogger.error('Data is null.');
+              }
+            } else {
+              TenrxLibraryLogger.error('Error getting appointments.', content.apiStatus);
+            }
+          } else {
+            TenrxLibraryLogger.error('ApiStatus is null');
+          }
+        } else {
+          TenrxLibraryLogger.error('Response content is null.', response.error);
+        }
+      } else {
+        TenrxLibraryLogger.error('Error refreshing appointments.', response);
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error('Error while loading appointment data.', error);
+      this.internalOrdersLoaded = false;
+    }
   }
 
   /**
@@ -325,6 +394,9 @@ export default class TenrxPatient {
     }
     if (!this.internalOrdersLoaded) {
       await this.refreshOrders(apiEngine);
+    }
+    if (!this.internalAppointmentsLoaded) {
+      await this.refreshAppointments();
     }
     return this.loaded;
   }
