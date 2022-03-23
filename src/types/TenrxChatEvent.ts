@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import { TenrxChatEventType } from '../includes/TenrxEnums.js';
 
 /**
@@ -43,10 +42,10 @@ export default interface TenrxChatEvent {
   /**
    * The timestamp of the event.
    *
-   * @type {DateTime}
+   * @type {Date}
    * @memberof TenrxChatEvent
    */
-  timestamp: DateTime;
+  timestamp: Date;
 }
 
 /**

@@ -36,7 +36,7 @@ export default class TenrxChatEngine {
   public stopChat(): void {
     this.internalChatStatus = TenrxChatStatus.Idle;
     this.notifyInterfaces({
-      timestamp: DateTime.now(),
+      timestamp: DateTime.now().toJSDate(),
       type: TenrxChatEventType.ChatEnded,
       payload: null,
       senderId: null,
@@ -81,7 +81,7 @@ export default class TenrxChatEngine {
       });
     });
     this.notifyInterfaces({
-      timestamp: DateTime.now(),
+      timestamp: DateTime.now().toJSDate(),
       type: TenrxChatEventType.ChatStarted,
       payload,
       senderId: null,
@@ -174,7 +174,7 @@ export default class TenrxChatEngine {
       };
       this.notifyInterfaces(
         {
-          timestamp: DateTime.now(),
+          timestamp: DateTime.now().toJSDate(),
           senderId: id,
           recipientId: null,
           type: TenrxChatEventType.ChatParticipantJoined,
@@ -202,7 +202,7 @@ export default class TenrxChatEngine {
       delete this.internalChatParticipants[participantId];
       this.notifyInterfaces(
         {
-          timestamp: DateTime.now(),
+          timestamp: DateTime.now().toJSDate(),
           senderId: participantId,
           recipientId: null,
           type: TenrxChatEventType.ChatParticipantLeft,
@@ -231,7 +231,7 @@ export default class TenrxChatEngine {
     if (this.internalChatStatus === TenrxChatStatus.Active) {
       this.notifyParticipants(
         {
-          timestamp: DateTime.now(),
+          timestamp: DateTime.now().toJSDate(),
           senderId,
           recipientId: participantId ? participantId : null, // sending to all users
           type: TenrxChatEventType.ChatMessage,
@@ -256,7 +256,7 @@ export default class TenrxChatEngine {
     if (this.internalChatStatus === TenrxChatStatus.Active) {
       this.notifyParticipants(
         {
-          timestamp: DateTime.now(),
+          timestamp: DateTime.now().toJSDate(),
           senderId,
           recipientId: participantId ? participantId : null, // sending to all users
           type: TenrxChatEventType.ChatTypingStarted,
@@ -284,7 +284,7 @@ export default class TenrxChatEngine {
     if (this.internalChatStatus === TenrxChatStatus.Active) {
       this.notifyParticipants(
         {
-          timestamp: DateTime.now(),
+          timestamp: DateTime.now().toJSDate(),
           senderId,
           recipientId: participantId ? participantId : null, // sending to all users
           type: TenrxChatEventType.ChatTypingEnded,

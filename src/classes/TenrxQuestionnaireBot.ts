@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import TenrxQuestionnaireQuestionAPIModel from '../apiModel/TenrxQuestionnaireQuestionAPIModel.js';
 import {
   TenrxChatEventType,
@@ -193,7 +192,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     }
   }
 
-  private handleReceivedMessage(senderId: string | null, messagePayload: TenrxChatMessagePayload, timestamp: DateTime) {
+  private handleReceivedMessage(senderId: string | null, messagePayload: TenrxChatMessagePayload, timestamp: Date) {
     if (senderId === null) {
       return;
     }
