@@ -20,7 +20,7 @@ export default interface TenrxPatientImage {
    * @memberof TenrxPatientImage
    */
   ext: string;
-  
+
   /**
    * The file name of the image.
    *
@@ -28,7 +28,7 @@ export default interface TenrxPatientImage {
    * @memberof TenrxPatientImage
    */
   fileName: string;
-  
+
   /**
    * The format of the image (e.g. jpg, png, etc.)
    *

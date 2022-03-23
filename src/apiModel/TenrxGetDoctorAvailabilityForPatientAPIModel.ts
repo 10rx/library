@@ -1,7 +1,7 @@
 export default interface TenrxGetDoctorAvailabilityForPatientAPIModel {
-    doctorName: string;
-    appointmentSlots: {
-        slotStartTime: string;
-        slotEndTime: string;
-    }[];
+  doctorName: string;
+  appointmentSlots: {
+    slotStartTime: string;
+    slotEndTime: string;
+  }[];
 }

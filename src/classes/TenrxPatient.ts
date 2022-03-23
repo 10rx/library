@@ -246,13 +246,16 @@ export default class TenrxPatient {
       const response = await apiEngine.getAppointmentsForPatient();
       if (response.status === 200) {
         if (response.content) {
-          const content = response.content as { apiStatus: { statusCode: number; }, data: TenrxGetAppointmentsForPatientAPIModel[];};
+          const content = response.content as {
+            apiStatus: { statusCode: number };
+            data: TenrxGetAppointmentsForPatientAPIModel[];
+          };
           if (content.apiStatus) {
             if (content.apiStatus.statusCode === 200) {
               if (content.data) {
                 for (const appointment of content.data) {
                   this.internalAppointments.push({
-                    doctorName: "Unknown doctor.",
+                    doctorName: 'Unknown doctor.',
                     startDate: new Date(appointment.startDateTime),
                     endDate: new Date(appointment.endDateTime),
                   });
