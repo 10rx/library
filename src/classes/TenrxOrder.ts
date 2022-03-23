@@ -1,4 +1,8 @@
+import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
+import { useTenrxApi } from '../includes/TenrxFunctions.js';
+import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
+import TenrxAppointment from '../types/TenrxAppointment.js';
 import TenrxOrderProductEntry from '../types/TenrxOrderProductEntry.js';
 
 /**
@@ -82,5 +86,84 @@ export default class TenrxOrder {
    */
   public get status(): string {
     return 'processing';
+  }
+
+  /**
+   * Gets the possibles appointment date of the order giving a date range.
+   *
+   * @param {Date} startDate - The start date of the range.
+   * @param {Date} endDate - The end date of the range.
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {TenrxAppointment[]} - The list of possible appointment dates.
+   * @memberof TenrxOrder
+   */
+  public async getPossibleAppointmentDates(
+    startDate: Date,
+    endDate: Date,
+    apiEngine = useTenrxApi(),
+  ): Promise<TenrxAppointment[]> {
+    const result: TenrxAppointment[] = [];
+    try {
+      const response = await apiEngine.getDoctorAvailabilityForPatient(this.orderId, startDate, endDate);
+      if (response.status === 200) {
+        const content = response.content as { data: TenrxGetDoctorAvailabilityForPatientAPIModel; statusCode: number };
+        if (content) {
+          if (content.data) {
+            if (content.statusCode === 200) {
+              const doctorName = content.data.doctorName;
+              if (content.data.appointmentSlots && content.data.appointmentSlots.length > 0) {
+                content.data.appointmentSlots.forEach((appointment) => {
+                  result.push({
+                    doctorName,
+                    startDate: new Date(appointment.slotStartTime),
+                    endDate: new Date(appointment.slotEndTime),
+                  });
+                });
+              }
+            } else {
+              TenrxLibraryLogger.error('Error getting possible appointment dates', content.data);
+            }
+          } else {
+            TenrxLibraryLogger.error('The response content is null.');
+          }
+        } else {
+          TenrxLibraryLogger.error('The response content is null.');
+        }
+      } else {
+        TenrxLibraryLogger.error(`Error getting possible appointment dates for order ${this.orderId}`, response);
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error(`Error getting possible appointment dates for order ${this.orderId}`, error);
+    }
+    return result;
+  }
+
+  /**
+   * Schedules an appointment for the order.
+   *
+   * @param {TenrxAppointment} appointment - The appointment to schedule.
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @memberof TenrxOrder
+   */
+  public async scheduleAppointment(appointment: TenrxAppointment, apiEngine = useTenrxApi()): Promise<void> {
+    try {
+      const response = await apiEngine.createAppointment(this.orderId, appointment.startDate);
+      if (response.status === 200) {
+        const content = response.content as { statusCode: number };
+        if (content) {
+          if (content.statusCode === 200) {
+            TenrxLibraryLogger.info('Appointment scheduled.');
+          } else {
+            TenrxLibraryLogger.error('Error scheduling appointment.', content);
+          }
+        } else {
+          TenrxLibraryLogger.error('The response content is null.');
+        }
+      } else {
+        TenrxLibraryLogger.error('Error scheduling appointment.', response);
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error('Error scheduling appointment.', error);
+    }
   }
 }

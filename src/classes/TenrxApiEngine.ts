@@ -16,6 +16,7 @@ import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionn
 import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
 import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
 import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
+import { DateTime } from 'luxon';
 
 /**
  * Represents a Tenrx API engine.
@@ -46,6 +47,66 @@ export default class TenrxApiEngine {
     this.accesstoken = '';
     this.expiresIn = -1;
     this.expireDateStart = 0;
+  }
+
+  /**
+   * Creates an appointment for the given order.
+   *
+   * @param {string} orderId - The order id to create the appointment for.
+   * @param {Date} startDate - The start date to create the appointment for.
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async createAppointment(orderId: string, startDate: Date): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Creating appointment from API');
+    try {
+      const response = this.authPost(`${this.baseapi}/api/v1/Patient/CreateAppointment`, {
+        orderNumber: orderId,
+        startDate: DateTime.fromJSDate(startDate).toUTC().toISO({ suppressMilliseconds: true }),
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('createAppointment() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the doctor's available times for a specific date given an specific number.
+   *
+   * @param {string} orderId - The order id to get the available times for.
+   * @param {Date} startDate - The start date to get the available times for.
+   * @param {Date} endDate - The end date to get the available times for.
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getDoctorAvailabilityForPatient(
+    orderId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting doctor availability for patient from API');
+    try {
+      const response = this.authPost(`${this.baseapi}/api/v1/Patient/GetDoctorAvailablityForPatient`, {
+        orderNumber: orderId,
+        startDate: DateTime.fromJSDate(startDate).toUTC().toISO({ suppressMilliseconds: true }),
+        endDate: DateTime.fromJSDate(endDate).toUTC().toISO({ suppressMilliseconds: true }),
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getDoctorAvailabilityForPatient() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**
