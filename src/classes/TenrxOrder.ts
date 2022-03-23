@@ -81,6 +81,6 @@ export default class TenrxOrder {
    * @memberof TenrxOrder
    */
   public get status(): string {
-    return '';
+    return 'processing';
   }
 }
