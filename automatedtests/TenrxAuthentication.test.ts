@@ -52,10 +52,9 @@ test('Authenticate/Logout Test Success', async () => {
   const accountData = result.accountData as any;
   expect(accountData.id).toBeGreaterThan(0);
   expect(accountData.userName).toBe(TEST_USERNAME_EXISTS);
-  // TODO API needs to be fixed so that I can enable this section of the test.
-  /*expect(result.patientData).not.toBeNull();
+  expect(result.patientData).not.toBeNull();
   const patientData = result.patientData as TenrxLoginAPIModelPatientData;
-  expect(patientData.emailId).toBe(TEST_USERNAME_EXISTS);*/
+  expect(patientData.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(result.securityQuestions).toBeNull();
   expect(result.error).toBeNull();
   await logoutTenrx((success: boolean) => {
