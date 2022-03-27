@@ -240,7 +240,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get subHiddenTotal(): number {
-    if (this.internalSubHiddenTotal < -1) {
+    if (this.internalSubHiddenTotal < 0) {
       this.internalSubHiddenTotal = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
           if (curr.hidden) {
