@@ -690,7 +690,6 @@ export default class TenrxCart {
    * @return {*}  {Promise<TenrxSendAnswersResult>} - The result of the sending of the answers.
    * @memberof TenrxCart
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   public async sendAnswers(
     orderNumber: string,
     patientComment: string,
@@ -737,25 +736,28 @@ export default class TenrxCart {
             }
           });
         });
-        // Faking the actual send of answers in the meantime.
-        result.answersSentMessage = 'Answers sent successfully.';
-        result.answersSentStatusCode = 200;
-        result.answersSent = true;
-        /* const sendAnswers = await apiEngine.saveAnswers(orderNumber, patientComment, paymentStatus, answers);
+        const sendAnswers = await apiEngine.saveAnswers(orderNumber, patientComment, paymentStatus, answers);
         if (sendAnswers.content) {
           const content = sendAnswers.content as {
-            message: string;
-            statusCode: number;
+            apiStatus: {
+              message: string;
+              statusCode: number;
+            };
           };
-          TenrxLibraryLogger.info('Answers servers responded: ' + content.message);
-          result.answersSentMessage = content.message;
-          result.answersSentStatusCode = content.statusCode;
-          if (content.statusCode === 200) {
-            result.answersSent = true;
+          const apiStatus = content.apiStatus;
+          if (apiStatus) {
+            TenrxLibraryLogger.info('Answers servers responded: ' + apiStatus.message);
+            result.answersSentMessage = apiStatus.message;
+            result.answersSentStatusCode = apiStatus.statusCode;
+            if (apiStatus.statusCode === 200) {
+              result.answersSent = true;
+            }
+          } else {
+            TenrxLibraryLogger.error('Answers apiStatus is null:', content);
           }
         } else {
           TenrxLibraryLogger.error('sendAnswers() content is null:', sendAnswers.error);
-        }*/
+        }
       } catch (error) {
         TenrxLibraryLogger.error('sendAnswers(): ', error);
         result.answersSentMessage = 'Exception has occurred when sending answers: ' + JSON.stringify(error);
