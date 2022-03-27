@@ -65,7 +65,6 @@ test('PlaceOrder Test Successful', async () => {
       expect(patient.wallet).not.toBeNull();
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
       const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS, patient.id);
-      Testlogger.warn('result: ', checkoutResponse);
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(true);
     }
