@@ -1,6 +1,6 @@
 import TenrxQuestionnaireSurveyResponseAPIModel from './TenrxQuestionnaireSurveyResponsesAPIModel.js';
 export default interface TenrxQuestionnaireSaveAnswersAPIModel {
-  surveyResponses: TenrxQuestionnaireSurveyResponseAPIModel[];
+  surveyAnswers: TenrxQuestionnaireSurveyResponseAPIModel[];
   orderNumber: string;
   patientComment: string;
   paymentStatus: boolean;

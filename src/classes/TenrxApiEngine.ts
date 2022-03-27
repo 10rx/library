@@ -216,11 +216,11 @@ export default class TenrxApiEngine {
     orderNumber: string,
     patientComment: string,
     paymentStatus: boolean,
-    surveyResponses: TenrxQuestionnaireSurveyResponseAPIModel[],
+    surveyAnswers: TenrxQuestionnaireSurveyResponseAPIModel[],
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving answers to API');
     const answers: TenrxQuestionnaireSaveAnswersAPIModel = {
-      surveyResponses,
+      surveyAnswers,
       orderNumber,
       patientComment,
       paymentStatus,
