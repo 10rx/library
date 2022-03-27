@@ -119,6 +119,7 @@ export {
   checkIfEmailExists,
   logoutTenrx,
   saveSecurityQuestionAnswers,
+  registerGuest,
   registerUser,
   tenrxRoundTo,
   isBrowser,
