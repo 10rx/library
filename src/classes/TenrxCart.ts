@@ -743,7 +743,6 @@ export default class TenrxCart {
         } else {
           TenrxLibraryLogger.error('sendAnswers() content is null:', sendAnswers.error);
         }
-        this.clearAnswers();
       } catch (error) {
         TenrxLibraryLogger.error('sendAnswers(): ', error);
         result.answersSentMessage = 'Exception has occurred when sending answers: ' + JSON.stringify(error);
