@@ -401,8 +401,8 @@ export default class TenrxCart {
    * @param {string} userName - The user name of the user who is paying for the cart.
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
-   * @param {number} [userId=0] - The user id of the user who is paying for the cart.
-   * @param {number} [patientId=0] - The patient id of the user who is paying for the cart.
+   * @param {number} patientId - The patient id of the user who is paying for the cart.
+   * @param {number} [patientComment=''] - The patient comment of the user who answered the questionnaire.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxCartCheckoutResult>}
@@ -412,8 +412,8 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
-    userId = 0,
-    patientId = 0,
+    patientId: number,
+    patientComment = '',
     isGuest = false,
     apiEngine = useTenrxApi(),
   ): Promise<TenrxCartCheckoutResult> {
@@ -441,9 +441,9 @@ export default class TenrxCart {
           if (result.orderDetails.orderPlacementSuccessful) {
             if (Object.keys(this.internalAnswers).length > 0) {
               result.questionnaireDetails = await this.sendAnswers(
-                patientId,
-                userId,
-                result.paymentDetails.paymentId,
+                result.orderDetails.invoiceNumber,
+                patientComment,
+                result.paymentDetails.paymentSuccessful,
                 apiEngine,
               );
             }
@@ -671,23 +671,21 @@ export default class TenrxCart {
     }
     return result;
   }
-
+  
   /**
    * Sends the answers of the questionnaires to the backend servers.
    *
-   * @param {number} patientId - The id of the patient who is answering the questionnaires.
-   * @param {number} userId - The id of the user who is answering the questionnaires.
-   * @param {number} paymentId - The id of the payment of the order that this questionnaire answers belong to.
+   * @param {string} orderNumber - The order number of the order that this questionnaire answers belong to.
+   * @param {string} patientComment - The patient comment of the order that this questionnaire answers belong to.
+   * @param {boolean} paymentStatus - The payment status of the order that this questionnaire answers belong to. True if the payment is successful, false otherwise.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxSendAnswersResult>} - The result of the sending of the answers.
    * @memberof TenrxCart
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   public async sendAnswers(
-    // Disabling linter to avoid compile issues
-    patientId: number,
-    userId: number,
-    paymentId: number,
+    orderNumber: string,
+    patientComment: string,
+    paymentStatus: boolean,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     apiEngine = useTenrxApi(), // Disabling linter to avoid compile issues
   ): Promise<TenrxSendAnswersResult> {
@@ -705,27 +703,8 @@ export default class TenrxCart {
           visitTypeIds.push({ visitTypeId: Number(visitTypeId) });
           this.internalAnswers[visitTypeId].forEach((answer) => {
             const baseAnswer: TenrxQuestionnaireSurveyResponseAPIModel = {
-              id: 0,
-              answerMasterServerId: 0,
-              answerOptionServerId: 0,
-              answerValue: 'string',
-              categoryId: 0,
-              patientAppointmentId: 0,
-              patientEncrytedId: 'string',
-              patientId,
+              answerValue: 'Invalid response',
               questionMasterId: answer.questionId,
-              questionMatrixDetailsId: 0,
-              questionMatrixDetailsServerId: 0,
-              questionMatrixMasterId: 0,
-              questionMatrixMasterServerId: 0,
-              questionOptionId: 0,
-              questionTypeId: answer.questionTypeId,
-              templateMasterId: 0,
-              userID: userId,
-              visitTypeId: parseInt(visitTypeId, 10),
-              isDeleted: false,
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              access_token: 'string',
             };
             switch (answer.questionType) {
               case TenrxQuestionnaireAnswerType.TEXT:
@@ -737,26 +716,19 @@ export default class TenrxCart {
               case TenrxQuestionnaireAnswerType.MULTIPLECHOICE:
                 baseAnswer.answerValue =
                   answer.answers.length > 0 ? answer.answers[0].optionValue : 'Invalid response.';
-                baseAnswer.questionOptionId = answer.answers.length > 0 ? answer.answers[0].id : 0;
                 answers.push(baseAnswer);
                 break;
               case TenrxQuestionnaireAnswerType.MULTIPLESELECT:
                 answer.answers.forEach((answerOption) => {
                   const answerCopy = Object.assign({}, baseAnswer);
                   answerCopy.answerValue = answerOption.optionValue;
-                  answerCopy.questionOptionId = answerOption.id;
                   answers.push(answerCopy);
                 });
                 break;
             }
           });
         });
-        // Faking the actual send of answers in the meantime.
-        result.answersSentMessage = 'Answers sent successfully.';
-        result.answersSentStatusCode = 200;
-        result.answersSent = true;
-        /*
-        const sendAnswers = await apiEngine.saveAnswers(patientId, userId, visitTypeIds, paymentId, answers);
+        const sendAnswers = await apiEngine.saveAnswers(orderNumber, patientComment, paymentStatus, answers);
         if (sendAnswers.content) {
           const content = sendAnswers.content as {
             message: string;
@@ -770,7 +742,7 @@ export default class TenrxCart {
           }
         } else {
           TenrxLibraryLogger.error('sendAnswers() content is null:', sendAnswers.error);
-        }*/
+        }
         this.clearAnswers();
       } catch (error) {
         TenrxLibraryLogger.error('sendAnswers(): ', error);

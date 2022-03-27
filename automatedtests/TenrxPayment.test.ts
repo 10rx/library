@@ -64,7 +64,7 @@ test('PlaceOrder Test Successful', async () => {
       await patient.load();
       expect(patient.wallet).not.toBeNull();
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
-      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS);
+      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS, patient.id);
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(true);
     }
@@ -88,7 +88,7 @@ test('PlaceOrder Test Failure', async () => {
       await patient.load();
       expect(patient.wallet).not.toBeNull();
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
-      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS);
+      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS, patient.id);
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(false);
     }

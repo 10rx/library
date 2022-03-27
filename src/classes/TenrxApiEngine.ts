@@ -201,43 +201,32 @@ export default class TenrxApiEngine {
       return response;
     }
   }
-
+  
   /**
    * Saves questionnaire answers to the backend server.
    *
-   * @param {number} patientId - The patient id to save the answers for
-   * @param {number} userId - The user id to save the answers for
-   * @param {{ visitTypeId: number }[]} visitTypeId - The visit type to save the answers for
-   * @param {number} paymentId - The payment id to save the answers for
-   * @param {TenrxQuestionnaireSurveyResponseAPIModel[]} surveyResponses - The answers to save
+   * @param {string} orderNumber - The order number to save the answers for
+   * @param {string} patientComment - The comment that the patient has made
+   * @param {boolean} paymentStatus - The payment status of the order. True if paid, false if not.
+   * @param {TenrxQuestionnaireSurveyResponseAPIModel[]} surveyResponses
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
   public async saveAnswers(
-    patientId: number,
-    userId: number,
-    visitTypeId: { visitTypeId: number }[],
-    paymentId: number,
+    orderNumber: string,
+    patientComment: string,
+    paymentStatus: boolean,
     surveyResponses: TenrxQuestionnaireSurveyResponseAPIModel[],
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving answers to API');
     const answers: TenrxQuestionnaireSaveAnswersAPIModel = {
       surveyResponses,
-      paymentId,
-      appointmentId: 0,
-      visitTypeId,
-      guestMasterId: 0,
-      surgeryMasterId: 0,
-      patientId,
-      userId,
-      patientComment: '',
-      paymentStatus: true,
-      patientEncounterId: 0,
-      isClientAccepted: true,
-      isSurgeryRequest: false,
+      orderNumber,
+      patientComment,
+      paymentStatus,
     };
     try {
-      const response = await this.authPost(`${this.baseapi}/Questionnaire/SaveAnswers`, answers);
+      const response = await this.authPost(`${this.baseapi}/api/v1/Questionnaire/SaveAnswers`, answers);
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('SaveAnswers() Error: ', error);
