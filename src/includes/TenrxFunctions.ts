@@ -12,6 +12,7 @@ import TenrxLoginResponseData from '../types/TenrxLoginResponseData.js';
 import TenrxLoginSecurityQuestion from '../types/TenrxLoginSecurityQuestion.js';
 import TenrxLoginSecurityQuestionAnswer from '../types/TenrxLoginSecurityQuestionAnswer.js';
 import TenrxRegistrationFormData from '../types/TenrxRegistrationFormData.js';
+import TenrxGuestRegistrationFormData from '../types/TenrxGuestRegistrationFormData.js';
 
 import TenrxServerError from '../exceptions/TenrxServerError.js';
 
@@ -27,6 +28,7 @@ import TenrxAccessToken from '../types/TenrxAccessToken.js';
 import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
 import { TenrxEnumState } from './TenrxEnums.js';
 import { TenrxStateNameToStateId } from './TenrxStates.js';
+import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -413,6 +415,70 @@ export const saveSecurityQuestionAnswers = async (
         loginresponse.patientData = content.patientData ? content.patientData : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Security question answers were saved successfully.');
+      }
+    }
+  }
+  return loginresponse;
+};
+
+/**
+ * Registers a guest user.
+ *
+ * @param {TenrxGuestRegistrationFormData} guestRegistrationData - The guest registration data.
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
+ * @return {*}  {Promise<TenrxLoginResponseData>}
+ */
+export const registerGuest = async (
+  guestRegistrationData: TenrxGuestRegistrationFormData,
+  apiengine: TenrxApiEngine = useTenrxApi(),
+): Promise<TenrxLoginResponseData> => {
+  const loginresponse: TenrxLoginResponseData = {
+    accessToken: null,
+    expiresIn: null,
+    accountData: {},
+    securityQuestions: null,
+    patientData: null,
+    notifications: null,
+    firstTimeLogin: false,
+    message: null,
+    status: -1,
+    error: null,
+  };
+  TenrxLibraryLogger.info('Registering guest...');
+  TenrxLibraryLogger.debug('Guest Registration Info: ', guestRegistrationData);
+  const registerAPIData: TenrxRegisterGuestParameterAPIModel = {
+    id: 0,
+    firstName: guestRegistrationData.firstName,
+    lastName: guestRegistrationData.lastName,
+    emailId: guestRegistrationData.email,
+    phoneNo: guestRegistrationData.phoneNumber,
+    address: guestRegistrationData.address1,
+    city: guestRegistrationData.city,
+    stateID: guestRegistrationData.stateId,
+    zip: guestRegistrationData.zip,
+    organizationID: 0,
+    isActive: true,
+    isDeleted: false,
+    visitTypeId: 0,
+    userType: 0,
+  };
+  const result = await apiengine.registerGuest(registerAPIData);
+  const content = result.content as TenrxLoginAPIModel;
+  loginresponse.status = !(result.content == null)
+    ? !(content.statusCode == null)
+      ? content.statusCode
+      : result.status
+    : result.status;
+  if (result.status === 200) {
+    if (result.content) {
+      loginresponse.message = content.message;
+      if (content.statusCode === 200) {
+        loginresponse.accessToken = content.access_token;
+        loginresponse.expiresIn = content.expires_in;
+        loginresponse.accountData = content.data;
+        loginresponse.patientData = content.patientData ? content.patientData : null;
+        loginresponse.notifications = content.notifications;
+        TenrxLibraryLogger.info('Guest was registered successfully.');
       }
     }
   }

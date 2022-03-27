@@ -13,7 +13,9 @@ import {
   TenrxEnumGender,
   TenrxEnumState,
   TenrxEnumCountry,
+  TenrxGuestRegistrationFormData,
 } from '../src/index.js';
+import { registerGuest } from '../src/includes/TenrxFunctions.js';
 
 Testlogger.setSettings({
   type: 'pretty',
@@ -78,4 +80,25 @@ test('Registration Test Success', async () => {
   expect(result.error).toBeNull();
   expect(result.status).toBe(200);
   expect(result.accountData).not.toBeNull();
+});
+
+test('Guest Registration Test Success', async () => {
+  jest.setTimeout(60000);
+  const accountName = 'unittest_' + MakeRandomString(12) + '@yopmail.com';
+  const registrationInfo: TenrxGuestRegistrationFormData = {
+    email: accountName,
+    firstName: 'Unit',
+    lastName: 'Test',
+    middleName: 'Registration',
+    phoneNumber: '954-867-5309',
+    address1: '123 Main St',
+    address2: '',
+    city: 'City',
+    stateId: TenrxEnumState.Florida,
+    zip: '33309'
+  };
+  const result = await registerGuest(registrationInfo);
+  expect(result).not.toBeNull();
+  expect(result.error).toBeNull();
+  expect(result.status).toBe(200);
 });

@@ -17,6 +17,7 @@ import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpi
 import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
 import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { DateTime } from 'luxon';
+import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -446,6 +447,29 @@ export default class TenrxApiEngine {
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('SavePaymentDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Register a new guest user to Tenrx
+   *
+   * @param {TenrxRegisterGuestParameterAPIModel} guest - The guest to register
+   * @return {*}  {Promise<TenrxApiResult>} - The result of the registration API call
+   * @memberof TenrxApiEngine
+   */
+  public async registerGuest(guest: TenrxRegisterGuestParameterAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Registering guest to API');
+    try {
+      const response = await this.post(`${this.baseapi}/Login/RegisterGuest`, guest);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('registerGuest() Error: ', error);
       const response: TenrxApiResult = {
         status: 500,
         content: null,
