@@ -73,6 +73,31 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Joins the meeting for a given order number.
+   *
+   * @param {string} orderNumber - The order number to join the meeting for.
+   * @return {*}  {Promise<TenrxApiResult>} - The response from the API.
+   * @memberof TenrxApiEngine
+   */
+  public async joinMeeting(orderNumber: string): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Joining meeting from API');
+    try {
+      const response = this.authPost(`${this.baseapi}/api/v1/Meeting/JoinMeeting`, {
+        orderNumber,
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('joinMeeting() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Creates an appointment for the given order.
    *
    * @param {string} orderId - The order id to create the appointment for.
