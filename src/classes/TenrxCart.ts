@@ -2,12 +2,15 @@ import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionn
 import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { TenrxStateIdToStateName } from '../includes/TenrxStates.js';
 import {
+  TenrxApiResult,
+  TenrxChargeAPIModel,
   TenrxEnumCountry,
   TenrxLibraryLogger,
   TenrxPaymentResult,
   TenrxQuestionnaireAnswer,
   TenrxQuestionnaireAnswerType,
   tenrxRoundTo,
+  TenrxSaveProductAPIModel,
   TenrxSendAnswersResult,
   TenrxStripeCreditCard,
   useTenrxApi,
@@ -349,58 +352,63 @@ export default class TenrxCart {
       paymentId: 0,
     };
     TenrxLibraryLogger.info('Sending payment details to backend servers.');
-    if (!isGuest) {
-      try {
-        const paymentResponse = await apiEngine.authSavePaymentDetails({
-          userName,
-          cardId: 0,
-          stripeToken: card.cardId,
-          status: 0,
-          paymentCardDetails: {
-            cardId: card.cardId,
-            paymentMethod: card.paymentMethod,
-            name: card.nameOnCard,
-            addressCity: card.address.city,
-            addressCountry: TenrxEnumCountry[TenrxEnumCountry.US],
-            addressLine1: card.address.address1,
-            addressLine2: card.address.address2 ? card.address.address2 : '',
-            addressState: TenrxStateIdToStateName[card.address.stateId],
-            addressZip: card.address.zipCode,
-            brand: card.brand,
-            country: TenrxEnumCountry[TenrxEnumCountry.US],
-            last4: card.last4,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            exp_month: card.expMonth,
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            exp_year: card.expYear,
-          },
-          price: [],
-          amount: this.total,
-        });
-        if (paymentResponse.content) {
-          const content = paymentResponse.content as {
-            apiStatus: { statusCode: number; message: string };
-            data: number;
-          };
-          if (content.apiStatus) {
-            TenrxLibraryLogger.info('Payment servers responded: ' + content.apiStatus.message);
-            result.paymentMessage = content.apiStatus.message;
-            result.paymentStatusCode = content.apiStatus.statusCode;
-            result.paymentId = content.data;
-            if (content.apiStatus.statusCode === 200) {
-              result.paymentSuccessful = true;
-            }
-          } else {
-            TenrxLibraryLogger.error('sendPayment() apiStatus is null:', content);
+    try {
+      const charge: TenrxChargeAPIModel = {
+        userName,
+        cardId: 0,
+        stripeToken: card.cardId,
+        status: 0,
+        paymentCardDetails: {
+          cardId: card.cardId,
+          paymentMethod: card.paymentMethod,
+          name: card.nameOnCard,
+          addressCity: card.address.city,
+          addressCountry: TenrxEnumCountry[TenrxEnumCountry.US],
+          addressLine1: card.address.address1,
+          addressLine2: card.address.address2 ? card.address.address2 : '',
+          addressState: TenrxStateIdToStateName[card.address.stateId],
+          addressZip: card.address.zipCode,
+          brand: card.brand,
+          country: TenrxEnumCountry[TenrxEnumCountry.US],
+          last4: card.last4,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          exp_month: card.expMonth,
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          exp_year: card.expYear,
+        },
+        price: [],
+        amount: this.total,
+      };
+      let paymentResponse: TenrxApiResult;
+      if (isGuest) {
+        paymentResponse = await apiEngine.savePaymentDetails(charge);
+      } else {
+        paymentResponse = await apiEngine.authSavePaymentDetails(charge);
+      }
+      if (paymentResponse.content) {
+        const content = paymentResponse.content as {
+          apiStatus: { statusCode: number; message: string };
+          data: number;
+        };
+        if (content.apiStatus) {
+          TenrxLibraryLogger.info('Payment servers responded: ' + content.apiStatus.message);
+          result.paymentMessage = content.apiStatus.message;
+          result.paymentStatusCode = content.apiStatus.statusCode;
+          result.paymentId = content.data;
+          if (content.apiStatus.statusCode === 200) {
+            result.paymentSuccessful = true;
           }
         } else {
-          TenrxLibraryLogger.error('sendPayment() content is null:', paymentResponse.error);
+          TenrxLibraryLogger.error('sendPayment() apiStatus is null:', content);
         }
-      } catch (error) {
-        TenrxLibraryLogger.error('sendPayment(): ', error);
-        result.paymentMessage = 'Exception has occurred when processing checkout: ' + JSON.stringify(error);
+      } else {
+        TenrxLibraryLogger.error('sendPayment() content is null:', paymentResponse.error);
       }
+    } catch (error) {
+      TenrxLibraryLogger.error('sendPayment(): ', error);
+      result.paymentMessage = 'Exception has occurred when processing checkout: ' + JSON.stringify(error);
     }
+
     return result;
   }
 
@@ -444,23 +452,31 @@ export default class TenrxCart {
     if (result.paymentDetails) {
       if (result.paymentDetails.paymentSuccessful) {
         try {
-          result.orderDetails = await this.placeOrder(result.paymentDetails.paymentId, shippingAddress, shipToExternalPharmacy, isGuest);
+          result.orderDetails = await this.placeOrder(
+            result.paymentDetails.paymentId,
+            shippingAddress,
+            shipToExternalPharmacy,
+            isGuest,
+          );
         } catch (error) {
           TenrxLibraryLogger.error('cart.checkout().placeOrder():', error);
         }
         if (result.orderDetails) {
           if (result.orderDetails.orderPlacementSuccessful) {
-            if (Object.keys(this.internalAnswers).length > 0) {
-              result.questionnaireDetails = await this.sendAnswers(
-                result.orderDetails.invoiceNumber,
-                patientComment,
-                result.paymentDetails.paymentSuccessful,
-                apiEngine,
-              );
+            if (!isGuest) {
+              if (Object.keys(this.internalAnswers).length > 0) {
+                result.questionnaireDetails = await this.sendAnswers(
+                  result.orderDetails.invoiceNumber,
+                  patientComment,
+                  result.paymentDetails.paymentSuccessful,
+                  apiEngine,
+                );
+              }
+              if (Object.keys(this.internalPatientImages).length > 0) {
+                result.patientImagesDetails = await this.sendPatientImages(patientId, apiEngine);
+              }
             }
-            if (Object.keys(this.internalPatientImages).length > 0) {
-              result.patientImagesDetails = await this.sendPatientImages(patientId, apiEngine);
-            }
+            // TODO this next section needs to be cleaned up. We need to find a more clean logic for this.
             if (result.patientImagesDetails && result.questionnaireDetails) {
               if (result.patientImagesDetails.patientImagesSent && result.questionnaireDetails.answersSent) {
                 result.checkoutSuccessful = true;
@@ -535,40 +551,44 @@ export default class TenrxCart {
         strength: entry.strength,
       });
     });
-    if (!isGuest) {
-      try {
-        const orderDetails = await apiEngine.authSaveProduct({
-          paymentId,
-          totalPrice: this.total,
-          medicationProducts: medicationProduct,
-        });
-        if (orderDetails.content) {
-          const content = orderDetails.content as {
-            apiStatus: { statusCode: number; message: string };
-            data: { invoiceNumber: string };
-          };
-          if (content.apiStatus) {
-            TenrxLibraryLogger.info('Order servers responded: ' + content.apiStatus.message);
-            result.orderPlacementMessage = content.apiStatus.message;
-            result.orderPlacementStatusCode = content.apiStatus.statusCode;
-            if (content.apiStatus.statusCode === 200) {
-              if (content.data) {
-                result.invoiceNumber = content.data.invoiceNumber;
-                result.orderPlacementSuccessful = true;
-              } else {
-                TenrxLibraryLogger.error('placeOrder() data is null:', content);
-              }
+    try {
+      const order: TenrxSaveProductAPIModel = {
+        paymentId,
+        totalPrice: this.total,
+        medicationProducts: medicationProduct,
+      };
+      let orderDetails: TenrxApiResult;
+      if (isGuest) {
+        orderDetails = await apiEngine.saveProduct(order);
+      } else {
+        orderDetails = await apiEngine.authSaveProduct(order);
+      }
+      if (orderDetails.content) {
+        const content = orderDetails.content as {
+          apiStatus: { statusCode: number; message: string };
+          data: { invoiceNumber: string };
+        };
+        if (content.apiStatus) {
+          TenrxLibraryLogger.info('Order servers responded: ' + content.apiStatus.message);
+          result.orderPlacementMessage = content.apiStatus.message;
+          result.orderPlacementStatusCode = content.apiStatus.statusCode;
+          if (content.apiStatus.statusCode === 200) {
+            if (content.data) {
+              result.invoiceNumber = content.data.invoiceNumber;
+              result.orderPlacementSuccessful = true;
+            } else {
+              TenrxLibraryLogger.error('placeOrder() data is null:', content);
             }
-          } else {
-            TenrxLibraryLogger.error('placeOrder() apiStatus is null:', content);
           }
         } else {
-          TenrxLibraryLogger.error('placeOrder() content is null:', orderDetails.error);
+          TenrxLibraryLogger.error('placeOrder() apiStatus is null:', content);
         }
-      } catch (error) {
-        TenrxLibraryLogger.error('placeOrder(): ', error);
-        result.orderPlacementMessage = 'Exception has occurred when placing the order: ' + JSON.stringify(error);
+      } else {
+        TenrxLibraryLogger.error('placeOrder() content is null:', orderDetails.error);
       }
+    } catch (error) {
+      TenrxLibraryLogger.error('placeOrder(): ', error);
+      result.orderPlacementMessage = 'Exception has occurred when placing the order: ' + JSON.stringify(error);
     }
     return result;
   }
