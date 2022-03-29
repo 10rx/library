@@ -19,6 +19,7 @@ import TenrxOrderPlacementResult from '../types/TenrxOrderPlacementResult.js';
 import TenrxPatientImage from '../types/TenrxPatientImage.js';
 import TenrxSendPatientImagesResult from '../types/TenrxSendPatientImagesResult.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
+import TenrxExternalPharmacyInformation from '../types/TenrxExternalPharmacyInformation.js';
 import TenrxProduct from './TenrxProduct.js';
 import { TenrxStorageScope } from './TenrxStorage.js';
 
@@ -153,9 +154,16 @@ export default class TenrxCart {
    * @param {string} [strength=''] - The strength of the product to add to the cart.
    * @param {boolean} [hasPrescriptionAttached=false] - Whether or not the product has a prescription attached.
    * @param {boolean} [hidden=false] - Whether or not the product is hidden.
+   * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
    * @memberof TenrxCart
    */
-  public addItem(item: TenrxProduct, quantity: number, strength = '', hidden = false): void {
+  public addItem(
+    item: TenrxProduct,
+    quantity: number,
+    strength = '',
+    hidden = false,
+    shipToExternalPharmacy = false,
+  ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
     this.addEntry({
       productId: item.id,
@@ -168,6 +176,7 @@ export default class TenrxCart {
       taxable: true, // This will be handled later when calculating the tax. Tax depends on zip code.
       photoPath: item.photoPath,
       hidden,
+      shipToExternalPharmacy,
     });
   }
 
@@ -402,6 +411,7 @@ export default class TenrxCart {
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
    * @param {number} patientId - The patient id of the user who is paying for the cart.
+   * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {number} [patientComment=''] - The patient comment of the user who answered the questionnaire.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
@@ -413,6 +423,7 @@ export default class TenrxCart {
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
     patientId: number,
+    shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     patientComment = '',
     isGuest = false,
     apiEngine = useTenrxApi(),
@@ -433,7 +444,7 @@ export default class TenrxCart {
     if (result.paymentDetails) {
       if (result.paymentDetails.paymentSuccessful) {
         try {
-          result.orderDetails = await this.placeOrder(result.paymentDetails.paymentId, shippingAddress, isGuest);
+          result.orderDetails = await this.placeOrder(result.paymentDetails.paymentId, shippingAddress, shipToExternalPharmacy, isGuest);
         } catch (error) {
           TenrxLibraryLogger.error('cart.checkout().placeOrder():', error);
         }
@@ -482,6 +493,7 @@ export default class TenrxCart {
    *
    * @param {number} paymentId - The payment id of the payment that is being used to place the order.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is placing the order.
+   * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxOrderPlacementResult>}
@@ -490,6 +502,9 @@ export default class TenrxCart {
   public async placeOrder(
     paymentId: number,
     shippingAddress: TenrxStreetAddress,
+    // Disabling the linter for now.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     isGuest = false,
     apiEngine = useTenrxApi(),
   ): Promise<TenrxOrderPlacementResult> {

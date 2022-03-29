@@ -46,6 +46,7 @@ export { default as TenrxSendPatientImagesResult } from './types/TenrxSendPatien
 export { default as TenrxAppointment } from './types/TenrxAppointment.js';
 export { default as TenrxGuestRegistrationFormData } from './types/TenrxGuestRegistrationFormData.js';
 export { default as TenrxMeetingInformation } from './types/TenrxMeetingInformation.js';
+export { default as TenrxExternalPharmacyInformation } from './types/TenrxExternalPharmacyInformation.js';
 export {
   default as TenrxChatEvent,
   TenrxChatEventPayload,

@@ -85,5 +85,11 @@ export default interface TenrxCartEntry {
    */
   hidden: boolean;
 
-  // TODO add prescription connection.
+  /**
+   * True if the item needs to be shipped to an external pharmacy. Otherwise, false.
+   *
+   * @type {boolean}
+   * @memberof TenrxCartEntry
+   */
+  shipToExternalPharmacy: boolean;
 }
