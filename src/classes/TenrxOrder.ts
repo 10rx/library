@@ -3,6 +3,7 @@ import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxAppointment from '../types/TenrxAppointment.js';
+import TenrxMeetingInformation from '../types/TenrxMeetingInformation.js';
 import TenrxOrderProductEntry from '../types/TenrxOrderProductEntry.js';
 
 /**
@@ -134,6 +135,65 @@ export default class TenrxOrder {
       }
     } catch (error) {
       TenrxLibraryLogger.error(`Error getting possible appointment dates for order ${this.orderId}`, error);
+    }
+    return result;
+  }
+
+  /**
+   * Joins the meeting for this order.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<TenrxMeetingInformation>} - The meeting information.
+   * @memberof TenrxOrder
+   */
+  public async joinMeeting(apiEngine = useTenrxApi()): Promise<TenrxMeetingInformation> {
+    const result: TenrxMeetingInformation = {
+      meetingSuccessful: false,
+      meetingMessageDetails: {
+        message: '',
+        errorMessage: '',
+      },
+      meetingData: null,
+    };
+    try {
+      const response = await apiEngine.joinMeeting(this.orderId);
+      if (response.status === 200) {
+        const content = response.content as {
+          data: { chimeMeetingResponse: any; chimeAttendeeResponse: any };
+          apiStatus: { statusCode: number; message: string; appError: string };
+        };
+        if (content) {
+          if (content.data) {
+            const data = content.data;
+            const apiStatus = content.apiStatus;
+            if (apiStatus) {
+              result.meetingMessageDetails.message = apiStatus.message;
+              result.meetingMessageDetails.errorMessage = apiStatus.appError;
+              if (apiStatus.statusCode === 200) {
+                result.meetingSuccessful = true;
+                result.meetingData = data;
+              } else {
+                TenrxLibraryLogger.error('Error joining meeting', apiStatus);
+              }
+            } else {
+              TenrxLibraryLogger.error('The response apiStatus is null.');
+              result.meetingMessageDetails.errorMessage = 'The response apiStatus is null.';
+            }
+          } else {
+            TenrxLibraryLogger.error('The response data is null.');
+            result.meetingMessageDetails.errorMessage = 'The response data is null.';
+          }
+        } else {
+          TenrxLibraryLogger.error('The response content is null.');
+          result.meetingMessageDetails.errorMessage = 'The response content is null.';
+        }
+      } else {
+        TenrxLibraryLogger.error('Error joining meeting', response);
+        result.meetingMessageDetails.errorMessage = 'Error joining meeting. Response status is not 200.';
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error('Error joining meeting', error);
+      result.meetingMessageDetails.errorMessage = 'Error joining meeting. Unhandled exception.';
     }
     return result;
   }
