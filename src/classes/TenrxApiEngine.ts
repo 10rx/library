@@ -414,6 +414,29 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets information regarding a promotion given a coupon code.
+   *
+   * @param {string} couponCode - The coupon code of the promotion.
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getPromotionInformation(couponCode: string): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting coupon information from API');
+    try {
+      const response = await this.get(`${this.baseapi}/api/v1/Product/GetCouponCode`, { couponCode });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getCouponInformation() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Gets the product tax information for a given shipping address from the API.
    *
    * @param {TenrxGetProductTaxAPIModel} data - The data to get the tax information for.

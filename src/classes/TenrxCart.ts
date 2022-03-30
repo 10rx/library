@@ -8,6 +8,8 @@ import {
   TenrxLibraryLogger,
   TenrxLoadError,
   TenrxPaymentResult,
+  TenrxPromotion,
+  TenrxPromotionError,
   TenrxQuestionnaireAnswer,
   TenrxQuestionnaireAnswerType,
   tenrxRoundTo,
@@ -44,6 +46,7 @@ export default class TenrxCart {
   private internalShippingCost: number;
   private internalAnswers: Record<string, TenrxQuestionnaireAnswer[]>;
   private internalPatientImages: Record<string, TenrxPatientImage[]>;
+  private internalPromotions: TenrxPromotion[];
 
   /**
    * Creates an instance of TenrxCart.
@@ -62,6 +65,7 @@ export default class TenrxCart {
     this.internalShippingCost = 0;
     this.internalAnswers = {};
     this.internalPatientImages = {};
+    this.internalPromotions = [];
   }
 
   /**
@@ -73,6 +77,17 @@ export default class TenrxCart {
     this.clearAnswers();
     this.clearPatientImages();
     this.clearProducts();
+    this.clearPromotions();
+  }
+
+  /**
+   * Only clears the promotions from the cart.
+   *
+   * @memberof TenrxCart
+   */
+  public clearPromotions(): void {
+    this.internalPromotions = [];
+    this.forceRecalculate();
   }
 
   /**
@@ -104,6 +119,52 @@ export default class TenrxCart {
   }
 
   /**
+   * Gets all the promotions currently applied to the cart.
+   *
+   * @readonly
+   * @type {TenrxPromotion[]}
+   * @memberof TenrxCart
+   */
+  public get promotions(): TenrxPromotion[] {
+    return this.internalPromotions;
+  }
+
+  /**
+   * Applies a promotion to the cart.
+   *
+   * @param {TenrxPromotion} promotion - The promotion to apply.
+   * @memberof TenrxCart
+   */
+  public applyPromotion(promotion: TenrxPromotion) {
+    this.internalPromotions.push(promotion);
+    this.forceRecalculate();
+  }
+
+  /**
+   * Applies a coupon to the cart using a coupon code. This function is async because it performs a call to the tenrx api to get the promotion information.
+   *
+   * @param {string} couponCode - The coupon code to apply.
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<boolean>} - True if the coupon was applied, false if it was not.
+   * @throws {TenrxPromotionError} - Throws an error if an error occurred while trying to get information regarding the promotion.
+   * @memberof TenrxCart
+   */
+  public async applyCouponCode(couponCode: string, apiEngine = useTenrxApi()): Promise<boolean> {
+    try {
+      const promotion = await TenrxPromotion.getPromotionInformation(couponCode, apiEngine);
+      if (promotion != null) {
+        this.applyPromotion(promotion);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      TenrxLibraryLogger.error('Failed to apply coupon code', error);
+      throw new TenrxPromotionError('Failed to apply coupon code.', error);
+    }
+  }
+
+  /**
    * Gets the total number of items in the cart.
    *
    * @readonly
@@ -125,6 +186,17 @@ export default class TenrxCart {
    */
   public removeEntry(index: number): void {
     this.internalCartEntries.splice(index, 1);
+    this.forceRecalculate();
+  }
+
+  /**
+   * Removes a promotion at a given index from the cart.
+   *
+   * @param {number} index
+   * @memberof TenrxCart
+   */
+  public removePromotion(index: number): void {
+    this.internalPromotions.splice(index, 1);
     this.forceRecalculate();
   }
 
@@ -314,6 +386,12 @@ export default class TenrxCart {
           return acc;
         }, 0),
       );
+      if (this.internalPromotions.length > 0) {
+        this.internalSubTotal = tenrxRoundTo(this.internalSubTotal - this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal));
+        if (this.internalSubTotal < 0) {
+          this.internalSubTotal = 0;
+        }
+      }
     }
     return this.internalSubTotal;
   }
@@ -494,7 +572,6 @@ export default class TenrxCart {
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
    * @param {number} patientId - The patient id of the user who is paying for the cart.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
-   * @param {(string | null)} [couponCode=null] - The coupon code to be used in this order.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {number} [patientComment=''] - The patient comment of the user who answered the questionnaire.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
@@ -507,7 +584,6 @@ export default class TenrxCart {
     shippingAddress: TenrxStreetAddress,
     patientId: number,
     isGuest = false,
-    couponCode: string | null = null,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     patientComment = '',
     apiEngine = useTenrxApi(),
@@ -533,7 +609,6 @@ export default class TenrxCart {
             userName,
             shippingAddress,
             isGuest,
-            couponCode,
             shipToExternalPharmacy,
             apiEngine,
           );
@@ -590,7 +665,6 @@ export default class TenrxCart {
    * @param {string} userName - The username of the person placing the order.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is placing the order.
    * @param {boolean} [isGuest=false]  - Whether or not the user is a guest.
-   * @param {(string | null)} [couponCode=null] - The coupon code to be used in this order.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxOrderPlacementResult>}
@@ -601,7 +675,6 @@ export default class TenrxCart {
     userName: string,
     shippingAddress: TenrxStreetAddress,
     isGuest = false,
-    couponCode: string | null = null,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     apiEngine = useTenrxApi(),
   ): Promise<TenrxOrderPlacementResult> {
@@ -648,8 +721,9 @@ export default class TenrxCart {
           country: 'US',
         },
       };
-      if (couponCode) {
-        order.couponCode = couponCode;
+      if (this.internalPromotions.length > 0) {
+        // TODO backend needs to support multiple promotions. Right now, we grab the first one and that's it.
+        order.couponCode = this.internalPromotions[0].couponCode;
       }
       if (shipToExternalPharmacy)
         order.externalPharmacyAddress = {

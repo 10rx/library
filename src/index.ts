@@ -18,6 +18,7 @@ export { default as TenrxChatEngine } from './classes/TenrxChatEngine.js';
 export { default as TenrxQuestionnaireBot, TenrxQuestionnaireBotOptions } from './classes/TenrxQuestionnaireBot.js';
 export { default as TenrxPatientChatInterface } from './classes/TenrxPatientChatInterface.js';
 export { default as TenrxOrder } from './classes/TenrxOrder.js';
+export { default as TenrxPromotion } from './classes/TenrxPromotion.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -66,6 +67,7 @@ export { default as TenrxLoadError } from './exceptions/TenrxLoadError.js';
 export { default as TenrxChatNotActive } from './exceptions/TenrxChatNotActive.js';
 export { default as TenrxQuestionnaireError } from './exceptions/TenrxQuestionnaireError.js';
 export { default as TenrxSaveError } from './exceptions/TenrxSaveError.js';
+export { default as TenrxPromotionError } from './exceptions/TenrxPromotionError.js';
 
 // The following is needed to get rid of warnings when creating documentation. The following are documented in swagger.
 // TODO: add links to swagger.
@@ -90,6 +92,7 @@ export { default as TenrxGetDoctorAvailabilityForPatientAPIModel } from './apiMo
 export { default as TenrxGetAppointmentsForPatientAPIModel } from './apiModel/TenrxGetAppointmentsForPatientAPIModel.js';
 export { default as TenrxRegisterGuestParameterAPIModel } from './apiModel/TenrxRegisterGuestParameterAPIModel.js';
 export { default as TenrxGetProductTaxAPIModel } from './apiModel/TenrxGetProductTaxAPIModel.js';
+export { default as TenrxGetCouponCodeAPIModel } from './apiModel/TenrxGetCouponCodeAPIModel.js';
 export {
   default as TenrxLoginAPIModel,
   TenrxLoginAPIModelData,

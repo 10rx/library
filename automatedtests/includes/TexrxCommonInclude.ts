@@ -22,6 +22,10 @@ export const TEST_PASSWORD_FAILED = 'WrongPassword1!';
 export const TEST_PASSWORD_HASHED_SUCCESS = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkRvwEBleya7YQ4iVNllXCxQc8a';
 export const TEST_PASSWORD_HASHED_FAILED = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmuv3hLvkRvwEBleya7YQ4iVNllXCxQc8a';
 
+export const OFFER_FIFTEEN_PERCENT_OFF_COUPON_CODE = 'OFFER15PER';
+
+export const OFFER_WRONG_COUPON_CODE = 'WRONGCOUPON';
+
 export const TEST_ADDRESS: TenrxStreetAddress = {
   address1: '123 Main St',
   city: 'Fort Lauderdale',
