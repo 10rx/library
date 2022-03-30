@@ -39,6 +39,17 @@ export default class TenrxOrder {
   private internalOrderProducts: TenrxOrderProductEntry[];
 
   /**
+   * Gets the products of the order.
+   *
+   * @readonly
+   * @type {TenrxOrderProductEntry[]}
+   * @memberof TenrxOrder
+   */
+  public get orderProducts(): TenrxOrderProductEntry[] {
+    return this.internalOrderProducts;
+  }
+
+  /**
    * Creates an instance of TenrxOrder.
    *
    * @param {TenrxOrderAPIModel} orderData - The data of the order.
