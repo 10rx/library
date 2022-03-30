@@ -41,6 +41,7 @@ export default class TenrxCart {
   private internalTaxRate: number;
   private internalTaxAmount: number;
   private internalSubTotal: number;
+  private internalDiscountAmount: number;
   private internalSubHiddenTotal: number;
   private internalLoaded: boolean;
   private internalShippingCost: number;
@@ -66,6 +67,7 @@ export default class TenrxCart {
     this.internalAnswers = {};
     this.internalPatientImages = {};
     this.internalPromotions = [];
+    this.internalDiscountAmount = 0;
   }
 
   /**
@@ -87,6 +89,7 @@ export default class TenrxCart {
    */
   public clearPromotions(): void {
     this.internalPromotions = [];
+    this.internalDiscountAmount = 0;
     this.forceRecalculate();
   }
 
@@ -362,7 +365,11 @@ export default class TenrxCart {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
           if (curr.taxable) {
-            return acc + curr.price * this.internalTaxRate;
+            let price = curr.price;
+            if (this.internalPromotions.length > 0) {
+              price = price - this.internalPromotions[0].calculateOrderDiscount(price);
+            }
+            return acc + price * this.internalTaxRate;
           }
           return acc;
         }, 0),
@@ -388,16 +395,30 @@ export default class TenrxCart {
           return acc;
         }, 0),
       );
+      this.internalDiscountAmount = 0;
       if (this.internalPromotions.length > 0) {
-        this.internalSubTotal = tenrxRoundTo(
-          this.internalSubTotal - this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal),
-        );
+        this.internalDiscountAmount = tenrxRoundTo(this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal));
+        this.internalSubTotal = tenrxRoundTo(this.internalSubTotal - this.internalDiscountAmount);
         if (this.internalSubTotal < 0) {
           this.internalSubTotal = 0;
         }
       }
     }
     return this.internalSubTotal;
+  }
+
+  /**
+   * Gets the amount discounted.
+   *
+   * @readonly
+   * @type {number}
+   * @memberof TenrxCart
+   */
+  public get discountAmount(): number {
+    if (this.internalSubTotal < 0) {
+      TenrxLibraryLogger.silly('Calculating discount amount. Forcing recalculation.', this.subTotal);
+    }
+    return this.internalDiscountAmount;
   }
 
   /**
