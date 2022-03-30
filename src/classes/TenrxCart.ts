@@ -397,7 +397,9 @@ export default class TenrxCart {
       );
       this.internalDiscountAmount = 0;
       if (this.internalPromotions.length > 0) {
-        this.internalDiscountAmount = tenrxRoundTo(this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal));
+        this.internalDiscountAmount = tenrxRoundTo(
+          this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal),
+        );
         this.internalSubTotal = tenrxRoundTo(this.internalSubTotal - this.internalDiscountAmount);
         if (this.internalSubTotal < 0) {
           this.internalSubTotal = 0;
