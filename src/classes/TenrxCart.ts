@@ -310,7 +310,6 @@ export default class TenrxCart {
             if (content.data) {
               if (content.data.totalTax) {
                 this.internalTaxRate = content.data.taxRate;
-                TenrxLibraryLogger.warn(this.internalTaxRate);
               } else {
                 TenrxLibraryLogger.error('No tax rate found.', content.data);
                 throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
