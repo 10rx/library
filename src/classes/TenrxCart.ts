@@ -6,6 +6,7 @@ import {
   TenrxChargeAPIModel,
   TenrxEnumCountry,
   TenrxLibraryLogger,
+  TenrxLoadError,
   TenrxPaymentResult,
   TenrxQuestionnaireAnswer,
   TenrxQuestionnaireAnswerType,
@@ -183,23 +184,96 @@ export default class TenrxCart {
     });
   }
 
-  // Linter is disabled because there is currently no API to get the tax information
   /**
    * Calculates the tax for the cart. Gets the tax rate and determines if each item is taxable or not.
    *
    * @param {TenrxStreetAddress} address - The address where the item is being shipped. This is used to calculate the tax and determine if each item is taxable or not.
+   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<void>}
+   * @throws {TenrxLoadError} - Thrown if there is an issue with the API.
    * @memberof TenrxCart
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  public async getTaxInformation(address: TenrxStreetAddress): Promise<void> {
-    // TODO - Implement this using API.
+  public async getTaxInformation(address: TenrxStreetAddress, apiEngine = useTenrxApi()): Promise<void> {
+    // TODO - Implement additive tax.
     TenrxLibraryLogger.info('Getting tax information for items in cart.');
-    TenrxLibraryLogger.silly(address); // This needs to be removed when the tax information is implemented using API calls.
-    this.internalTaxRate = 0.07;
+    const productsForTaxCalculaitons: {
+      productId: number;
+      price: number;
+    }[] = [];
     this.internalCartEntries.forEach((entry) => {
-      entry.taxable = entry.rx ? false : true;
+      productsForTaxCalculaitons.push({
+        productId: entry.productId,
+        price: entry.price,
+      });
     });
+    const taxInformation = await apiEngine.getProductTax({
+      productsForTaxCalculaitons,
+      shipingAddress: {
+        apartmentNumber: address.aptNumber,
+        address1: address.address1,
+        address2: address.address2,
+        city: address.city,
+        stateName: TenrxStateIdToStateName[address.stateId],
+        country: 'US',
+        zipCode: address.zipCode,
+      },
+    });
+    if (taxInformation.status === 200) {
+      if (taxInformation.content) {
+        const content = taxInformation.content as {
+          apiStatus: { statusCode: number; message: string };
+          data: {
+            productTaxResponse: { productId: number; isTaxable: boolean }[];
+            totalTax: number;
+            additiveTax: number;
+          };
+        };
+        if (content.apiStatus) {
+          if (content.apiStatus.statusCode === 200) {
+            if (content.data) {
+              if (content.data.totalTax) {
+                this.internalTaxRate = content.data.totalTax / 100;
+              } else {
+                TenrxLibraryLogger.error('No tax rate found.',content.data);
+                throw new TenrxLoadError('No tax rate found.', "TenrxCart", null);
+              }
+              if (content.data.productTaxResponse) {
+                this.internalCartEntries.forEach((entry) => {
+                  const taxResponse = content.data.productTaxResponse.find((x) => x.productId === entry.productId);
+                  if (taxResponse) {
+                    entry.taxable = taxResponse.isTaxable;
+                  }
+                });
+                this.forceRecalculate();
+              } else {
+                TenrxLibraryLogger.error('No product tax response found.',content.data);
+                throw new TenrxLoadError('No product tax response found.', "TenrxCart", null);
+              }
+            } else {
+              TenrxLibraryLogger.error('No tax data found.',content);
+              throw new TenrxLoadError('No tax data found.', "TenrxCart", null);
+            }
+          } else {
+            TenrxLibraryLogger.error('Error getting tax information.',content.apiStatus);
+            throw new TenrxLoadError('Error getting tax information.', "TenrxCart", null);
+          }
+        } else {
+          TenrxLibraryLogger.error('Tax information apiStatus is null.', content);
+          throw new TenrxLoadError('Tax information apiStatus is null.', 'TenrxCart', taxInformation.error);
+        }
+      } else {
+        TenrxLibraryLogger.error('Tax information content is null.');
+        throw new TenrxLoadError('Tax information content is null.', 'TenrxCart', taxInformation.error);
+      }
+    } else {
+      TenrxLibraryLogger.error('Error getting tax information for items in cart. Status is not 200.', taxInformation);
+      throw new TenrxLoadError(
+        'Error getting tax information for items in cart. Status is not 200.',
+        'TenrxCart',
+        taxInformation.error,
+      );
+    }
   }
 
   /**

@@ -18,6 +18,7 @@ import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAP
 import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { DateTime } from 'luxon';
 import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
+import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -413,6 +414,29 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets the product tax information for a given shipping address from the API.
+   *
+   * @param {TenrxGetProductTaxAPIModel} data - The data to get the tax information for.
+   * @return {*}
+   * @memberof TenrxApiEngine
+   */
+  public async getProductTax(data: TenrxGetProductTaxAPIModel) {
+    TenrxLibraryLogger.silly('Getting product tax from API');
+    try {
+      const response = await this.post(`${this.baseapi}/api/v1/Product/GetProductTax`, data);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getProductTax() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
    * Places an order to the current user account unauthenticated.
    *
    * @param {TenrxSaveProductAPIModel} order - The order to place
@@ -730,7 +754,7 @@ export default class TenrxApiEngine {
   public async refreshToken(): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Refreshing access token');
     try {
-      const response = await this.authGet(`${this.baseapi}/api/v1/Common/RefreshToekn`);
+      const response = await this.authGet(`${this.baseapi}/api/v1/Common/RefreshToken`);
       this.processLoginResponse(response, 'refreshToken()');
       return response;
     } catch (error) {

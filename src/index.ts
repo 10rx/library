@@ -89,6 +89,7 @@ export { default as TenrxUploadPatientAffectedImagesAPIModel } from './apiModel/
 export { default as TenrxGetDoctorAvailabilityForPatientAPIModel } from './apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 export { default as TenrxGetAppointmentsForPatientAPIModel } from './apiModel/TenrxGetAppointmentsForPatientAPIModel.js';
 export { default as TenrxRegisterGuestParameterAPIModel } from './apiModel/TenrxRegisterGuestParameterAPIModel.js';
+export { default as TenrxGetProductTaxAPIModel } from './apiModel/TenrxGetProductTaxAPIModel.js';
 export {
   default as TenrxLoginAPIModel,
   TenrxLoginAPIModelData,
