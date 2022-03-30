@@ -299,13 +299,15 @@ export default class TenrxCart {
             productTaxResponse: { productId: number; isTaxable: boolean }[];
             totalTax: number;
             additiveTax: number;
+            taxRate: number;
           };
         };
         if (content.apiStatus) {
           if (content.apiStatus.statusCode === 200) {
             if (content.data) {
               if (content.data.totalTax) {
-                this.internalTaxRate = content.data.totalTax / 100;
+                this.internalTaxRate = content.data.taxRate;
+                TenrxLibraryLogger.warn(this.internalTaxRate)
               } else {
                 TenrxLibraryLogger.error('No tax rate found.', content.data);
                 throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
