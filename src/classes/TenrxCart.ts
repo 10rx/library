@@ -454,6 +454,7 @@ export default class TenrxCart {
         try {
           result.orderDetails = await this.placeOrder(
             result.paymentDetails.paymentId,
+            userName,
             shippingAddress,
             shipToExternalPharmacy,
             isGuest,
@@ -508,6 +509,7 @@ export default class TenrxCart {
    * Places an order for the cart's content to the backend servers.
    *
    * @param {number} paymentId - The payment id of the payment that is being used to place the order.
+   * @param {string} userName - The username of the person placing the order.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is placing the order.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
@@ -517,9 +519,8 @@ export default class TenrxCart {
    */
   public async placeOrder(
     paymentId: number,
+    userName: string,
     shippingAddress: TenrxStreetAddress,
-    // Disabling the linter for now.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     isGuest = false,
     apiEngine = useTenrxApi(),
@@ -556,7 +557,19 @@ export default class TenrxCart {
         paymentId,
         totalPrice: this.total,
         medicationProducts: medicationProduct,
+        userName,
       };
+      if (shipToExternalPharmacy)
+        order.externalPharmacyAddress = {
+          apartmentNumber: shipToExternalPharmacy.address.aptNumber,
+          address1: shipToExternalPharmacy.address.address1,
+          address2: shipToExternalPharmacy.address.address2,
+          city: shipToExternalPharmacy.address.city,
+          stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
+          zipCode: shipToExternalPharmacy.address.zipCode,
+          country: 'US',
+          pharmacyName: shipToExternalPharmacy.name,
+        };
       let orderDetails: TenrxApiResult;
       if (isGuest) {
         orderDetails = await apiEngine.saveProduct(order);
