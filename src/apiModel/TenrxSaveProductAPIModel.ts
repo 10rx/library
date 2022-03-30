@@ -12,6 +12,7 @@ export default interface TenrxSaveProductAPIModel {
     productId: number;
     strength: string;
   }[];
+  couponCode?: string;
   externalPharmacyAddress?: {
     apartmentNumber?: string;
     address1: string;
@@ -21,5 +22,14 @@ export default interface TenrxSaveProductAPIModel {
     zipCode: string;
     country: string;
     pharmacyName: string;
+  };
+  shippingAddress: {
+    apartmentNumber?: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    stateName: string;
+    zipCode: string;
+    country: string;
   };
 }

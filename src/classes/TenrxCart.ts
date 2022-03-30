@@ -235,8 +235,8 @@ export default class TenrxCart {
               if (content.data.totalTax) {
                 this.internalTaxRate = content.data.totalTax / 100;
               } else {
-                TenrxLibraryLogger.error('No tax rate found.',content.data);
-                throw new TenrxLoadError('No tax rate found.', "TenrxCart", null);
+                TenrxLibraryLogger.error('No tax rate found.', content.data);
+                throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
               }
               if (content.data.productTaxResponse) {
                 this.internalCartEntries.forEach((entry) => {
@@ -247,16 +247,16 @@ export default class TenrxCart {
                 });
                 this.forceRecalculate();
               } else {
-                TenrxLibraryLogger.error('No product tax response found.',content.data);
-                throw new TenrxLoadError('No product tax response found.', "TenrxCart", null);
+                TenrxLibraryLogger.error('No product tax response found.', content.data);
+                throw new TenrxLoadError('No product tax response found.', 'TenrxCart', null);
               }
             } else {
-              TenrxLibraryLogger.error('No tax data found.',content);
-              throw new TenrxLoadError('No tax data found.', "TenrxCart", null);
+              TenrxLibraryLogger.error('No tax data found.', content);
+              throw new TenrxLoadError('No tax data found.', 'TenrxCart', null);
             }
           } else {
-            TenrxLibraryLogger.error('Error getting tax information.',content.apiStatus);
-            throw new TenrxLoadError('Error getting tax information.', "TenrxCart", null);
+            TenrxLibraryLogger.error('Error getting tax information.', content.apiStatus);
+            throw new TenrxLoadError('Error getting tax information.', 'TenrxCart', null);
           }
         } else {
           TenrxLibraryLogger.error('Tax information apiStatus is null.', content);
@@ -493,9 +493,10 @@ export default class TenrxCart {
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
    * @param {number} patientId - The patient id of the user who is paying for the cart.
+   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
+   * @param {(string | null)} [couponCode=null] - The coupon code to be used in this order.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {number} [patientComment=''] - The patient comment of the user who answered the questionnaire.
-   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxCartCheckoutResult>}
    * @memberof TenrxCart
@@ -505,9 +506,10 @@ export default class TenrxCart {
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
     patientId: number,
+    isGuest = false,
+    couponCode: string | null = null,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     patientComment = '',
-    isGuest = false,
     apiEngine = useTenrxApi(),
   ): Promise<TenrxCartCheckoutResult> {
     TenrxLibraryLogger.info('Checking out cart.');
@@ -530,8 +532,10 @@ export default class TenrxCart {
             result.paymentDetails.paymentId,
             userName,
             shippingAddress,
-            shipToExternalPharmacy,
             isGuest,
+            couponCode,
+            shipToExternalPharmacy,
+            apiEngine,
           );
         } catch (error) {
           TenrxLibraryLogger.error('cart.checkout().placeOrder():', error);
@@ -585,8 +589,9 @@ export default class TenrxCart {
    * @param {number} paymentId - The payment id of the payment that is being used to place the order.
    * @param {string} userName - The username of the person placing the order.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is placing the order.
+   * @param {boolean} [isGuest=false]  - Whether or not the user is a guest.
+   * @param {(string | null)} [couponCode=null] - The coupon code to be used in this order.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
-   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxOrderPlacementResult>}
    * @memberof TenrxCart
@@ -595,8 +600,9 @@ export default class TenrxCart {
     paymentId: number,
     userName: string,
     shippingAddress: TenrxStreetAddress,
-    shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     isGuest = false,
+    couponCode: string | null = null,
+    shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     apiEngine = useTenrxApi(),
   ): Promise<TenrxOrderPlacementResult> {
     TenrxLibraryLogger.info('Placing order.');
@@ -632,7 +638,19 @@ export default class TenrxCart {
         totalPrice: this.total,
         medicationProducts: medicationProduct,
         userName,
+        shippingAddress: {
+          apartmentNumber: shippingAddress.aptNumber,
+          address1: shippingAddress.address1,
+          address2: shippingAddress.address2,
+          city: shippingAddress.city,
+          stateName: TenrxStateIdToStateName[shippingAddress.stateId],
+          zipCode: shippingAddress.zipCode,
+          country: 'US',
+        },
       };
+      if (couponCode) {
+        order.couponCode = couponCode;
+      }
       if (shipToExternalPharmacy)
         order.externalPharmacyAddress = {
           apartmentNumber: shipToExternalPharmacy.address.aptNumber,
