@@ -307,7 +307,7 @@ export default class TenrxCart {
             if (content.data) {
               if (content.data.totalTax) {
                 this.internalTaxRate = content.data.taxRate;
-                TenrxLibraryLogger.warn(this.internalTaxRate)
+                TenrxLibraryLogger.warn(this.internalTaxRate);
               } else {
                 TenrxLibraryLogger.error('No tax rate found.', content.data);
                 throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
@@ -389,7 +389,9 @@ export default class TenrxCart {
         }, 0),
       );
       if (this.internalPromotions.length > 0) {
-        this.internalSubTotal = tenrxRoundTo(this.internalSubTotal - this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal));
+        this.internalSubTotal = tenrxRoundTo(
+          this.internalSubTotal - this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal),
+        );
         if (this.internalSubTotal < 0) {
           this.internalSubTotal = 0;
         }
