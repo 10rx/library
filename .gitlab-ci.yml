@@ -1,0 +1,19 @@
+image: csscloudservices/dotnetaws:latest
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - publish
+
+publish:
+ stage: publish
+ script:
+   - echo "//${CI_SERVER_HOST}/api/v4/projects/8/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
+   - npm publish
+   - npm run docs
+ only:
+   - tags
+ except:
+   - branches
