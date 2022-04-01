@@ -404,6 +404,21 @@ export default class TenrxPatient {
     return this.loaded;
   }
 
+  /**
+   * Refreshes all the patient information.
+   *
+   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+   * @return {*}  {Promise<void>}
+   * @memberof TenrxPatient
+   */
+  public async refreshInfo(apiEngine = useTenrxApi()): Promise<void> {
+    TenrxLibraryLogger.info('Refreshing patient data.');
+    await this.refreshWallet(apiEngine);
+    await this.refreshPatientInfo(apiEngine);
+    await this.refreshOrders(apiEngine);
+    await this.refreshAppointments();
+  }
+
   private static internalInstance: TenrxPatient | null;
 
   /**
