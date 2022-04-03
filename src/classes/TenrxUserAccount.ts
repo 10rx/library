@@ -12,22 +12,6 @@ import TenrxApiEngine from './TenrxApiEngine.js';
  */
 export default class TenrxUserAccount {
   /**
-   * The id of the user account.
-   *
-   * @type {number}
-   * @memberof TenrxUserAccount
-   */
-  id: number;
-
-  /**
-   * This is the id of the patient. The actual patient information is PHI a must not be permanently stored in the client.
-   *
-   * @type {number}
-   * @memberof TenrxUserAccount
-   */
-  patientId: number;
-
-  /**
    * The id of the organization that the user belongs.
    *
    * @type {number}
@@ -74,8 +58,6 @@ export default class TenrxUserAccount {
    * @memberof TenrxUserAccount
    */
   constructor(data: TenrxLoginAPIModelData) {
-    this.id = data.userID;
-    this.patientId = data.id;
     this.roleId = data.roleID;
     this.organizationId = data.organizationID;
     this.userName = data.userName;

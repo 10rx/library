@@ -14,7 +14,7 @@ test('Patient Orders Test Successful', async () => {
     if (loginData.patientData && loginData.accountData) {
       const accountData = loginData.accountData as TenrxLoginAPIModelData;
       TenrxUserAccount.initialize(accountData);
-      TenrxPatient.initialize(accountData.id);
+      TenrxPatient.initialize();
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.orders.length).toBeGreaterThan(0);
@@ -31,7 +31,7 @@ test('Patient Empty Orders Test Successful', async () => {
     if (loginData.patientData && loginData.accountData) {
         const accountData = loginData.accountData as TenrxLoginAPIModelData;
         TenrxUserAccount.initialize(accountData);
-        TenrxPatient.initialize(accountData.id);
+        TenrxPatient.initialize();
         const patient = useTenrxPatient();
         await patient.load();
         expect(patient.orders.length).toBe(0);
@@ -48,7 +48,7 @@ test('Patient Order Join Meeting Test Failure', async () => {
     if (loginData.patientData && loginData.accountData) {
       const accountData = loginData.accountData as TenrxLoginAPIModelData;
       TenrxUserAccount.initialize(accountData);
-      TenrxPatient.initialize(accountData.id);
+      TenrxPatient.initialize();
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.orders.length).toBeGreaterThan(0);

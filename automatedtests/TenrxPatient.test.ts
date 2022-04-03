@@ -16,7 +16,7 @@ test('Patient Test Successful', async () => {
     if (loginData.patientData && loginData.accountData) {
       const accountData = loginData.accountData as TenrxLoginAPIModelData;
       TenrxUserAccount.initialize(accountData);
-      TenrxPatient.initialize(accountData.id);
+      TenrxPatient.initialize();
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.wallet).not.toBeNull();

@@ -21,14 +21,6 @@ import TenrxWallet from './TenrxWallet.js';
  */
 export default class TenrxPatient {
   /**
-   * The id of the patient.
-   *
-   * @type {number}
-   * @memberof TenrxPatient
-   */
-  id: number;
-
-  /**
    * The first name of the patient.
    *
    * @type {string}
@@ -119,12 +111,10 @@ export default class TenrxPatient {
   /**
    * Creates an instance of TenrxPatient.
    *
-   * @param {number} id - The patient's id.
    * @param {TenrxLoginAPIModelPatientData} [data] - The patient data that is used to create the patient.
    * @memberof TenrxPatient
    */
-  constructor(id: number, data?: TenrxLoginAPIModelPatientData, wallet?: TenrxWallet) {
-    this.id = id;
+  constructor(data?: TenrxLoginAPIModelPatientData, wallet?: TenrxWallet) {
     this.firstName = '';
     this.lastName = '';
     this.middleName = '';
@@ -449,9 +439,9 @@ export default class TenrxPatient {
    * @param {TenrxLoginAPIModelPatientData} [data] - The patient data that is used to create the patient.
    * @memberof TenrxPatient
    */
-  public static initialize(id: number, data?: TenrxLoginAPIModelPatientData): void {
+  public static initialize(data?: TenrxLoginAPIModelPatientData, walletData?: TenrxWallet): void {
     if (!TenrxPatient.internalInstance) {
-      TenrxPatient.internalInstance = new TenrxPatient(id, data);
+      TenrxPatient.internalInstance = new TenrxPatient(data, walletData);
     } else {
       TenrxLibraryLogger.warn(`TenrxPatient has already been initialized. Call TenrxPatient.initialize() only once.`);
     }

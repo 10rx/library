@@ -15,8 +15,6 @@ export default interface TenrxLoginAPIModel {
 }
 
 export interface TenrxLoginAPIModelData {
-  id: number;
-  userID: number;
   roleID: number;
   organizationID: number;
   userName: string;

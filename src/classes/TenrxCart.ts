@@ -596,7 +596,6 @@ export default class TenrxCart {
    * @param {string} userName - The user name of the user who is paying for the cart.
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
-   * @param {number} patientId - The patient id of the user who is paying for the cart.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {number} [patientComment=''] - The patient comment of the user who answered the questionnaire.
@@ -608,7 +607,6 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
-    patientId: number,
     isGuest = false,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     patientComment = '',
@@ -653,7 +651,7 @@ export default class TenrxCart {
                 );
               }
               if (Object.keys(this.internalPatientImages).length > 0) {
-                result.patientImagesDetails = await this.sendPatientImages(patientId, apiEngine);
+                result.patientImagesDetails = await this.sendPatientImages(apiEngine);
               }
             }
             // TODO this next section needs to be cleaned up. We need to find a more clean logic for this.
@@ -863,12 +861,11 @@ export default class TenrxCart {
   /**
    * Sends the patient images to the backend servers.
    *
-   * @param {number} patientId - The id of the patient who is sending the images.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxSendPatientImagesResult>} - The result of the sending of the images.
    * @memberof TenrxCart
    */
-  public async sendPatientImages(patientId: number, apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
+  public async sendPatientImages(apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
     const result: TenrxSendPatientImagesResult = {
       patientImagesSentMessage: 'Unable to send patient images.',
       patientImagesSent: false,
@@ -880,7 +877,6 @@ export default class TenrxCart {
         Object.keys(this.internalPatientImages).forEach((visitTypeId) => {
           if (this.internalPatientImages[visitTypeId] && this.internalPatientImages[visitTypeId].length > 0) {
             patientImagesApiPayloads.push({
-              patientId,
               visitTypeId: Number(visitTypeId),
               patientImages: this.internalPatientImages[visitTypeId],
             });

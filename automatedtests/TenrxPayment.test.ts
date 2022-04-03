@@ -23,7 +23,7 @@ test('GetPaymentCards Test Successful', async () => {
     if (loginData.patientData && loginData.accountData) {
       const accountData = loginData.accountData as TenrxLoginAPIModelData;
       TenrxUserAccount.initialize(accountData);
-      TenrxPatient.initialize(accountData.id, loginData.patientData);
+      TenrxPatient.initialize(loginData.patientData);
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.wallet).not.toBeNull();
@@ -59,12 +59,12 @@ test('PlaceOrder Test Successful', async () => {
     if (loginData.patientData && loginData.accountData) {
       const accountData = loginData.accountData as TenrxLoginAPIModelData;
       TenrxUserAccount.initialize(accountData);
-      TenrxPatient.initialize(accountData.id, loginData.patientData);
+      TenrxPatient.initialize(loginData.patientData);
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.wallet).not.toBeNull();
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
-      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS, patient.id);
+      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS);
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(true);
     }
@@ -83,12 +83,12 @@ test('PlaceOrder Test Failure', async () => {
     if (loginData.patientData && loginData.accountData) {
       const accountData = loginData.accountData as TenrxLoginAPIModelData;
       TenrxUserAccount.initialize(accountData);
-      TenrxPatient.initialize(accountData.id, loginData.patientData);
+      TenrxPatient.initialize(loginData.patientData);
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.wallet).not.toBeNull();
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
-      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS, patient.id);
+      const checkoutResponse = await cart.checkout(accountData.userName, patient.wallet.cards[0], TEST_ADDRESS);
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(false);
     }
