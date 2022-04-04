@@ -84,7 +84,7 @@ test('Login API Test Success', async () => {
   const data = content.data as any;
   expect(data.id).not.toBeNull();
   expect(data.id).not.toBe(0);
-  expect(data.userName).toBe(TEST_USERNAME_EXISTS);
+  expect(data.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(content.patientData).not.toBeNull();
   expect(result.error).toBeNull();
   expect(tenrx.isAuthenticated).toBe(true);
@@ -108,7 +108,7 @@ test('Auth GET Test Successful', async () => {
     const content = logindata.content as TenrxLoginAPIModel;
     const data = content.data as any;
     const response = await tenrx.authGet(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', {
-      patientId: data.id,
+      patientId: "123",
     });
     Testlogger.info(response);
     expect(response.status).toBe(200);

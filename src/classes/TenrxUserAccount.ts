@@ -60,7 +60,7 @@ export default class TenrxUserAccount {
   constructor(data: TenrxLoginAPIModelData) {
     this.roleId = data.roleID;
     this.organizationId = data.organizationID;
-    this.userName = data.userName;
+    this.userName = data.emailId;
     this.locationId = data.locationID;
     this.photoPath = data.photoThumbNailPath;
   }

@@ -17,7 +17,7 @@ export default interface TenrxLoginAPIModel {
 export interface TenrxLoginAPIModelData {
   roleID: number;
   organizationID: number;
-  userName: string;
+  emailId: string;
   locationID: number;
   photoThumbNailPath: string;
 }
@@ -42,4 +42,6 @@ export interface TenrxLoginAPIModelPatientData {
   state: string;
   country: string;
   gender: number;
+  photoPath: string;
+  photoThumbnailPath: string;
 }

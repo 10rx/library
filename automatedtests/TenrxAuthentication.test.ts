@@ -50,8 +50,7 @@ test('Authenticate/Logout Test Success', async () => {
   expect(result.expiresIn).toBeGreaterThan(0);
   expect(result.accountData).not.toBeNull();
   const accountData = result.accountData as any;
-  expect(accountData.id).toBeGreaterThan(0);
-  expect(accountData.userName).toBe(TEST_USERNAME_EXISTS);
+  expect(accountData.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(result.patientData).not.toBeNull();
   const patientData = result.patientData as TenrxLoginAPIModelPatientData;
   expect(patientData.emailId).toBe(TEST_USERNAME_EXISTS);

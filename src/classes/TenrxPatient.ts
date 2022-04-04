@@ -109,6 +109,22 @@ export default class TenrxPatient {
   gender: TenrxEnumGender;
 
   /**
+   * Contains the path for their profile picture.
+   *
+   * @type {string}
+   * @memberof TenrxPatient
+   */
+  photoPath: string;
+
+  /**
+   * Contains the path for their thumbnail profile picture.
+   *
+   * @type {string}
+   * @memberof TenrxPatient
+   */
+  photoThumbnailPath: string;
+
+  /**
    * Creates an instance of TenrxPatient.
    *
    * @param {TenrxLoginAPIModelPatientData} [data] - The patient data that is used to create the patient.
@@ -139,9 +155,10 @@ export default class TenrxPatient {
     this.internalOrdersLoaded = false;
     this.internalAppointments = [];
     this.internalAppointmentsLoaded = false;
+    this.photoPath = '';
+    this.photoThumbnailPath = '';
     if (data) this.processApiData(data);
     this.internalPatientInfoLoaded = data ? true : false;
-    this.photoBase64 = null;
   }
 
   private processApiData(data: TenrxLoginAPIModelPatientData): void {
@@ -163,6 +180,8 @@ export default class TenrxPatient {
     this.phoneNumber = data.phoneNumber;
     this.countryId = data.countryId;
     this.gender = data.gender;
+    this.photoPath = data.photoPath;
+    this.photoThumbnailPath = data.photoThumbnailPath;
   }
 
   private internalWallet: TenrxWallet;
@@ -457,8 +476,6 @@ export default class TenrxPatient {
     TenrxPatient.internalInstance = null;
   }
 
-  public photoBase64: string | null;
-
   /**
    * Saves the patient object to the backend servers.
    *
@@ -467,7 +484,7 @@ export default class TenrxPatient {
    * @memberof TenrxPatient
    * @throws {TenrxSaveError} - Throws an exception if an errors occur when saving the object.
    */
-  public async save(apiEngine = useTenrxApi()): Promise<void> {
+  public async save(photoBase64: string | null = null, apiEngine = useTenrxApi()): Promise<void> {
     if (this.internalPatientInfoLoaded) {
       try {
         let saveObject: TenrxUpdatePatientInfoAPIModel = {
@@ -490,7 +507,7 @@ export default class TenrxPatient {
             zip: this.address.zipCode,
           },
         };
-        if (this.photoBase64) saveObject = { ...saveObject, photoBase64: this.photoBase64 };
+        if (photoBase64) saveObject = { ...saveObject, photoBase64 };
         const patientProfileApiResponse = await apiEngine.updatePatientInfo(saveObject);
         if (patientProfileApiResponse.status !== 200) {
           TenrxLibraryLogger.error('Error while saving patient profile data.', patientProfileApiResponse.error);
