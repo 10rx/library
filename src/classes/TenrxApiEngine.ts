@@ -486,13 +486,14 @@ export default class TenrxApiEngine {
    * Pays for a charge with authentication.
    *
    * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @param {number} [timeout=10000] - Request timeout
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  public async authSavePaymentDetails(charge: TenrxChargeAPIModel): Promise<TenrxApiResult> {
+  public async authSavePaymentDetails(charge: TenrxChargeAPIModel, timeout = 10000): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving payment details to API (auth)');
     try {
-      const response = await this.authPost(`${this.baseapi}/api/v1/Payment/SavePaymentDetails`, charge);
+      const response = await this.authPost(`${this.baseapi}/api/v1/Payment/SavePaymentDetails`, charge, {}, {}, timeout);
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('AuthSavePaymentDetails() Error: ', error);
@@ -509,13 +510,14 @@ export default class TenrxApiEngine {
    * Pays for a charge without authentication.
    *
    * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @param {number} [timeout=10000] - Request timeout
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  public async savePaymentDetails(charge: TenrxChargeAPIModel): Promise<TenrxApiResult> {
+  public async savePaymentDetails(charge: TenrxChargeAPIModel, timeout = 10000): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving payment details to API');
     try {
-      const response = await this.post(`${this.baseapi}/api/v1/Login/SavePaymentDetails`, charge);
+      const response = await this.post(`${this.baseapi}/api/v1/Login/SavePaymentDetails`, charge, {}, {}, timeout);
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('SavePaymentDetails() Error: ', error);
@@ -1093,6 +1095,8 @@ export default class TenrxApiEngine {
    * @param {string} url - The url to perform the POST request to.
    * @param {object} params - The parameters to pass to the POST request.
    * @param {object} [headers={}] - The headers to pass to the POST request.
+   * @param {Record<string, string>} [queryparams={}] - The query parameters to pass to the POST request
+   * @param {number | undefined} [timeout=undefined] - How long until the request times out
    * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request.
    * @memberof TenrxApiEngine
    */
@@ -1101,13 +1105,14 @@ export default class TenrxApiEngine {
     params: object,
     headers: object = {},
     queryparams: Record<string, string> = {},
+    timeout: number | undefined = undefined,
   ): Promise<TenrxApiResult> {
     this.ensureValidAccessToken();
     // Needed for the API since the API requires Authorization: {token}
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const authHeaders = { ...headers, Authorization: `${this.accesstoken}` };
     TenrxLibraryLogger.debug('Preparing to execute authenticated POST WebCall: ');
-    return await this.post(url, params, authHeaders, queryparams);
+    return await this.post(url, params, authHeaders, queryparams, timeout);
   }
 
   /**
@@ -1116,6 +1121,8 @@ export default class TenrxApiEngine {
    * @param {string} url - The url to perform the POST request to
    * @param {object} [params={}] - The parameters to pass to the POST request
    * @param {object} [headers={}] - The headers to pass to the POST request
+   * @param {Record<string, string>} [queryparams={}] - The query parameters to pass to the POST request
+   * @param {number | undefined} [timeout=undefined] - How long until the request times out
    * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request
    * @memberof TenrxApiEngine
    */
@@ -1124,6 +1131,7 @@ export default class TenrxApiEngine {
     params: object = {},
     headers: object = {},
     queryparams: Record<string, string> = {},
+    timeout: number | undefined = undefined,
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing POST WebCall: ', { url, params, headers, queryparams });
     const returnvalue: TenrxApiResult = {
@@ -1138,6 +1146,13 @@ export default class TenrxApiEngine {
       });
     }
     TenrxLibraryLogger.silly('Real POST URL: ', internalurl.toString());
+    let timer;
+    const controller = new AbortController();
+    if (timeout) {
+      timer = setTimeout(() => {
+        controller.abort();
+      }, timeout);
+    }
     try {
       const response = await fetch(internalurl, {
         method: 'POST',
@@ -1149,7 +1164,9 @@ export default class TenrxApiEngine {
           ...headers,
         },
         body: JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
+        signal: controller.signal
       });
+      if (timer) clearTimeout(timer);
       TenrxLibraryLogger.silly('POST WebCall Response: ', response);
       returnvalue.status = response.status;
       // Need to find a better way to write this so that we don't have to disable the rule.

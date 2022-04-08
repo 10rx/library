@@ -513,6 +513,7 @@ export default class TenrxCart {
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
+   * @param {number} [timeout=10000] - How long the timeout should be for the request
    * @return {*}  {Promise<TenrxPaymentResult>}
    * @memberof TenrxCart
    */
@@ -522,6 +523,7 @@ export default class TenrxCart {
     shippingAddress: TenrxStreetAddress,
     isGuest = false,
     apiEngine = useTenrxApi(),
+    timeout = 10000
   ): Promise<TenrxPaymentResult> {
     const result: TenrxPaymentResult = {
       paymentMessage: 'Unable to process payment.',
@@ -559,9 +561,9 @@ export default class TenrxCart {
       };
       let paymentResponse: TenrxApiResult;
       if (isGuest) {
-        paymentResponse = await apiEngine.savePaymentDetails(charge);
+        paymentResponse = await apiEngine.savePaymentDetails(charge, timeout);
       } else {
-        paymentResponse = await apiEngine.authSavePaymentDetails(charge);
+        paymentResponse = await apiEngine.authSavePaymentDetails(charge, timeout);
       }
       if (paymentResponse.content) {
         const content = paymentResponse.content as {
@@ -580,7 +582,10 @@ export default class TenrxCart {
           TenrxLibraryLogger.error('sendPayment() apiStatus is null:', content);
         }
       } else {
-        TenrxLibraryLogger.error('sendPayment() content is null:', paymentResponse.error);
+        if (paymentResponse.error instanceof DOMException) {
+          result.paymentMessage = 'Checkout request timed out.';
+          result.paymentStatusCode = 408;
+        } else TenrxLibraryLogger.error('sendPayment() content is null:', paymentResponse.error);
       }
     } catch (error) {
       TenrxLibraryLogger.error('sendPayment(): ', error);
@@ -598,7 +603,8 @@ export default class TenrxCart {
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
    * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
-   * @param {number} [patientComment=''] - The patient comment of the user who answered the questionnaire.
+   * @param {number} [timeout=10000] - How long the timeout on the request should be
+   * @param {string} [patientComment=''] - The patient comment of the user who answered the questionnaire.
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxCartCheckoutResult>}
    * @memberof TenrxCart
@@ -609,6 +615,7 @@ export default class TenrxCart {
     shippingAddress: TenrxStreetAddress,
     isGuest = false,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
+    timeout = 10000,
     patientComment = '',
     apiEngine = useTenrxApi(),
   ): Promise<TenrxCartCheckoutResult> {
@@ -621,7 +628,7 @@ export default class TenrxCart {
       patientImagesDetails: null,
     };
     try {
-      result.paymentDetails = await this.sendPayment(userName, card, shippingAddress, isGuest, apiEngine);
+      result.paymentDetails = await this.sendPayment(userName, card, shippingAddress, isGuest, apiEngine, timeout);
     } catch (error) {
       TenrxLibraryLogger.error('cart.checkout().sendPayment(): ', error);
     }
