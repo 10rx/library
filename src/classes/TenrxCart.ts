@@ -523,7 +523,7 @@ export default class TenrxCart {
     shippingAddress: TenrxStreetAddress,
     isGuest = false,
     apiEngine = useTenrxApi(),
-    timeout = 10000
+    timeout = 10000,
   ): Promise<TenrxPaymentResult> {
     const result: TenrxPaymentResult = {
       paymentMessage: 'Unable to process payment.',

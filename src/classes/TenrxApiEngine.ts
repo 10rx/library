@@ -493,7 +493,13 @@ export default class TenrxApiEngine {
   public async authSavePaymentDetails(charge: TenrxChargeAPIModel, timeout = 10000): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving payment details to API (auth)');
     try {
-      const response = await this.authPost(`${this.baseapi}/api/v1/Payment/SavePaymentDetails`, charge, {}, {}, timeout);
+      const response = await this.authPost(
+        `${this.baseapi}/api/v1/Payment/SavePaymentDetails`,
+        charge,
+        {},
+        {},
+        timeout,
+      );
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('AuthSavePaymentDetails() Error: ', error);
@@ -1164,7 +1170,7 @@ export default class TenrxApiEngine {
           ...headers,
         },
         body: JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
-        signal: controller.signal
+        signal: controller.signal,
       });
       if (timer) clearTimeout(timer);
       TenrxLibraryLogger.silly('POST WebCall Response: ', response);
