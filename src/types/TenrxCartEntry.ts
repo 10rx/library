@@ -30,6 +30,14 @@ export default interface TenrxCartEntry {
   productDetails: string;
 
   /**
+   * The treatment type id
+   *
+   * @type {number}
+   * @memberof TenrxCartEntry
+   */
+  treatmentTypeId: number;
+
+  /**
    * The number of units to be purchased of the product.
    *
    * @type {number}
