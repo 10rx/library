@@ -248,6 +248,7 @@ export default class TenrxCart {
       productId: item.id,
       productName: item.name,
       productDetails: item.description,
+      treatmentTypeId: item.treatmentTypeId,
       quantity,
       price: strengthMatch ? strengthMatch.price : item.price,
       strength,
