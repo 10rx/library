@@ -12,6 +12,7 @@ import TenrxLoginResponseData from '../types/TenrxLoginResponseData.js';
 import TenrxLoginSecurityQuestion from '../types/TenrxLoginSecurityQuestion.js';
 import TenrxLoginSecurityQuestionAnswer from '../types/TenrxLoginSecurityQuestionAnswer.js';
 import TenrxRegistrationFormData from '../types/TenrxRegistrationFormData.js';
+import TenrxGuestRegistrationFormData from '../types/TenrxGuestRegistrationFormData.js';
 
 import TenrxServerError from '../exceptions/TenrxServerError.js';
 
@@ -23,6 +24,11 @@ import TenrxStorage from '../classes/TenrxStorage.js';
 import TenrxUserAccount from '../classes/TenrxUserAccount.js';
 import TenrxPatient from '../classes/TenrxPatient.js';
 import TenrxCart from '../classes/TenrxCart.js';
+import TenrxAccessToken from '../types/TenrxAccessToken.js';
+import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
+import { TenrxEnumState } from './TenrxEnums.js';
+import { TenrxStateNameToStateId } from './TenrxStates.js';
+import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -121,6 +127,78 @@ export const useTenrxCart = (): TenrxCart => {
 const SALT = '$2a$04$RFP6IOZqWqe.Pl6kZC/xmu';
 
 /**
+ * Returns a list of state ids that are valid to issue prescriptions.
+ *
+ * @param {*} [apiEngine=useTenrxApi()] - The api engine to be used.
+ * @return {*}  {(Promise<TenrxEnumState[] | null>)} - The list of state ids that are valid to issue prescriptions. Null is returned if the request failed.
+ */
+export const getStatesValidForTenrx = async (apiEngine = useTenrxApi()): Promise<TenrxEnumState[] | null> => {
+  const result: TenrxEnumState[] = [];
+  const response = await apiEngine.getStatesValidForRx();
+  if (response.status === 200) {
+    if (response.content) {
+      const content = response.content as { data: { stateName: string; stateCode: string }[] };
+      if (content.data) {
+        if (content.data.length > 0) {
+          for (const state of content.data) {
+            result.push(TenrxStateNameToStateId[state.stateName]);
+          }
+        } else {
+          TenrxLibraryLogger.warn('There are no states valid for prescriptions.');
+        }
+      } else {
+        TenrxLibraryLogger.error('No data in response.');
+        return null;
+      }
+    } else {
+      TenrxLibraryLogger.error('No content in response.');
+      return null;
+    }
+  } else {
+    TenrxLibraryLogger.error(`Backend returned status code: ${response.status}`);
+    return null;
+  }
+  return result;
+};
+
+/**
+ * Refreshes the current token that the api engine has.
+ *
+ * @param {string} [language='en'] - The language to use.
+ * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
+ * @return {*}  {(Promise<TenrxAccessToken | null>)} - The promise that resolves to the new token or null if the token could not be refreshed.
+ */
+export const refreshTokenTenrx = async (apiEngine = useTenrxApi()): Promise<TenrxAccessToken | null> => {
+  try {
+    TenrxLibraryLogger.info('Refreshing token...');
+    const response = await apiEngine.refreshToken();
+    TenrxLibraryLogger.debug('Refresh token response:', response);
+    if (response.status === 200) {
+      // Disabling linter due to the api returning this object.
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const content = response.content as { access_token: string; expires_in: number };
+      if (content) {
+        const expiringInformation: TenrxAccessTokenExpirationInformation =
+          apiEngine.getAccessTokenExpirationInformation();
+        TenrxLibraryLogger.info('Token refreshed successfully.');
+        return {
+          accessToken: content.access_token,
+          expiresIn: expiringInformation.expiresIn,
+          expireDateStart: expiringInformation.expireDateStart,
+        };
+      }
+      TenrxLibraryLogger.error('Token refresh failed: content is null.');
+      return null;
+    }
+    TenrxLibraryLogger.error('Token refresh failed:', response.error);
+    return null;
+  } catch (error) {
+    TenrxLibraryLogger.error('Error refreshing token:', error);
+    return null;
+  }
+};
+
+/**
  * Authenticates to the Tenrx backend servers.
  *
  * @param {string} username - The username of the user.
@@ -169,7 +247,7 @@ export const authenticateTenrx = async (
         loginresponse.accessToken = content.access_token;
         loginresponse.expiresIn = content.expires_in;
         loginresponse.accountData = content.data;
-        loginresponse.patientData = content.patientData;
+        loginresponse.patientData = content.patientData ? content.patientData : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Authentication successful.');
       } else {
@@ -334,9 +412,73 @@ export const saveSecurityQuestionAnswers = async (
         loginresponse.accessToken = content.access_token;
         loginresponse.expiresIn = content.expires_in;
         loginresponse.accountData = content.data;
-        loginresponse.patientData = content.patientData;
+        loginresponse.patientData = content.patientData ? content.patientData : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Security question answers were saved successfully.');
+      }
+    }
+  }
+  return loginresponse;
+};
+
+/**
+ * Registers a guest user.
+ *
+ * @param {TenrxGuestRegistrationFormData} guestRegistrationData - The guest registration data.
+ * @param {TenrxApiEngine} [apiengine=useTenrxApi()] - The api engine to use.
+ * @return {*}  {Promise<TenrxLoginResponseData>}
+ */
+export const registerGuest = async (
+  guestRegistrationData: TenrxGuestRegistrationFormData,
+  apiengine: TenrxApiEngine = useTenrxApi(),
+): Promise<TenrxLoginResponseData> => {
+  const loginresponse: TenrxLoginResponseData = {
+    accessToken: null,
+    expiresIn: null,
+    accountData: {},
+    securityQuestions: null,
+    patientData: null,
+    notifications: null,
+    firstTimeLogin: false,
+    message: null,
+    status: -1,
+    error: null,
+  };
+  TenrxLibraryLogger.info('Registering guest...');
+  TenrxLibraryLogger.debug('Guest Registration Info: ', guestRegistrationData);
+  const registerAPIData: TenrxRegisterGuestParameterAPIModel = {
+    id: 0,
+    firstName: guestRegistrationData.firstName,
+    lastName: guestRegistrationData.lastName,
+    emailId: guestRegistrationData.email,
+    phoneNo: guestRegistrationData.phoneNumber,
+    address: guestRegistrationData.address1,
+    city: guestRegistrationData.city,
+    stateID: guestRegistrationData.stateId,
+    zip: guestRegistrationData.zip,
+    organizationID: 0,
+    isActive: true,
+    isDeleted: false,
+    visitTypeId: 0,
+    userType: 0,
+  };
+  const result = await apiengine.registerGuest(registerAPIData);
+  const content = result.content as TenrxLoginAPIModel;
+  loginresponse.status = !(result.content == null)
+    ? !(content.statusCode == null)
+      ? content.statusCode
+      : result.status
+    : result.status;
+  if (result.status === 200) {
+    if (result.content) {
+      loginresponse.message = content.message;
+      if (content.statusCode === 200) {
+        loginresponse.accessToken = content.access_token;
+        loginresponse.expiresIn = content.expires_in;
+        loginresponse.accountData = content.data;
+        loginresponse.patientData = content.patientData ? content.patientData : null;
+        loginresponse.notifications = content.notifications;
+        TenrxLibraryLogger.info('Guest was registered successfully.');
       }
     }
   }
@@ -421,13 +563,24 @@ export const registerUser = async (
         loginresponse.accessToken = content.access_token;
         loginresponse.expiresIn = content.expires_in;
         loginresponse.accountData = content.data;
-        loginresponse.patientData = content.patientData;
+        loginresponse.patientData = content.patientData ? content.patientData : null;
         loginresponse.notifications = content.notifications;
         TenrxLibraryLogger.info('Registration was successful.');
       }
     }
   }
   return loginresponse;
+};
+
+/**
+ * Rounds number to specified number of decimal places.
+ *
+ * @param {number} num - The number to round.
+ * @param {number} [decimals=2] - The number of decimal places to round to.
+ * @return {*}  {number}
+ */
+export const tenrxRoundTo = (num: number, decimals = 2): number => {
+  return Number(Math.round(Number(`${num}e+${decimals}`)).toString() + `e-${decimals}`);
 };
 
 /**

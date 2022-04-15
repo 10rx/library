@@ -32,7 +32,7 @@ export enum TenrxEnumGender {
  * @enum {number}
  */
 export enum TenrxEnumCountry {
-  USA = 1,
+  US = 1,
   Canada,
 }
 
@@ -46,5 +46,203 @@ export enum TenrxEnumState {
   California = 1,
   Florida,
   Alaska = 6,
-  Arizona = 7,
+  Arizona,
+  Arkansas,
+  Colorado,
+  Connecticut,
+  Delaware,
+  DistrictOfColumbia,
+  Georgia,
+  Hawaii,
+  Idaho,
+  Illinois,
+  Indiana,
+  Iowa,
+  Kansas,
+  Kentucky,
+  Louisiana,
+  Maine,
+  Maryland,
+  Massachusetts,
+  Michigan,
+  Minnesota,
+  Mississippi,
+  Missouri,
+  Montana,
+  Nebraska,
+  Nevada,
+  NewHampshire,
+  NewJersey,
+  NewMexico,
+  NewYork,
+  NorthCarolina,
+  NorthDakota,
+  Ohio,
+  Oklahoma,
+  Oregon,
+  Pennsylvania,
+  PuertoRico,
+  RhodeIsland,
+  SouthCarolina,
+  SouthDakota,
+  Tennessee,
+  Texas,
+  Utah,
+  Vermont,
+  Virginia,
+  Washington,
+  WestVirginia,
+  Wisconsin,
+  Wyoming,
+  Alabama = 152,
+}
+
+/**
+ * Represents the status of the chat engine.
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxChatStatus {
+  /**
+   * The chat is idle.
+   */
+  Idle,
+
+  /**
+   * The chat is active.
+   */
+  Active,
+}
+
+/**
+ * Represents a type of chat event.
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxChatEventType {
+  /**
+   * Chat session has started.
+   */
+  ChatStarted,
+
+  /**
+   * Chat session has ended.
+   */
+  ChatEnded,
+
+  /**
+   * Chat message has been received.
+   */
+  ChatMessage,
+
+  /**
+   * Participant has started typing.
+   */
+  ChatTypingStarted,
+
+  /**
+   * Participant has stopped typing.
+   */
+  ChatTypingEnded,
+
+  /**
+   * A chat error has occurred in session.
+   */
+  ChatError,
+
+  /**
+   * Participant has joined the session.
+   */
+  ChatParticipantJoined,
+
+  /**
+   * Participant has left the session.
+   */
+  ChatParticipantLeft,
+}
+
+/**
+ * Represents the type of a answer for a question in the questionnaire.
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxQuestionnaireAnswerType {
+  /**
+   * Answer is a free form text.
+   */
+  TEXT,
+
+  /**
+   * Answer is a yes/no answer.
+   */
+  YESORNO,
+
+  /**
+   * Answer is a single choice answer out of multiple choices.
+   */
+  MULTIPLECHOICE,
+
+  /**
+   * Answer can be multiple choice answers out of multiple choices.
+   */
+  MULTIPLESELECT,
+
+  /**
+   * Answer must be a US state.
+   */
+  STATEPICKER,
+}
+
+/**
+ * Represents the status of the questionnaire bot.
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxQuestionnaireBotStatus {
+  /**
+   * Questionnaire bot is not ready.
+   */
+  NOTREADY,
+
+  /**
+   * Questionnaire bot is ready to either send questions or received responses.
+   */
+  READY,
+
+  /**
+   * Questionnaire bot is busy processing a task.
+   */
+  BUSY,
+
+  /**
+   * Questionnaire bot finished sending all questions and received all answers.
+   */
+  COMPLETED,
+
+  /**
+   * Questionnaire bot has encountered an error.
+   */
+  ERROR,
+}
+
+/**
+ * Represents the shipping speed of the order.
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxShippingType {
+  /**
+   * Standard shipping speed.
+   */
+  Standard = 1,
+
+  /**
+   * Expedited shipping speed.
+   */
+  Expedited,
 }

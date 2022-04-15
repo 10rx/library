@@ -35,6 +35,17 @@ export default abstract class TenrxStorage {
   public abstract load<T>(scope: TenrxStorageScope, key: string): Promise<T>;
 
   /**
+   * Removes the key from the storage asynchronous.
+   *
+   * @abstract
+   * @param {TenrxStorageScope} scope - The scope of the data to be removed.
+   * @param {string} key - The key of the data to be removed.
+   * @return {*}  {Promise<void>} - A promise that resolves when the key has been removed.
+   * @memberof TenrxStorage
+   */
+  public abstract removeKey(scope: TenrxStorageScope, key: string): Promise<void>;
+
+  /**
    * Saves the data to the storage synchronous.
    *
    * @abstract - This method must be implemented by the derived classes.
@@ -57,6 +68,16 @@ export default abstract class TenrxStorage {
    * @memberof TenrxStorage
    */
   public abstract loadSync<T>(scope: TenrxStorageScope, key: string): T;
+
+  /**
+   * Removes the key from the storage synchronous.
+   *
+   * @abstract
+   * @param {TenrxStorageScope} scope - The scope of the data to be removed.
+   * @param {string} key - The key of the data to be removed.
+   * @memberof TenrxStorage
+   */
+  public abstract removeKeySync(scope: TenrxStorageScope, key: string): void;
 
   /**
    * Contains the singleton instance of the storage.

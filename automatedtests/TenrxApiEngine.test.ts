@@ -6,6 +6,8 @@ import {
   TEST_PASSWORD_HASHED_SUCCESS,
   TEST_PASSWORD_HASHED_FAILED,
   Testlogger,
+  OFFER_FIFTEEN_PERCENT_OFF_COUPON_CODE,
+  OFFER_WRONG_COUPON_CODE,
 } from './includes/TexrxCommonInclude.js';
 import { TenrxApiEngine, useTenrxApi } from '../src/index.js';
 import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel.js';
@@ -82,7 +84,7 @@ test('Login API Test Success', async () => {
   const data = content.data as any;
   expect(data.id).not.toBeNull();
   expect(data.id).not.toBe(0);
-  expect(data.userName).toBe(TEST_USERNAME_EXISTS);
+  expect(data.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(content.patientData).not.toBeNull();
   expect(result.error).toBeNull();
   expect(tenrx.isAuthenticated).toBe(true);
@@ -106,7 +108,7 @@ test('Auth GET Test Successful', async () => {
     const content = logindata.content as TenrxLoginAPIModel;
     const data = content.data as any;
     const response = await tenrx.authGet(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', {
-      patientId: data.id,
+      patientId: "123",
     });
     Testlogger.info(response);
     expect(response.status).toBe(200);
@@ -185,5 +187,40 @@ test('RegisterUser Test Success', async () => {
     customerId: '',
     isFaceImage: false,
   });
+  expect(result).not.toBeNull();
+});
+
+test('GetQuestionList Test Success', async () => {
+  const result = await tenrx.getQuestionList([{ visitTypeId: 1 }]);
+  expect(result).not.toBeNull();
+});
+
+test('RefreshToken Test successful', async () => {
+  const originalToken = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en');
+  Testlogger.info(originalToken);
+  expect(tenrx.isAuthenticated).toBe(true);
+  if (tenrx.isAuthenticated) {
+    const refreshToken = await tenrx.refreshToken();
+    Testlogger.info(refreshToken);
+    expect(refreshToken).not.toBeNull();
+    const originalContent = originalToken.content as { access_token: string };
+    const refreshContent = refreshToken.content as { access_token: string };
+    expect(originalContent.access_token).not.toBe(refreshContent.access_token);
+  }
+});
+
+test('GetCouponCode Test successful', async () => {
+  const result = await tenrx.getPromotionInformation(OFFER_FIFTEEN_PERCENT_OFF_COUPON_CODE);
+  Testlogger.info(result);
+  expect(result).not.toBeNull();
+  expect(result.content).not.toBeNull();
+  const content = result.content as { data: { promotionName: string; discountAmount: number; discountPercent: number } };
+  expect(content.data.promotionName).toBe('15% off Order');
+  expect(content.data.discountAmount).toBe(0);
+  expect(content.data.discountPercent).toBe(15);
+});
+
+test('GetCouponCode Test failure', async () => {
+  const result = await tenrx.getPromotionInformation(OFFER_WRONG_COUPON_CODE);
   expect(result).not.toBeNull();
 });

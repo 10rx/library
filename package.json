@@ -1,6 +1,6 @@
 {
   "name": "@10rx/10rx-library",
-  "version": "0.0.5",
+  "version": "0.0.33",
   "description": "Javascript Library for 10rx product",
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
@@ -14,8 +14,8 @@
     "lint": "eslint -c .eslintrc.cjs --ext .ts ./src",
     "docs": "typedoc --out docs ./src",
     "prepare": "npm run build",
-    "prepublishOnly": "tag-matches && npm test && npm run lint",
-    "preversion": "npm run lint",
+    "prepublishOnly": "tag-matches",
+    "preversion": "npm run lint && npm test",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },

@@ -5,7 +5,7 @@ import {
   TEST_PASSWORD_FAILED,
   Testlogger,
 } from './includes/TexrxCommonInclude.js';
-import { authenticateTenrx, logoutTenrx, useTenrxApi } from '../src/index.js';
+import { authenticateTenrx, logoutTenrx, refreshTokenTenrx, TenrxLoginAPIModelPatientData, useTenrxApi } from '../src/index.js';
 
 Testlogger.setSettings({
   type: 'pretty',
@@ -50,14 +50,33 @@ test('Authenticate/Logout Test Success', async () => {
   expect(result.expiresIn).toBeGreaterThan(0);
   expect(result.accountData).not.toBeNull();
   const accountData = result.accountData as any;
-  expect(accountData.id).toBeGreaterThan(0);
-  expect(accountData.userName).toBe(TEST_USERNAME_EXISTS);
+  expect(accountData.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(result.patientData).not.toBeNull();
-  const patientData = result.patientData as any;
-  expect(patientData.emailAddress).toBe(TEST_USERNAME_EXISTS);
+  const patientData = result.patientData as TenrxLoginAPIModelPatientData;
+  expect(patientData.emailId).toBe(TEST_USERNAME_EXISTS);
   expect(result.securityQuestions).toBeNull();
   expect(result.error).toBeNull();
   await logoutTenrx((success: boolean) => {
     expect(success).toBe(true);
   });
+});
+
+test('Authentication/RefreshToken Test Success', async () => {
+  const result = await authenticateTenrx(TEST_USERNAME_EXISTS, TEST_PASSWORD_SUCCESS);
+  expect(result).not.toBeNull();
+  expect(result.accessToken).not.toBeNull();
+  expect(result.expiresIn).toBeGreaterThan(0);
+  expect(result.accountData).not.toBeNull();
+  const refreshToken = await refreshTokenTenrx();
+  expect(refreshToken).not.toBeNull();
+  // API is currently returning expiresIn as 0 which makes the token automatically expire.
+  if (refreshToken) {
+    expect(refreshToken.accessToken).not.toBeNull();
+    expect(refreshToken.expiresIn).toBeGreaterThanOrEqual(0);
+    expect(refreshToken.expireDateStart).not.toBeNull();
+    expect(result.accessToken).not.toBe(refreshToken.accessToken);
+  }
+  /*await logoutTenrx((success: boolean) => {
+    expect(success).toBe(true);
+  });*/
 });

@@ -8,6 +8,17 @@ import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
 import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
 import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
 import TenrxUpdatePatientDetailsAPIModel from '../apiModel/TenrxUpdatePatientDetailsAPIModel.js';
+import TenrxChargeAPIModel from '../apiModel/TenrxChargeAPIModel.js';
+import TenrxSaveProductAPIModel from '../apiModel/TenrxSaveProductAPIModel.js';
+import TenrxGuestAddProductAPIModel from '../apiModel/TenrxGuestAddProductAPIModel.js';
+import TenrxQuestionnaireSaveAnswersAPIModel from '../apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
+import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
+import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
+import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
+import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
+import { DateTime } from 'luxon';
+import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
+import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -41,6 +52,126 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Gets the appointments for the current patient identified by the access token.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getAppointmentsForPatient(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting appointments for patient from API');
+    try {
+      const response = this.authGet(`${this.baseapi}/api/v1/Patient/GetAppointmentsForPatient`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getAppointmentsForPatient() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Joins the meeting for a given order number.
+   *
+   * @param {string} orderNumber - The order number to join the meeting for.
+   * @return {*}  {Promise<TenrxApiResult>} - The response from the API.
+   * @memberof TenrxApiEngine
+   */
+  public async joinMeeting(orderNumber: string): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Joining meeting from API');
+    try {
+      const response = this.authPost(`${this.baseapi}/api/v1/Meeting/JoinMeeting`, {
+        orderNumber,
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('joinMeeting() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Creates an appointment for the given order.
+   *
+   * @param {string} orderId - The order id to create the appointment for.
+   * @param {Date} startDate - The start date to create the appointment for.
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async createAppointment(orderId: string, startDate: Date): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Creating appointment from API');
+    try {
+      const response = this.authPost(`${this.baseapi}/api/v1/Patient/CreateAppointment`, {
+        orderNumber: orderId,
+        startDate: DateTime.fromJSDate(startDate).toUTC().toISO({ suppressMilliseconds: true }),
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('createAppointment() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the doctor's available times for a specific date given an specific number.
+   *
+   * @param {string} orderId - The order id to get the available times for.
+   * @param {Date} startDate - The start date to get the available times for.
+   * @param {Date} endDate - The end date to get the available times for.
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getDoctorAvailabilityForPatient(
+    orderId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting doctor availability for patient from API');
+    try {
+      const response = this.authPost(`${this.baseapi}/api/v1/Patient/GetDoctorAvailablityForPatient`, {
+        orderNumber: orderId,
+        startDate: DateTime.fromJSDate(startDate).toUTC().toISO({ suppressMilliseconds: true }),
+        endDate: DateTime.fromJSDate(endDate).toUTC().toISO({ suppressMilliseconds: true }),
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getDoctorAvailabilityForPatient() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the current access token expiration information.
+   *
+   * @return {*}  {{ expiresIn: number, expireDateStart: number }}
+   * @memberof TenrxApiEngine
+   */
+  public getAccessTokenExpirationInformation(): TenrxAccessTokenExpirationInformation {
+    return {
+      expiresIn: this.expiresIn,
+      expireDateStart: this.expireDateStart,
+    };
+  }
+
+  /**
    * Sets the access token to be used by the API Engine
    *
    * @param {string} accesstoken - The access token to use
@@ -52,6 +183,380 @@ export default class TenrxApiEngine {
     this.accesstoken = accesstoken;
     this.expiresIn = expiresIn;
     this.expireDateStart = expireDateStart;
+  }
+
+  /**
+   * Gets the states valid for prescriptions from the backend server.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getStatesValidForRx(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting states valid for rx from API');
+    try {
+      const response = await this.get(`${this.baseapi}/Login/GetStatesValidForRX`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getStatesValidForRx() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets all the orders from the current patient. The api engine and backend servers uses the current token to determine which patient profile to get.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getPatientOrders(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting patient orders from API');
+    try {
+      const response = this.authGet(`${this.baseapi}/api/v1/Patient/GetPatientOrders`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getPatientOrders() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Saves questionnaire answers to the backend server.
+   *
+   * @param {string} orderNumber - The order number to save the answers for
+   * @param {string} patientComment - The comment that the patient has made
+   * @param {boolean} paymentStatus - The payment status of the order. True if paid, false if not.
+   * @param {TenrxQuestionnaireSurveyResponseAPIModel[]} surveyResponses
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async saveAnswers(
+    orderNumber: string,
+    patientComment: string,
+    paymentStatus: boolean,
+    surveyAnswers: TenrxQuestionnaireSurveyResponseAPIModel[],
+  ): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving answers to API');
+    const answers: TenrxQuestionnaireSaveAnswersAPIModel = {
+      surveyAnswers,
+      orderNumber,
+      patientComment,
+      paymentStatus,
+    };
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Questionnaire/SaveAnswers`, answers);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('SaveAnswers() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the current patient profile data. The api engine and backend servers uses the current token to determine which patient profile to get.
+   *
+   * @return {*}
+   * @memberof TenrxApiEngine
+   */
+  public async getPatientProfileData() {
+    TenrxLibraryLogger.silly('Getting patient profile data');
+    try {
+      const response = await this.authGet(`${this.baseapi}/api/v1/Patient/GetPatientProfileData`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getPatientProfileData() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the questionnaire from the backend server.
+   *
+   * @param {{ visitTypeId: number }[]} visitTypeId - The visit type to get the questionnaire for
+   * @param {number} [questionnaireCategoryID=0] - The questionnaire category to get the questionnaire for
+   * @param {number} [templateId=0] - The template to get the questionnaire for
+   * @return {*}  {Promise<TenrxApiResult>} - The response from the API
+   * @memberof TenrxApiEngine
+   */
+  public async getQuestionList(
+    visitTypeId: { visitTypeId: number }[],
+    questionnaireCategoryID = 0,
+    templateId = 0,
+  ): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting question list from API');
+    try {
+      const response = await this.post(`${this.baseapi}/Login/GetQuestionList`, {
+        id: 0,
+        visitTypeId,
+        questionnaireCategoryID,
+        templateId,
+      });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getQuestionList() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the payment cards for the current user.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getPaymentCardByUser(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting payment cards from API');
+    try {
+      const response = await this.authGet(`${this.baseapi}/api/v1/Payment/GetPaymentCardByUser`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getPaymentCardByUser() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account authenticated.
+   *
+   * @param {TenrxGuestAddProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authPlaceOrder(order: TenrxGuestAddProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Placing order to API (auth)');
+    try {
+      const response = await this.authPost(`${this.baseapi}/Patients/GuestAddProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('AuthPlaceOrder() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account unauthenticated.
+   *
+   * @param {TenrxGuestAddProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async placeOrder(order: TenrxGuestAddProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Placing order to API');
+    try {
+      const response = await this.post(`${this.baseapi}/Login/GuestAddProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('placeOrder() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account authenticated.
+   *
+   * @param {TenrxSaveProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authSaveProduct(order: TenrxSaveProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving product to API (auth)');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Patient/SaveProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('AuthSaveProduct() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets information regarding a promotion given a coupon code.
+   *
+   * @param {string} couponCode - The coupon code of the promotion.
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getPromotionInformation(couponCode: string): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting coupon information from API');
+    try {
+      const response = await this.get(`${this.baseapi}/api/v1/Product/GetCouponCode`, { couponCode });
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getCouponInformation() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Gets the product tax information for a given shipping address from the API.
+   *
+   * @param {TenrxGetProductTaxAPIModel} data - The data to get the tax information for.
+   * @return {*}
+   * @memberof TenrxApiEngine
+   */
+  public async getProductTax(data: TenrxGetProductTaxAPIModel) {
+    TenrxLibraryLogger.silly('Getting product tax from API');
+    try {
+      const response = await this.post(`${this.baseapi}/api/v1/Product/GetProductTax`, data);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getProductTax() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Places an order to the current user account unauthenticated.
+   *
+   * @param {TenrxSaveProductAPIModel} order - The order to place
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async saveProduct(order: TenrxSaveProductAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving product to API');
+    try {
+      const response = await this.post(`${this.baseapi}/api/v1/Login/SaveProduct`, order);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('SaveProduct() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Pays for a charge with authentication.
+   *
+   * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @param {number} [timeout=10000] - Request timeout
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authSavePaymentDetails(charge: TenrxChargeAPIModel, timeout = 10000): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving payment details to API (auth)');
+    try {
+      const response = await this.authPost(
+        `${this.baseapi}/api/v1/Payment/SavePaymentDetails`,
+        charge,
+        {},
+        {},
+        timeout,
+      );
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('AuthSavePaymentDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Pays for a charge without authentication.
+   *
+   * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @param {number} [timeout=10000] - Request timeout
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async savePaymentDetails(charge: TenrxChargeAPIModel, timeout = 10000): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving payment details to API');
+    try {
+      const response = await this.post(`${this.baseapi}/api/v1/Login/SavePaymentDetails`, charge, {}, {}, timeout);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('SavePaymentDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Register a new guest user to Tenrx
+   *
+   * @param {TenrxRegisterGuestParameterAPIModel} guest - The guest to register
+   * @return {*}  {Promise<TenrxApiResult>} - The result of the registration API call
+   * @memberof TenrxApiEngine
+   */
+  public async registerGuest(guest: TenrxRegisterGuestParameterAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Registering guest to API');
+    try {
+      const response = await this.post(`${this.baseapi}/Login/RegisterGuest`, guest);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('registerGuest() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
   }
 
   /**
@@ -226,6 +731,107 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Uploads photos or images of the current patient determined by the access token to the API.
+   *
+   * @param {TenrxUploadPatientAffectedImagesAPIModel} details - The details of the photos to upload
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async uploadPatientAffectedImages(details: TenrxUploadPatientAffectedImagesAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Uploading patient affected images to API');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Patient/UploadPatientAffectedImgaes`, details);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('uploadPatientAffectedImages() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Update patient information in the API
+   *
+   * @param {TenrxUpdatePatientInfoAPIModel} details - The patient information to update
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async updatePatientInfo(details: TenrxUpdatePatientInfoAPIModel): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving patient info to API');
+    try {
+      const response = await this.authPost(`${this.baseapi}/api/v1/Patient/UpdatePatientInfo`, details);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('updatePatientInfo() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Refreshes the current access token in the engine.
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async refreshToken(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Refreshing access token');
+    try {
+      const response = await this.authGet(`${this.baseapi}/api/v1/Common/RefreshToken`);
+      this.processLoginResponse(response, 'refreshToken()');
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('RefreshToken() Error: ', error);
+      const response: TenrxApiResult = {
+        status: -1,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  private processLoginResponse(response: TenrxApiResult, callerForLogPurposes: string): void {
+    if (response && response.status === 200) {
+      TenrxLibraryLogger.silly(`${callerForLogPurposes} Response: `, response.content);
+      if (response.content) {
+        const content = response.content as TenrxLoginAPIModel;
+        if (content.data) {
+          if (content.access_token) {
+            this.setAccessToken(content.access_token, Date.now(), Math.ceil(content.expires_in));
+            TenrxLibraryLogger.silly(
+              `${callerForLogPurposes} Updated Access Token in API Engine: ******* Expires In: `,
+              this.expiresIn,
+            );
+          } else {
+            TenrxLibraryLogger.silly(`${callerForLogPurposes} No Access Token in API Response`);
+          }
+        } else {
+          TenrxLibraryLogger.error(
+            `${callerForLogPurposes} API returned data as null when logging in. Content of error is: `,
+            response.error,
+          );
+        }
+      } else {
+        TenrxLibraryLogger.error(
+          `${callerForLogPurposes} API returned content as null when logging in. Content of error is: `,
+          response.error,
+        );
+      }
+    } else {
+      TenrxLibraryLogger.error(`${callerForLogPurposes} Error: `, response.error);
+    }
+  }
+
+  /**
    * Authenticates the TenrxApiEngine instance
    *
    * @param {string} username
@@ -235,7 +841,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async login(
+  public async login(
     username: string,
     password: string,
     language = 'en',
@@ -249,37 +855,7 @@ export default class TenrxApiEngine {
         macaddress,
         language,
       });
-      if (response.status === 200) {
-        TenrxLibraryLogger.silly('Login() Response: ', response.content);
-        if (response.content) {
-          const content = response.content as TenrxLoginAPIModel;
-          if (content.data) {
-            if (content.access_token) {
-              this.accesstoken = content.access_token;
-              this.expiresIn = content.expires_in;
-              this.expireDateStart = Date.now();
-              TenrxLibraryLogger.silly(
-                'Login() Updated Access Token in API Engine: ******* Expires In: ',
-                this.expiresIn,
-              );
-            } else {
-              TenrxLibraryLogger.silly('Login() No Access Token in API Response');
-            }
-          } else {
-            TenrxLibraryLogger.error(
-              'API returned data as null when logging in. Content of error is: ',
-              response.error,
-            );
-          }
-        } else {
-          TenrxLibraryLogger.error(
-            'API returned content as null when logging in. Content of error is: ',
-            response.error,
-          );
-        }
-      } else {
-        TenrxLibraryLogger.error('Login() Error: ', response.error);
-      }
+      this.processLoginResponse(response, 'login()');
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('Login() Error: ', error);
@@ -298,7 +874,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - All the visit types
    * @memberof TenrxApiEngine
    */
-  async getVisitTypes(): Promise<TenrxApiResult> {
+  public async getVisitTypes(): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the visit types from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetVisitTypes`);
@@ -321,7 +897,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the product category API call.
    * @memberof TenrxApiEngine
    */
-  async getProductCategories(visitId: number): Promise<TenrxApiResult> {
+  public async getProductCategories(visitId: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the product category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetProductCategory`, {
@@ -348,7 +924,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async getGenderCategories(visitId: number): Promise<TenrxApiResult> {
+  public async getGenderCategories(visitId: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the Gender category from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetGenderCategory`, {
@@ -385,7 +961,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  async getTreatmentProductList(
+  public async getTreatmentProductList(
     treatmentTypeId: number,
     categoryId = 0,
     productId = 0,
@@ -434,7 +1010,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
    * @memberof TenrxApiEngine
    */
-  async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
+  public async getMedicationProductDetail(id: number): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting all the Medication Product Detail from API');
     try {
       const response = await this.get(`${this.baseapi}/Login/GetMedicationProductDetails`, {
@@ -463,7 +1039,11 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The response of the GET request.
    * @memberof TenrxApiEngine
    */
-  async authGet(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+  public async authGet(
+    url: string,
+    params: Record<string, string> = {},
+    headers: object = {},
+  ): Promise<TenrxApiResult> {
     this.ensureValidAccessToken();
     // Needed for the API since the API requires Authorization: {token}
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -481,7 +1061,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the GET request
    * @memberof TenrxApiEngine
    */
-  async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
+  public async get(url: string, params: Record<string, string> = {}, headers: object = {}): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing GET WebCall: ', { url, params, headers });
     const internalurl: URL = new URL(url);
     const returnvalue: TenrxApiResult = {
@@ -521,21 +1101,24 @@ export default class TenrxApiEngine {
    * @param {string} url - The url to perform the POST request to.
    * @param {object} params - The parameters to pass to the POST request.
    * @param {object} [headers={}] - The headers to pass to the POST request.
+   * @param {Record<string, string>} [queryparams={}] - The query parameters to pass to the POST request
+   * @param {number | undefined} [timeout=undefined] - How long until the request times out
    * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request.
    * @memberof TenrxApiEngine
    */
-  async authPost(
+  public async authPost(
     url: string,
     params: object,
     headers: object = {},
     queryparams: Record<string, string> = {},
+    timeout: number | undefined = undefined,
   ): Promise<TenrxApiResult> {
     this.ensureValidAccessToken();
     // Needed for the API since the API requires Authorization: {token}
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const authHeaders = { ...headers, Authorization: `${this.accesstoken}` };
     TenrxLibraryLogger.debug('Preparing to execute authenticated POST WebCall: ');
-    return await this.post(url, params, authHeaders, queryparams);
+    return await this.post(url, params, authHeaders, queryparams, timeout);
   }
 
   /**
@@ -544,14 +1127,17 @@ export default class TenrxApiEngine {
    * @param {string} url - The url to perform the POST request to
    * @param {object} [params={}] - The parameters to pass to the POST request
    * @param {object} [headers={}] - The headers to pass to the POST request
+   * @param {Record<string, string>} [queryparams={}] - The query parameters to pass to the POST request
+   * @param {number | undefined} [timeout=undefined] - How long until the request times out
    * @return {*}  {Promise<TenrxApiResult>} - The result of the POST request
    * @memberof TenrxApiEngine
    */
-  async post(
+  public async post(
     url: string,
     params: object = {},
     headers: object = {},
     queryparams: Record<string, string> = {},
+    timeout: number | undefined = undefined,
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing POST WebCall: ', { url, params, headers, queryparams });
     const returnvalue: TenrxApiResult = {
@@ -566,6 +1152,13 @@ export default class TenrxApiEngine {
       });
     }
     TenrxLibraryLogger.silly('Real POST URL: ', internalurl.toString());
+    let timer;
+    const controller = new AbortController();
+    if (timeout) {
+      timer = setTimeout(() => {
+        controller.abort();
+      }, timeout);
+    }
     try {
       const response = await fetch(internalurl, {
         method: 'POST',
@@ -577,7 +1170,9 @@ export default class TenrxApiEngine {
           ...headers,
         },
         body: JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
+        signal: controller.signal,
       });
+      if (timer) clearTimeout(timer);
       TenrxLibraryLogger.silly('POST WebCall Response: ', response);
       returnvalue.status = response.status;
       // Need to find a better way to write this so that we don't have to disable the rule.
@@ -599,7 +1194,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PUT request.
    * @memberof TenrxApiEngine
    */
-  async authPut(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
+  public async authPut(url: string, params: object, headers: object = {}): Promise<TenrxApiResult> {
     this.ensureValidAccessToken();
     // Needed for the API since the API requires Authorization: {token}
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -617,7 +1212,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PUT request.
    * @memberof TenrxApiEngine
    */
-  async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
+  public async put(url: string, params: object = {}, headers: object = {}): Promise<TenrxApiResult> {
     TenrxLibraryLogger.debug('Executing PUT WebCall: ', { url, params, headers });
     const returnvalue: TenrxApiResult = {
       status: 0,
@@ -658,7 +1253,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PATCH request.
    * @memberof TenrxApiEngine
    */
-  async authPatch(
+  public async authPatch(
     url: string,
     queryparams: Record<string, string> = {},
     bodyparams: object = {},
@@ -683,7 +1278,7 @@ export default class TenrxApiEngine {
    * @return {*}  {Promise<TenrxApiResult>} - The result of the PATCH request.
    * @memberof TenrxApiEngine
    */
-  async patch(
+  public async patch(
     url: string,
     queryparams: Record<string, string> = {},
     bodyparams: object = {},
