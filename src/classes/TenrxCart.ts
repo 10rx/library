@@ -253,7 +253,7 @@ export default class TenrxCart {
       price: strengthMatch ? strengthMatch.price : item.price,
       strength,
       rx: item.rx,
-      taxable: true, // This will be handled later when calculating the tax. Tax depends on zip code.
+      taxable: !!item.treatmentTypeId, // if treatmentTypeId is 0 means item is consult fee which is not taxed 
       photoPath: item.photoPath,
       hidden,
       shipToExternalPharmacy,
@@ -278,10 +278,11 @@ export default class TenrxCart {
       price: number;
     }[] = [];
     this.internalCartEntries.forEach((entry) => {
-      productsForTaxCalculaitons.push({
-        productId: entry.productId,
-        price: entry.price,
-      });
+      if (entry.taxable)
+        productsForTaxCalculaitons.push({
+          productId: entry.productId,
+          price: entry.price,
+        });
     });
     const taxInformation = await apiEngine.getProductTax({
       productsForTaxCalculaitons,
