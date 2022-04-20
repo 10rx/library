@@ -253,7 +253,7 @@ export default class TenrxCart {
       price: strengthMatch ? strengthMatch.price : item.price,
       strength,
       rx: item.rx,
-      taxable: !!item.treatmentTypeId, // if treatmentTypeId is 0 means item is consult fee which is not taxed 
+      taxable: !!item.treatmentTypeId, // if treatmentTypeId is 0 means item is consult fee which is not taxed
       photoPath: item.photoPath,
       hidden,
       shipToExternalPharmacy,
