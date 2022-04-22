@@ -1030,6 +1030,59 @@ export default class TenrxApiEngine {
     }
   }
 
+
+  /**
+   * Request a password reset token
+   *
+   * @param {string} emailAddress - Email address of user
+   * @param {string} forgotURL - The url that'll be used to give new password
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async forgotPassword(emailAddress: string, forgotURL: string): Promise<TenrxApiResult> {
+    try {
+      return await this.post(`${this.baseapi}/api/v1/Login/ForgotPassword`, {
+        userName: emailAddress,
+        forgotPasswordUrl: forgotURL,
+      });
+    } catch (error) {
+      TenrxLibraryLogger.error('forgotPassword() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Reset users password
+   *
+   * @param {string} emailAddress - Email address of user
+   * @param {string} token - The provided token used for reset
+   * @param {string} password - The hashed password
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async resetPassword(emailAddress: string, token: string, password: string): Promise<TenrxApiResult> {
+    try {
+      return await this.post(`${this.baseapi}/api/v1/Login/ResetUserPassword`, {
+        userName: emailAddress,
+        token,
+        newPassword: password,
+      });
+    } catch (error) {
+      TenrxLibraryLogger.error('resetPassword() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
   /**
    * Performs an authenticated GET request to the specified url.
    *

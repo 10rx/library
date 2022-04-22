@@ -127,6 +127,7 @@ export {
   saveSecurityQuestionAnswers,
   registerGuest,
   registerUser,
+  resetPassword,
   tenrxRoundTo,
   isBrowser,
   isNode,
