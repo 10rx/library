@@ -2,18 +2,15 @@ import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionn
 import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { TenrxStateIdToStateName } from '../includes/TenrxStates.js';
 import {
-  TenrxApiResult,
-  TenrxChargeAPIModel,
+  TenrxCheckoutAPIModel,
   TenrxEnumCountry,
   TenrxLibraryLogger,
   TenrxLoadError,
-  TenrxPaymentResult,
   TenrxPromotion,
   TenrxPromotionError,
   TenrxQuestionnaireAnswer,
   TenrxQuestionnaireAnswerType,
   tenrxRoundTo,
-  TenrxSaveProductAPIModel,
   TenrxSendAnswersResult,
   TenrxStripeCreditCard,
   useTenrxApi,
@@ -21,7 +18,6 @@ import {
 } from '../index.js';
 import TenrxCartCheckoutResult from '../types/TenrxCartCheckoutResult.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
-import TenrxOrderPlacementResult from '../types/TenrxOrderPlacementResult.js';
 import TenrxPatientImage from '../types/TenrxPatientImage.js';
 import TenrxSendPatientImagesResult from '../types/TenrxSendPatientImagesResult.js';
 import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
@@ -253,7 +249,7 @@ export default class TenrxCart {
       price: strengthMatch ? strengthMatch.price : item.price,
       strength,
       rx: item.rx,
-      taxable: !!item.treatmentTypeId, // if treatmentTypeId is 0 means item is consult fee which is not taxed 
+      taxable: !!item.treatmentTypeId, // if treatmentTypeId is 0 means item is consult fee which is not taxed
       photoPath: item.photoPath,
       hidden,
       shipToExternalPharmacy,
@@ -509,101 +505,11 @@ export default class TenrxCart {
   }
 
   /**
-   * Sends payment for the cart's content.
-   *
-   * @param {string} userName - The user name of the user who is paying for the cart.
-   * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
-   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
-   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
-   * @param {number} [timeout=10000] - How long the timeout should be for the request
-   * @return {*}  {Promise<TenrxPaymentResult>}
-   * @memberof TenrxCart
-   */
-  public async sendPayment(
-    userName: string,
-    card: TenrxStripeCreditCard,
-    shippingAddress: TenrxStreetAddress,
-    isGuest = false,
-    apiEngine = useTenrxApi(),
-    timeout = 10000,
-  ): Promise<TenrxPaymentResult> {
-    const result: TenrxPaymentResult = {
-      paymentMessage: 'Unable to process payment.',
-      paymentSuccessful: false,
-      paymentStatusCode: 500,
-      paymentId: 0,
-    };
-    TenrxLibraryLogger.info('Sending payment details to backend servers.');
-    try {
-      const charge: TenrxChargeAPIModel = {
-        userName,
-        cardId: 0,
-        stripeToken: card.cardId,
-        status: 0,
-        paymentCardDetails: {
-          cardId: card.cardId,
-          paymentMethod: card.paymentMethod,
-          name: card.nameOnCard,
-          addressCity: card.address.city,
-          addressCountry: TenrxEnumCountry[TenrxEnumCountry.US],
-          addressLine1: card.address.address1,
-          addressLine2: card.address.address2 ? card.address.address2 : '',
-          addressState: TenrxStateIdToStateName[card.address.stateId],
-          addressZip: card.address.zipCode,
-          brand: card.brand,
-          country: TenrxEnumCountry[TenrxEnumCountry.US],
-          last4: card.last4,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          exp_month: card.expMonth,
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          exp_year: card.expYear,
-        },
-        price: [],
-        amount: this.total,
-      };
-      let paymentResponse: TenrxApiResult;
-      if (isGuest) {
-        paymentResponse = await apiEngine.savePaymentDetails(charge, timeout);
-      } else {
-        paymentResponse = await apiEngine.authSavePaymentDetails(charge, timeout);
-      }
-      if (paymentResponse.content) {
-        const content = paymentResponse.content as {
-          apiStatus: { statusCode: number; message: string };
-          data: number;
-        };
-        if (content.apiStatus) {
-          TenrxLibraryLogger.info('Payment servers responded: ' + content.apiStatus.message);
-          result.paymentMessage = content.apiStatus.message;
-          result.paymentStatusCode = content.apiStatus.statusCode;
-          result.paymentId = content.data;
-          if (content.apiStatus.statusCode === 200) {
-            result.paymentSuccessful = true;
-          }
-        } else {
-          TenrxLibraryLogger.error('sendPayment() apiStatus is null:', content);
-        }
-      } else {
-        if (paymentResponse.error instanceof DOMException) {
-          result.paymentMessage = 'Checkout request timed out.';
-          result.paymentStatusCode = 408;
-        } else TenrxLibraryLogger.error('sendPayment() content is null:', paymentResponse.error);
-      }
-    } catch (error) {
-      TenrxLibraryLogger.error('sendPayment(): ', error);
-      result.paymentMessage = 'Exception has occurred when processing checkout: ' + JSON.stringify(error);
-    }
-
-    return result;
-  }
-
-  /**
-   * Proceeds to checkout the cart. It calls both sendPayment and placeOrder functions in the correct order.
+   * Proceeds to checkout the cart.
    *
    * @param {string} userName - The user name of the user who is paying for the cart.
    * @param {TenrxStripeCreditCard} card - The credit card information of the user who is paying for the cart.
    * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is paying for the cart.
-   * @param {boolean} [isGuest=false] - Whether or not the user is a guest.
    * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
    * @param {number} [timeout=10000] - How long the timeout on the request should be
    * @param {string} [patientComment=''] - The patient comment of the user who answered the questionnaire.
@@ -615,110 +521,12 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
-    isGuest = false,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     timeout = 10000,
     patientComment = '',
     apiEngine = useTenrxApi(),
-  ): Promise<TenrxCartCheckoutResult> {
-    TenrxLibraryLogger.info('Checking out cart.');
-    const result: TenrxCartCheckoutResult = {
-      checkoutSuccessful: false,
-      paymentDetails: null,
-      orderDetails: null,
-      questionnaireDetails: null,
-      patientImagesDetails: null,
-    };
-    try {
-      result.paymentDetails = await this.sendPayment(userName, card, shippingAddress, isGuest, apiEngine, timeout);
-    } catch (error) {
-      TenrxLibraryLogger.error('cart.checkout().sendPayment(): ', error);
-    }
-    if (result.paymentDetails) {
-      if (result.paymentDetails.paymentSuccessful) {
-        try {
-          result.orderDetails = await this.placeOrder(
-            result.paymentDetails.paymentId,
-            userName,
-            shippingAddress,
-            isGuest,
-            shipToExternalPharmacy,
-            apiEngine,
-          );
-        } catch (error) {
-          TenrxLibraryLogger.error('cart.checkout().placeOrder():', error);
-        }
-        if (result.orderDetails) {
-          if (result.orderDetails.orderPlacementSuccessful) {
-            if (!isGuest) {
-              if (Object.keys(this.internalAnswers).length > 0) {
-                result.questionnaireDetails = await this.sendAnswers(
-                  result.orderDetails.invoiceNumber,
-                  patientComment,
-                  result.paymentDetails.paymentSuccessful,
-                  apiEngine,
-                );
-              }
-              if (Object.keys(this.internalPatientImages).length > 0) {
-                result.patientImagesDetails = await this.sendPatientImages(apiEngine);
-              }
-            }
-            // TODO this next section needs to be cleaned up. We need to find a more clean logic for this.
-            if (result.patientImagesDetails && result.questionnaireDetails) {
-              if (result.patientImagesDetails.patientImagesSent && result.questionnaireDetails.answersSent) {
-                result.checkoutSuccessful = true;
-              }
-            } else {
-              if (result.patientImagesDetails == null && result.questionnaireDetails == null) {
-                result.checkoutSuccessful = true;
-              } else {
-                if (result.questionnaireDetails == null) {
-                  result.checkoutSuccessful = result.patientImagesDetails
-                    ? result.patientImagesDetails.patientImagesSent
-                    : true;
-                } else {
-                  result.checkoutSuccessful = result.questionnaireDetails.answersSent;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    if (result.checkoutSuccessful) {
-      this.clearCart();
-    }
-    return result;
-  }
-
-  /**
-   * Places an order for the cart's content to the backend servers.
-   *
-   * @param {number} paymentId - The payment id of the payment that is being used to place the order.
-   * @param {string} userName - The username of the person placing the order.
-   * @param {TenrxStreetAddress} shippingAddress - The shipping address of the user who is placing the order.
-   * @param {boolean} [isGuest=false]  - Whether or not the user is a guest.
-   * @param {(TenrxExternalPharmacyInformation | null)} [shipToExternalPharmacy=null] - The external pharmacy information the user wishes to ships their rx products.
-   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
-   * @return {*}  {Promise<TenrxOrderPlacementResult>}
-   * @memberof TenrxCart
-   */
-  public async placeOrder(
-    paymentId: number,
-    userName: string,
-    shippingAddress: TenrxStreetAddress,
-    isGuest = false,
-    shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
-    apiEngine = useTenrxApi(),
-  ): Promise<TenrxOrderPlacementResult> {
-    TenrxLibraryLogger.info('Placing order.');
-    const result: TenrxOrderPlacementResult = {
-      orderPlacementMessage: 'Unable to place order.',
-      orderPlacementSuccessful: false,
-      orderPlacementStatusCode: 500,
-      invoiceNumber: '',
-    };
-    const medicationProduct: {
+  ) {
+    const medicationProducts: {
       id: number;
       productName: string;
       productDetails: string;
@@ -728,7 +536,7 @@ export default class TenrxCart {
       strength: string;
     }[] = [];
     this.cartEntries.forEach((entry) => {
-      medicationProduct.push({
+      medicationProducts.push({
         id: 0,
         productName: entry.productName,
         productDetails: entry.productDetails,
@@ -738,12 +546,58 @@ export default class TenrxCart {
         strength: entry.strength,
       });
     });
-    try {
-      const order: TenrxSaveProductAPIModel = {
-        paymentId,
+
+    const body: TenrxCheckoutAPIModel = {
+      userName,
+      cardId: 0,
+      stripeToken: card.cardId,
+      status: 0,
+      shippingType: 0,
+      pharmacyType: 0,
+      couponCode: this.internalPromotions[0]?.couponCode ?? null,
+      orderId: 0,
+      paymentCardDetails: {
+        cardId: card.cardId,
+        paymentMethod: card.paymentMethod,
+        name: card.nameOnCard,
+        addressCity: card.address.city,
+        addressCountry: TenrxEnumCountry[card.country],
+        addressLine1: card.address.address1,
+        addressLine2: card.address.address2,
+        addressState: TenrxStateIdToStateName[card.address.stateId],
+        addressZip: card.address.zipCode,
+        brand: card.brand,
+        country: TenrxEnumCountry[card.country],
+        last4: card.last4,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        exp_month: card.expMonth,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        exp_year: card.expYear,
+      },
+      price: [
+        {
+          price: this.total,
+        },
+      ],
+      amount: this.total,
+      patientProducts: {
+        medicationProducts,
         totalPrice: this.total,
-        medicationProducts: medicationProduct,
+        visitTypeId: 0,
         userName,
+        couponCode: this.internalPromotions[0]?.couponCode ?? null,
+        externalPharmacyAddress: shipToExternalPharmacy
+          ? {
+              apartmentNumber: shipToExternalPharmacy.address.aptNumber,
+              address1: shipToExternalPharmacy.address.address1,
+              address2: shipToExternalPharmacy.address.address2,
+              city: shipToExternalPharmacy.address.city,
+              stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
+              zipCode: shipToExternalPharmacy.address.zipCode,
+              country: 'US',
+              pharmacyName: shipToExternalPharmacy.name,
+            }
+          : null,
         shippingAddress: {
           apartmentNumber: shippingAddress.aptNumber,
           address1: shippingAddress.address1,
@@ -753,54 +607,67 @@ export default class TenrxCart {
           zipCode: shippingAddress.zipCode,
           country: 'US',
         },
+      },
+    };
+
+    const result: TenrxCartCheckoutResult = {
+      checkoutSuccessful: false,
+      paymentDetails: null,
+      orderDetails: null,
+      questionnaireDetails: null,
+      patientImagesDetails: null,
+    };
+    try {
+      const res = await apiEngine.authSavePaymentDetails(body, timeout);
+      const content = res.content as {
+        apiStatus: { statusCode: number; message: string };
+        data: {
+          orderNumber?: string;
+        };
       };
-      if (this.internalPromotions.length > 0) {
-        // TODO backend needs to support multiple promotions. Right now, we grab the first one and that's it.
-        order.couponCode = this.internalPromotions[0].couponCode;
-      }
-      if (shipToExternalPharmacy)
-        order.externalPharmacyAddress = {
-          apartmentNumber: shipToExternalPharmacy.address.aptNumber,
-          address1: shipToExternalPharmacy.address.address1,
-          address2: shipToExternalPharmacy.address.address2,
-          city: shipToExternalPharmacy.address.city,
-          stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
-          zipCode: shipToExternalPharmacy.address.zipCode,
-          country: 'US',
-          pharmacyName: shipToExternalPharmacy.name,
-        };
-      let orderDetails: TenrxApiResult;
-      if (isGuest) {
-        orderDetails = await apiEngine.saveProduct(order);
-      } else {
-        orderDetails = await apiEngine.authSaveProduct(order);
-      }
-      if (orderDetails.content) {
-        const content = orderDetails.content as {
-          apiStatus: { statusCode: number; message: string };
-          data: { invoiceNumber: string };
-        };
-        if (content.apiStatus) {
-          TenrxLibraryLogger.info('Order servers responded: ' + content.apiStatus.message);
-          result.orderPlacementMessage = content.apiStatus.message;
-          result.orderPlacementStatusCode = content.apiStatus.statusCode;
-          if (content.apiStatus.statusCode === 200) {
-            if (content.data) {
-              result.invoiceNumber = content.data.invoiceNumber;
-              result.orderPlacementSuccessful = true;
-            } else {
-              TenrxLibraryLogger.error('placeOrder() data is null:', content);
-            }
-          }
-        } else {
-          TenrxLibraryLogger.error('placeOrder() apiStatus is null:', content);
-        }
-      } else {
-        TenrxLibraryLogger.error('placeOrder() content is null:', orderDetails.error);
-      }
+      result.paymentDetails = {
+        paymentSuccessful: content.apiStatus.statusCode === 200,
+        paymentMessage: content.apiStatus.message,
+        paymentId: 0,
+        paymentStatusCode: content.apiStatus.statusCode,
+      };
+      result.orderDetails = {
+        orderPlacementMessage: '',
+        orderPlacementStatusCode: content.apiStatus.statusCode,
+        orderPlacementSuccessful: content.apiStatus.statusCode === 200,
+        invoiceNumber: content.data.orderNumber ?? '',
+      };
     } catch (error) {
-      TenrxLibraryLogger.error('placeOrder(): ', error);
-      result.orderPlacementMessage = 'Exception has occurred when placing the order: ' + JSON.stringify(error);
+      TenrxLibraryLogger.error('cart.checkout():', error);
+    }
+
+    if (result.orderDetails?.orderPlacementSuccessful) {
+      if (Object.keys(this.internalAnswers).length > 0) {
+        result.questionnaireDetails = await this.sendAnswers(
+          result.orderDetails.invoiceNumber,
+          patientComment,
+          result.orderDetails.orderPlacementSuccessful,
+          apiEngine,
+        );
+      }
+      if (Object.keys(this.internalPatientImages).length > 0) {
+        result.patientImagesDetails = await this.sendPatientImages(apiEngine);
+      }
+
+      if (
+        (result.patientImagesDetails?.patientImagesSent && result.questionnaireDetails?.answersSent) ||
+        (!result.patientImagesDetails && !result.questionnaireDetails)
+      ) {
+        result.checkoutSuccessful = true;
+      } else
+        result.checkoutSuccessful = result.questionnaireDetails
+          ? result.questionnaireDetails.answersSent
+          : result.patientImagesDetails
+          ? result.patientImagesDetails.patientImagesSent
+          : true;
+    }
+    if (result.checkoutSuccessful) {
+      this.clearCart();
     }
     return result;
   }
