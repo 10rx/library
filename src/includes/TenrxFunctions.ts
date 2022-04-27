@@ -573,6 +573,25 @@ export const registerUser = async (
 };
 
 /**
+ * Reset users password
+ * 
+ * @param {string} emailAddress - The users email address
+ * @param {string} token - The reset token
+ * @param {string} password - The new plain password
+ * @param {TenrxApiEngine} [apiEngine=useTenrxApi()]
+ * @return {*}  {Promise<TenrxApiResult>}
+ */
+export const resetPassword = async (
+  emailAddress: string,
+  token: string,
+  password: string,
+  apiEngine: TenrxApiEngine = useTenrxApi(),
+) => {
+  // eslint-disable-next-line import/no-named-as-default-member
+  return apiEngine.resetPassword(emailAddress, token, await bcryptjs.hash(password, SALT));
+};
+
+/**
  * Rounds number to specified number of decimal places.
  *
  * @param {number} num - The number to round.

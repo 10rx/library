@@ -19,6 +19,7 @@ import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPat
 import { DateTime } from 'luxon';
 import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
 import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
+import TenrxCheckoutAPIModel from '../apiModel/TenrxCheckoutAPIModel.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -483,14 +484,14 @@ export default class TenrxApiEngine {
   }
 
   /**
-   * Pays for a charge with authentication.
+   * Checkout the cart
    *
-   * @param {TenrxChargeAPIModel} charge - The charge to pay for
+   * @param {TenrxCheckoutAPIModel} charge - Cart object with payment details
    * @param {number} [timeout=10000] - Request timeout
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  public async authSavePaymentDetails(charge: TenrxChargeAPIModel, timeout = 10000): Promise<TenrxApiResult> {
+  public async authSavePaymentDetails(charge: TenrxCheckoutAPIModel, timeout = 10000): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving payment details to API (auth)');
     try {
       const response = await this.authPost(
@@ -1021,6 +1022,59 @@ export default class TenrxApiEngine {
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('GetMedicationProductDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+
+  /**
+   * Request a password reset token
+   *
+   * @param {string} emailAddress - Email address of user
+   * @param {string} forgotURL - The url that'll be used to give new password
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async forgotPassword(emailAddress: string, forgotURL: string): Promise<TenrxApiResult> {
+    try {
+      return await this.post(`${this.baseapi}/api/v1/Login/ForgotPassword`, {
+        userName: emailAddress,
+        forgotPasswordUrl: forgotURL,
+      });
+    } catch (error) {
+      TenrxLibraryLogger.error('forgotPassword() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 0,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  /**
+   * Reset users password
+   *
+   * @param {string} emailAddress - Email address of user
+   * @param {string} token - The provided token used for reset
+   * @param {string} password - The hashed password
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async resetPassword(emailAddress: string, token: string, password: string): Promise<TenrxApiResult> {
+    try {
+      return await this.post(`${this.baseapi}/api/v1/Login/ResetUserPassword`, {
+        userName: emailAddress,
+        token,
+        newPassword: password,
+      });
+    } catch (error) {
+      TenrxLibraryLogger.error('resetPassword() Error: ', error);
       const response: TenrxApiResult = {
         status: 0,
         content: null,

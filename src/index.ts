@@ -78,6 +78,7 @@ export { default as TenrxRegisterUserParameterAPIModel } from './apiModel/TenrxR
 export { default as TenrxTreatmentProductListAPIModel } from './apiModel/TenrxTreatmentProductListAPIModel.js';
 export { default as TenrxGuestAddProductAPIModel } from './apiModel/TenrxGuestAddProductAPIModel.js';
 export { default as TenrxChargeAPIModel } from './apiModel/TenrxChargeAPIModel.js';
+export { default as TenrxCheckoutAPIModel } from './apiModel/TenrxCheckoutAPIModel.js';
 export { default as TenrxSaveProductAPIModel } from './apiModel/TenrxSaveProductAPIModel.js';
 export { default as TenrxQuestionnaireSurveyResponsesAPIModel } from './apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
 export { default as TenrxUpdatePatientDetailsAPIModel } from './apiModel/TenrxUpdatePatientDetailsAPIModel.js';
@@ -127,6 +128,7 @@ export {
   saveSecurityQuestionAnswers,
   registerGuest,
   registerUser,
+  resetPassword,
   tenrxRoundTo,
   isBrowser,
   isNode,
