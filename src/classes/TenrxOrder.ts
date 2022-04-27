@@ -66,7 +66,7 @@ export default class TenrxOrder {
   }
 
   private processOrderData(orderData: TenrxOrderAPIModel) {
-    this.orderId = orderData.order;
+    this.orderId = orderData.orderNumber;
     this.orderDate = new Date(orderData.orderDate);
     this.totalPrice = orderData.totalPrice;
     if (orderData.orderProducts && orderData.orderProducts.length > 0) {
