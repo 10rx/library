@@ -19,6 +19,7 @@ import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPat
 import { DateTime } from 'luxon';
 import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
 import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
+import TenrxSessionDetailsAPIModel from '../apiModel/TenrxSessionDetailsAPIModel.js';
 import TenrxCheckoutAPIModel from '../apiModel/TenrxCheckoutAPIModel.js';
 
 /**
@@ -1031,6 +1032,67 @@ export default class TenrxApiEngine {
     }
   }
 
+
+  /**
+   * Open up a chat session
+   *
+   * @param {(0 | 1)} chatType - The chat type. 0 for patient 1 for 
+   * @param {string} orderID
+   * @return {*}  {(Promise<{ url: string; sessionID: number; sessionKey: string; error: any | null }>)}
+   * @memberof TenrxApiEngine
+   */
+  public async getClientChatSessionDetails(
+    chatType: 0 | 1,
+    orderID: string,
+  ): Promise<{ url: string; sessionID: number; sessionKey: string; error: any | null }> {
+    try {
+      // The backend wants it as a query for whatever reason
+      const response = await this.authPost(`${this.baseapi}/api/v1/Chat/OpenUserChatSession`, {}, undefined, {
+        OrderNumber: orderID, // eslint-disable-line @typescript-eslint/naming-convention -- backend doesn't want camel case
+        ChatRoom: `${chatType}`, // eslint-disable-line @typescript-eslint/naming-convention -- backend doesn't want camel case
+      });
+
+      if (response.status !== 200) {
+        return {
+          url: '',
+          sessionID: 0,
+          sessionKey: '',
+          error: response.error,
+        };
+      }
+      const content = response.content as TenrxSessionDetailsAPIModel;
+      if (content.apiStatus.statusCode !== 200) {
+        return {
+          url: '',
+          sessionID: 0,
+          sessionKey: '',
+          error: content.apiStatus.message,
+        };
+      }
+
+      if (content.data) {
+        return {
+          url: content.data.ChatUrl,
+          sessionID: content.data.ChatSession.SessionID,
+          sessionKey: content.data.ChatSession.SessionKey,
+          error: null,
+        };
+      } else
+        return {
+          url: '',
+          sessionID: 0,
+          sessionKey: '',
+          error: 'No Data',
+        };
+    } catch (error) {
+      return {
+        url: '',
+        sessionID: 0,
+        sessionKey: '',
+        error,
+      };
+    }
+  }
 
   /**
    * Request a password reset token

@@ -167,6 +167,7 @@ export default class TenrxChatEngine {
         id,
         avatar,
       };
+      console.log('CHAT ENGINE create participant', payload)
       this.internalChatParticipants[id] = {
         nickName,
         avatar,
@@ -222,27 +223,23 @@ export default class TenrxChatEngine {
   /**
    * Sends a message to participants in the chat engine.
    *
-   * @param {string} senderId - The id of the sender.
+   * @param {string} interfaceId - The id of the sending interface.
    * @param {TenrxChatMessagePayload} message - The message to send.
    * @param {string} [participantId] - The id of the recipient.
+   * @param {string} [senderId] - The id of the sender
    * @memberof TenrxChatEngine
    */
-  public sendMessage(senderId: string, message: TenrxChatMessagePayload, participantId?: string): void {
-    if (this.internalChatStatus === TenrxChatStatus.Active) {
-      this.notifyParticipants(
-        {
-          timestamp: DateTime.now().toJSDate(),
-          senderId,
-          recipientId: participantId ? participantId : null, // sending to all users
-          type: TenrxChatEventType.ChatMessage,
-          payload: message,
-        },
-        senderId,
-      );
-    } else {
-      TenrxLibraryLogger.error('Unable to send message to all recipients. Chat is not active.');
-      throw new TenrxChatNotActive('Unable to send message to all recipients. Chat is not active.', 'TenrxChatEngine');
-    }
+  public sendMessage(interfaceId: string, message: TenrxChatMessagePayload, participantId?: string, senderId?: string): void {
+    this.notifyInterfaces(
+      {
+        timestamp: DateTime.now().toJSDate(),
+        senderId: senderId ?? interfaceId, // This so for socket messages
+        recipientId: participantId ? participantId : null, // sending to all users
+        type: TenrxChatEventType.ChatMessage,
+        payload: message,
+      },
+      interfaceId,
+    );
   }
 
   /**
@@ -253,24 +250,16 @@ export default class TenrxChatEngine {
    * @memberof TenrxChatEngine
    */
   public startTyping(senderId: string, participantId?: string): void {
-    if (this.internalChatStatus === TenrxChatStatus.Active) {
-      this.notifyParticipants(
-        {
-          timestamp: DateTime.now().toJSDate(),
-          senderId,
-          recipientId: participantId ? participantId : null, // sending to all users
-          type: TenrxChatEventType.ChatTypingStarted,
-          payload: null,
-        },
+    this.notifyInterfaces(
+      {
+        timestamp: DateTime.now().toJSDate(),
         senderId,
-      );
-    } else {
-      TenrxLibraryLogger.error('Unable to send typing notification to all recipients. Chat is not active.');
-      throw new TenrxChatNotActive(
-        'Unable to send typing notification to all recipients. Chat is not active.',
-        'TenrxChatEngine',
-      );
-    }
+        recipientId: participantId ? participantId : null, // sending to all users
+        type: TenrxChatEventType.ChatTypingStarted,
+        payload: null,
+      },
+      senderId,
+    );
   }
 
   /**
@@ -281,24 +270,16 @@ export default class TenrxChatEngine {
    * @memberof TenrxChatEngine
    */
   public stopTyping(senderId: string, participantId?: string): void {
-    if (this.internalChatStatus === TenrxChatStatus.Active) {
-      this.notifyParticipants(
-        {
-          timestamp: DateTime.now().toJSDate(),
-          senderId,
-          recipientId: participantId ? participantId : null, // sending to all users
-          type: TenrxChatEventType.ChatTypingEnded,
-          payload: null,
-        },
+    this.notifyInterfaces(
+      {
+        timestamp: DateTime.now().toJSDate(),
         senderId,
-      );
-    } else {
-      TenrxLibraryLogger.error('Unable to send typing notification to all recipients. Chat is not active.');
-      throw new TenrxChatNotActive(
-        'Unable to send typing notification to all recipients. Chat is not active.',
-        'TenrxChatEngine',
-      );
-    }
+        recipientId: participantId ? participantId : null, // sending to all users
+        type: TenrxChatEventType.ChatTypingEnded,
+        payload: null,
+      },
+      senderId,
+    );
   }
 
   /**
