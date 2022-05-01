@@ -17,6 +17,7 @@ import TenrxSocketPacket, {
   TenrxSocketMessagePayload,
   TenrxSocketReplyJoinChatPayload,
   TenrxSocketReplyPayload,
+  TenrxSocketServerDisconnectPayload,
   TenrxSocketTypingPayload,
 } from '../types/TenrxSocketPacket.js';
 import TenrxChatInterface from './TenrxChatInterface.js';
@@ -351,6 +352,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         this.aliveTimer = null;
       }
       if (reason === 'io server disconnect' || reason === 'io client disconnect') {
+        console.log('full disconnect');
         for (const participant of Object.keys(this.participants)) {
           this.leaveChat(participant);
         }
@@ -520,10 +522,10 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         const participant = this.getParticipant(payload.sender);
         if (participant?.chatEngineID)
           this.sendMessage(
+            participant.chatEngineID,
             payload.message,
             payload.metadata as TenrxChatMessageMetadata,
             undefined,
-            participant.chatEngineID,
           );
         break;
       }
@@ -532,7 +534,8 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         return;
       case 'SDISCONNECT': {
         // TODO: Do something with the reason
-        // const payload = packet.payload as TenrxSocketServerDisconnectPayload;
+        const payload = packet.payload as TenrxSocketServerDisconnectPayload;
+        console.log('server disconnect reason:', payload.reason);
         this.socket.disconnect();
         return;
       }
@@ -605,24 +608,21 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
               console.log('sending message as patient');
               // ? Message sent by patient
               this.sendMessage(
+                this.patientID,
                 message.message,
                 message.metadata as TenrxChatMessageMetadata,
                 undefined,
-                this.patientID,
               );
             }
           } else {
+            let sender = lookup[message.sender];
             // incase sender wasnt sent in participants from server
-            if (!lookup[message.sender]) lookup[message.sender] = this.getParticipant(message.sender)?.chatEngineID ?? undefined;
-            if (lookup[message.sender]) {
+            if (!sender)
+              lookup[message.sender] = sender = this.getParticipant(message.sender)?.chatEngineID ?? undefined;
+            if (sender) {
               // ? Message sent by doctors/etc
               console.log('sending message as', message.sender, lookup[message.sender]);
-              this.sendMessage(
-                message.message,
-                message.metadata as TenrxChatMessageMetadata,
-                undefined,
-                lookup[message.sender],
-              );
+              this.sendMessage(sender, message.message, message.metadata as TenrxChatMessageMetadata, undefined);
             } else console.warn('Unable to send message because there is no chat engine id for them', message);
           }
         }
@@ -669,7 +669,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    * @param {string} [receipentId] - The receipent id if the message is targeted to someone. If set to null or undefined, the message will be sent to all participants.
    * @memberof TenrxLiveChatInterface
    */
-  public sendMessage(message: string, metadata: TenrxChatMessageMetadata, receipentId?: string, sender?: string) {
+  public sendMessage(sender: string, message: string, metadata: TenrxChatMessageMetadata, receipentId?: string) {
     TenrxLibraryLogger.debug('TenrxLiveChatInterface: Sending message.');
     if (this.chatEngine) {
       console.log('Sending message to chat engine', {
@@ -678,8 +678,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         message,
         receipentId,
       });
-      // TODO Why do we need to make an interface send a message? sender should be mandatory to send a message.
-      this.chatEngine.sendMessage(sender ? sender : this.id, { message, metadata }, receipentId, this.id);
+      this.chatEngine.sendMessage(sender, { message, metadata }, receipentId, this.id);
     }
   }
 

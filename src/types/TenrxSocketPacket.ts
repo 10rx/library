@@ -46,14 +46,7 @@ export default interface TenrxSocketPacket {
   payload: PacketPayload | Record<string, never>;
 }
 
-export type PacketType =
-  | 'JOIN'
-  | 'LEAVE'
-  | 'MESSAGE'
-  | 'TYPING'
-  | 'REPLY'
-  | 'ALIVE'
-  | 'SDISCONNECT';
+export type PacketType = 'JOIN' | 'LEAVE' | 'MESSAGE' | 'TYPING' | 'REPLY' | 'ALIVE' | 'SDISCONNECT';
 
 export type PacketPayload =
   | TenrxSocketReplyPayload
@@ -224,5 +217,6 @@ export interface TenrxSocketReplyJoinChatPayload {
     participantID: string;
     participantNickName: string;
     participantAvatar: string;
+    active: boolean;
   }[];
 }

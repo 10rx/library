@@ -235,19 +235,17 @@ export default class TenrxChatEngine {
     participantId?: string,
     interfaceId?: string,
   ): void {
-    const excludeInterface = interfaceId ?? this.internalChatParticipants[senderId].interfaceId;
-    if (excludeInterface) {
-      this.notifyInterfaces(
-        {
-          timestamp: DateTime.now().toJSDate(),
-          senderId,
-          recipientId: participantId ? participantId : null, // sending to all users
-          type: TenrxChatEventType.ChatMessage,
-          payload: message,
-        },
-        excludeInterface,
-      );
-    }
+    const excludeInterface = interfaceId ?? this.internalChatParticipants[senderId]?.interfaceId;
+    this.notifyInterfaces(
+      {
+        timestamp: DateTime.now().toJSDate(),
+        senderId,
+        recipientId: participantId ? participantId : null, // sending to all users
+        type: TenrxChatEventType.ChatMessage,
+        payload: message,
+      },
+      excludeInterface,
+    );
   }
 
   /**
