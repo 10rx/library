@@ -89,6 +89,7 @@ export default class TenrxChatEngine {
     });
   }
 
+  // TODO Delete this function
   private notifyParticipants(event: TenrxChatEvent, excludeParticipant?: string): void {
     setTimeout(() => {
       if (this.internalChatStatus === TenrxChatStatus.Active) {
@@ -167,7 +168,6 @@ export default class TenrxChatEngine {
         id,
         avatar,
       };
-      console.log('CHAT ENGINE create participant', payload)
       this.internalChatParticipants[id] = {
         nickName,
         avatar,
@@ -223,23 +223,31 @@ export default class TenrxChatEngine {
   /**
    * Sends a message to participants in the chat engine.
    *
-   * @param {string} interfaceId - The id of the sending interface.
+   * @param {string} senderId - The id of the sender.
    * @param {TenrxChatMessagePayload} message - The message to send.
    * @param {string} [participantId] - The id of the recipient.
-   * @param {string} [senderId] - The id of the sender
+   * @param {string} [interfaceId] - The id of the sending interface.
    * @memberof TenrxChatEngine
    */
-  public sendMessage(interfaceId: string, message: TenrxChatMessagePayload, participantId?: string, senderId?: string): void {
-    this.notifyInterfaces(
-      {
-        timestamp: DateTime.now().toJSDate(),
-        senderId: senderId ?? interfaceId, // This so for socket messages
-        recipientId: participantId ? participantId : null, // sending to all users
-        type: TenrxChatEventType.ChatMessage,
-        payload: message,
-      },
-      interfaceId,
-    );
+  public sendMessage(
+    senderId: string,
+    message: TenrxChatMessagePayload,
+    participantId?: string,
+    interfaceId?: string,
+  ): void {
+    const excludeInterface = interfaceId ?? this.internalChatParticipants[senderId].interfaceId;
+    if (excludeInterface) {
+      this.notifyInterfaces(
+        {
+          timestamp: DateTime.now().toJSDate(),
+          senderId,
+          recipientId: participantId ? participantId : null, // sending to all users
+          type: TenrxChatEventType.ChatMessage,
+          payload: message,
+        },
+        excludeInterface,
+      );
+    }
   }
 
   /**
@@ -247,19 +255,23 @@ export default class TenrxChatEngine {
    *
    * @param {string} senderId - The id of the sender.
    * @param {string} [participantId] - The id of the recipient.
+   * @param {string} [interfaceId] - The id of the sending interface.
    * @memberof TenrxChatEngine
    */
-  public startTyping(senderId: string, participantId?: string): void {
-    this.notifyInterfaces(
-      {
-        timestamp: DateTime.now().toJSDate(),
-        senderId,
-        recipientId: participantId ? participantId : null, // sending to all users
-        type: TenrxChatEventType.ChatTypingStarted,
-        payload: null,
-      },
-      senderId,
-    );
+  public startTyping(senderId: string, participantId?: string, interfaceId?: string): void {
+    const excludeInterface = interfaceId ?? this.internalChatParticipants[senderId].interfaceId;
+    if (excludeInterface) {
+      this.notifyInterfaces(
+        {
+          timestamp: DateTime.now().toJSDate(),
+          senderId,
+          recipientId: participantId ? participantId : null, // sending to all users
+          type: TenrxChatEventType.ChatTypingStarted,
+          payload: null,
+        },
+        excludeInterface,
+      );
+    }
   }
 
   /**
@@ -267,19 +279,23 @@ export default class TenrxChatEngine {
    *
    * @param {string} senderId - The id of the sender.
    * @param {string} [participantId] - The id of the recipient.
+   * @param {string} [interfaceId] - The id of the sending interface.
    * @memberof TenrxChatEngine
    */
-  public stopTyping(senderId: string, participantId?: string): void {
-    this.notifyInterfaces(
-      {
-        timestamp: DateTime.now().toJSDate(),
-        senderId,
-        recipientId: participantId ? participantId : null, // sending to all users
-        type: TenrxChatEventType.ChatTypingEnded,
-        payload: null,
-      },
-      senderId,
-    );
+  public stopTyping(senderId: string, participantId?: string, interfaceId?: string): void {
+    const excludeInterface = interfaceId ?? this.internalChatParticipants[senderId].interfaceId;
+    if (excludeInterface) {
+      this.notifyInterfaces(
+        {
+          timestamp: DateTime.now().toJSDate(),
+          senderId,
+          recipientId: participantId ? participantId : null, // sending to all users
+          type: TenrxChatEventType.ChatTypingEnded,
+          payload: null,
+        },
+        excludeInterface,
+      );
+    }
   }
 
   /**

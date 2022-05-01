@@ -678,7 +678,8 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         message,
         receipentId,
       });
-      this.chatEngine.sendMessage(this.id, { message, metadata }, receipentId, sender);
+      // TODO Why do we need to make an interface send a message? sender should be mandatory to send a message.
+      this.chatEngine.sendMessage(sender ? sender : this.id, { message, metadata }, receipentId, this.id);
     }
   }
 
