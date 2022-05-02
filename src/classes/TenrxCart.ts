@@ -282,7 +282,7 @@ export default class TenrxCart {
     });
     const taxInformation = await apiEngine.getProductTax({
       productsForTaxCalculaitons,
-      shipingAddress: {
+      shippingAddress: {
         apartmentNumber: address.aptNumber,
         address1: address.address1,
         address2: address.address2,
