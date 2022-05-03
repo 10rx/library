@@ -78,6 +78,14 @@ export interface TenrxChatParticipantJoinedPayload {
    * @memberof TenrxChatParticipantJoinedPayload
    */
   avatar: string;
+
+  /**
+   * Should the event be silent
+   *
+   * @type {boolean}
+   * @memberof TenrxChatParticipantJoinedPayload
+   */
+  silent: boolean
 }
 
 /**

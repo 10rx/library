@@ -138,9 +138,8 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
       case TenrxChatEventType.ChatParticipantJoined:
         const participantJoinedPayload = event.payload as TenrxChatParticipantJoinedPayload;
         this.participants[participantJoinedPayload.id] = participantJoinedPayload;
-        console.log('PATIENT INTERFACE JOIN', participantJoinedPayload);
         TenrxLibraryLogger.debug(`${participantJoinedPayload.nickName} has joined the chat.`);
-        if (this.onParticipantJoined) this.onParticipantJoined(this, participantJoinedPayload.id);
+        if (this.onParticipantJoined && !participantJoinedPayload.silent) this.onParticipantJoined(this, participantJoinedPayload.id);
         break;
       case TenrxChatEventType.ChatParticipantLeft:
         if (event.senderId) {
@@ -159,7 +158,6 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         break;
       case TenrxChatEventType.ChatMessage:
         const message = event.payload as TenrxChatMessagePayload;
-        console.log(event, message, this.participants);
         const senderMessage = this.getNickName(event.senderId);
         TenrxLibraryLogger.debug(`${senderMessage}: ${message.message}`);
         if (this.onMessageReceived) this.onMessageReceived(this, event.senderId, message.message, message.metadata);
@@ -205,7 +203,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
   }
 
   /**
-   *  Get the nickname for a participant
+   * Get the nickname for a participant
    *
    * @param {(string | null)} id
    * @return {*}

@@ -126,67 +126,27 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   private socket: Socket;
 
   /**
-   * Event when chat session has ended.
+   * Event when socket is connected
    *
    * @memberof TenrxLiveChatInterface
    */
-  public onChatEnded: ((chatInterface: TenrxLiveChatInterface) => void) | undefined;
+  public onConnected: (() => void) | undefined;
 
   /**
-   * Event when chat session is started.
+   * Event when socket is disconnected
    *
    * @memberof TenrxLiveChatInterface
    */
-  public onChatStarted: ((chatInterface: TenrxLiveChatInterface, participantsList: string[]) => void) | undefined;
+  public onDisconnected: ((reason: string) => void) | undefined;
 
   /**
-   * Event when a participant joins the chat session.
+   * Is the patient typing
    *
+   * @private
+   * @type {boolean}
    * @memberof TenrxLiveChatInterface
    */
-  public onParticipantJoined: ((chatInterface: TenrxLiveChatInterface, participantId: string) => void) | undefined;
-
-  /**
-   * Evenet when a participant leaves the chat session.
-   *
-   * @memberof TenrxLiveChatInterface
-   */
-  public onParticipantLeft: ((chatInterface: TenrxLiveChatInterface, participantId: string) => void) | undefined;
-
-  /**
-   * Event when a message is received from the chat session.
-   *
-   * @memberof TenrxLiveChatInterface
-   */
-  public onMessageReceived:
-    | ((
-        chatInterface: TenrxLiveChatInterface,
-        participantId: string | null,
-        message: string,
-        metadata: TenrxChatMessageMetadata,
-      ) => void)
-    | undefined;
-
-  /**
-   * Event when a participant starts typing.
-   *
-   * @memberof TenrxLiveChatInterface
-   */
-  public onTypingStarted: ((chatInterface: TenrxLiveChatInterface, participantId: string) => void) | undefined;
-
-  /**
-   * Event when a participant stops typing.
-   *
-   * @memberof TenrxLiveChatInterface
-   */
-  public onTypingEnded: ((chatInterface: TenrxLiveChatInterface, participantId: string) => void) | undefined;
-
-  /**
-   * An unknown event has been received from the chat engine. This is usually a bug in the engine.
-   *
-   * @memberof TenrxLiveChatInterface
-   */
-  public onUnknownEvent: ((chatInterface: TenrxLiveChatInterface, event: TenrxChatEvent) => void) | undefined;
+  private isTyping: boolean;
 
   /**
    * This is the main event handler for the chat interface. It will be called by the chat engine when an event is received.
@@ -200,7 +160,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
       case TenrxChatEventType.ChatEnded:
         TenrxLibraryLogger.debug('TenrxLiveChatInterface: Chat ended');
         this.socket.disconnect();
-        if (this.onChatEnded) this.onChatEnded(this);
         break;
       case TenrxChatEventType.ChatStarted:
         TenrxLibraryLogger.debug('TenrxLiveChatInterface: Chat started');
@@ -216,7 +175,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
           participantsIds.push(participant.id);
           TenrxLibraryLogger.debug(`${participant.nickName} has joined the chat.`);
         });
-        if (this.onChatStarted) this.onChatStarted(this, participantsIds);
         break;
       case TenrxChatEventType.ChatParticipantJoined:
         const participantJoinedPayload = event.payload as TenrxChatParticipantJoinedPayload;
@@ -226,9 +184,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
           chatEngineID: participantJoinedPayload.id,
           socketID: null,
         };
-        console.log(participantJoinedPayload, 'joined via chat engine');
-        // ? Easiest way I thought of
-        // TODO: Make this work with more than one other interface
+
         if (!this.patientID) this.patientID = participantJoinedPayload.id;
 
         this.preparePacket(
@@ -239,7 +195,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         );
 
         TenrxLibraryLogger.debug(`${participantJoinedPayload.nickName} has joined the chat.`);
-        if (this.onParticipantJoined) this.onParticipantJoined(this, participantJoinedPayload.id);
         break;
       case TenrxChatEventType.ChatParticipantLeft:
         if (event.senderId) {
@@ -252,7 +207,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
             );
 
           if (this.participants[participantId]) {
-            if (this.onParticipantLeft) this.onParticipantLeft(this, participantId);
             const nickName = this.participants[participantId] ? this.participants[participantId].nickName : 'Unknown';
             TenrxLibraryLogger.debug(`${nickName} has participant left the chat.`);
             delete this.participants[event.senderId];
@@ -265,7 +219,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         break;
       case TenrxChatEventType.ChatMessage:
         const message = event.payload as TenrxChatMessagePayload;
-        console.log('chat engine message received', message, this.participants);
 
         this.preparePacket(
           this.createPacket('MESSAGE', {
@@ -281,14 +234,15 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         const senderTyping = (event.senderId && this.participants[event.senderId].nickName) ?? 'Unknown';
         TenrxLibraryLogger.debug(`${senderTyping} started typing`);
         if (event.senderId) {
-          // TODO: Set a delay or timer or something so this doesnt fire when every single character gets pressed
-          // this.preparePacket(
-          //   this.createPacket('TYPING', {
-          //     typing: true,
-          //     participantID: this.socketID,
-          //   }),
-          // );
-          if (this.onTypingStarted) this.onTypingStarted(this, event.senderId);
+          if (!this.isTyping) {
+            this.isTyping = true;
+            this.preparePacket(
+              this.createPacket('TYPING', {
+                typing: true,
+                participantID: this.socketID,
+              }),
+            );
+          }
         } else {
           TenrxLibraryLogger.warn('TenrxLiveChatInterface: Participant started typing without id.');
         }
@@ -297,20 +251,19 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         const senderTypingEnded = (event.senderId && this.participants[event.senderId].nickName) ?? 'Unknown';
         TenrxLibraryLogger.debug(`${senderTypingEnded} stopped typing`);
         if (event.senderId) {
+          this.isTyping = false;
           this.preparePacket(
             this.createPacket('TYPING', {
               typing: false,
               participantID: this.socketID,
             }),
           );
-          if (this.onTypingEnded) this.onTypingEnded(this, event.senderId);
         } else {
           TenrxLibraryLogger.warn('TenrxLiveChatInterface: Participant stopped typing without id.');
         }
         break;
       default:
         TenrxLibraryLogger.warn('TenrxLiveChatInterface: Unknown event', event);
-        if (this.onUnknownEvent) this.onUnknownEvent(this, event);
     }
   }
 
@@ -339,6 +292,8 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
     this.socketID = '';
     this.aliveTimer = null;
 
+    this.isTyping = false;
+
     this.sessionID = sessionInfo.sessionID;
     this.sessionKey = sessionInfo.sessionKey;
 
@@ -352,7 +307,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         this.aliveTimer = null;
       }
       if (reason === 'io server disconnect' || reason === 'io client disconnect') {
-        console.log('full disconnect');
         for (const participant of Object.keys(this.participants)) {
           this.leaveChat(participant);
         }
@@ -364,8 +318,8 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         this.aliveTimer = setInterval(() => {
           this.preparePacket(this.createPacket('ALIVE', {}));
         }, 15e3);
-      console.log('connected', this.socket.connected, this.waiting);
-      TenrxLibraryLogger.info('TenrxLiveChatInterface: Socket connected');
+      TenrxLibraryLogger.debug('TenrxLiveChatInterface: Socket connected');
+      if (this.onConnected) this.onConnected();
     });
   }
 
@@ -378,15 +332,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   public get isReady() {
     return this.socket.connected && !!this.chatEngine && !!this.id;
   }
-
-  // /**
-  //  * Initiate the connection to the chat server
-  //  *
-  //  * @memberof TenrxLiveChatInterface
-  //  */
-  // start() {
-  //   this.socket.connect();
-  // }
 
   /**
    * Send a packet to the chat server
@@ -435,7 +380,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
       retries: 0,
       timer: setTimeout(this.resendPacket.bind(this), 5e3, packet.id),
     };
-    console.log('SENDING PACKET', packet);
     this.sendPacket('PACKET', packet);
   }
 
@@ -450,7 +394,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   private resendPacket(id: string) {
     const packet = this.waiting[id];
     if (!packet) return; // ? Resend timer executed but packet got a response already
-    console.log(`packet retry ${packet.retries} for packet ${packet.type} - ${packet.packet.id}`);
     if (packet.retries < 2) {
       packet.retries++;
       this.sendPacket('PACKET', packet.packet);
@@ -497,7 +440,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
       case 'JOIN': {
         const payload = packet.payload as TenrxSocketJoinChatPayload;
         if (!payload.participantID) break;
-        console.log('someone joined', payload);
         const engineID = await this.enterChat(payload.nickName, payload.avatar);
         if (engineID) {
           this.participants[engineID] = {
@@ -506,7 +448,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
             nickName: payload.nickName,
             chatEngineID: engineID,
           };
-          console.log('Created chat engine participant', this.participants[engineID]);
         }
 
         break;
@@ -533,10 +474,9 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         void this.handleReply(packet);
         return;
       case 'SDISCONNECT': {
-        // TODO: Do something with the reason
         const payload = packet.payload as TenrxSocketServerDisconnectPayload;
-        console.log('server disconnect reason:', payload.reason);
         this.socket.disconnect();
+        if (this.onDisconnected) this.onDisconnected(payload.reason);
         return;
       }
     }
@@ -563,13 +503,8 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    */
   private async handleReply(packet: TenrxSocketPacket) {
     const payload = packet.payload as TenrxSocketReplyPayload;
-    if (!this.waiting[payload.packetID])
-      return console.log(`packet ${payload.packetID} got reply but is not in waiting`);
-
+    if (!this.waiting[payload.packetID]) return;
     const { type } = this.waiting[payload.packetID];
-
-    if (this.waiting[payload.packetID].type !== 'ALIVE')
-      console.log(`packet ${payload.packetID} got a reply with payload`, payload);
 
     // Clear the resend timer cause we got a reply
     clearTimeout(this.waiting[payload.packetID].timer);
@@ -581,10 +516,14 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         const data = payload.data as TenrxSocketReplyJoinChatPayload;
 
         this.socketID = data.participantID;
-        console.log('ID assigned by server', this.socketID);
 
         for (const participant of data.participants) {
-          const engineID = await this.enterChat(participant.participantNickName, participant.participantAvatar);
+          if (participant.participantID === this.socketID) continue;
+          const engineID = await this.enterChat(
+            participant.participantNickName,
+            participant.participantAvatar,
+            !participant.active,
+          );
           if (engineID) {
             this.participants[engineID] = {
               socketID: participant.participantID,
@@ -592,8 +531,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
               nickName: participant.participantNickName,
               chatEngineID: engineID,
             };
-            console.log('Created participant in chat engine', this.participants[engineID]);
-          } else console.error('Didnt created participant in chat engine', participant.participantID);
+          }
         }
 
         const lookup: {
@@ -605,7 +543,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
         for (const message of data.messages) {
           if (message.sender === data.participantID) {
             if (this.patientID) {
-              console.log('sending message as patient');
               // ? Message sent by patient
               this.sendMessage(
                 this.patientID,
@@ -621,7 +558,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
               lookup[message.sender] = sender = this.getParticipant(message.sender)?.chatEngineID ?? undefined;
             if (sender) {
               // ? Message sent by doctors/etc
-              console.log('sending message as', message.sender, lookup[message.sender]);
               this.sendMessage(sender, message.message, message.metadata as TenrxChatMessageMetadata, undefined);
             } else console.warn('Unable to send message because there is no chat engine id for them', message);
           }
@@ -635,15 +571,15 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    *
    * @param {string} nickName
    * @param {string} avatar
+   * @param {boolean} silent
    * @return {*} {Promise<string | null>}
    * @memberof TenrxLiveChatInterface
    */
-  public enterChat(nickName: string, avatar: string): Promise<string | null> {
+  public enterChat(nickName: string, avatar: string, silent = false): Promise<string | null> {
     return new Promise((resolve) => {
       TenrxLibraryLogger.debug('TenrxLiveChatInterface: Entering chat.');
-      console.log('chat engine exists?', !!this.chatEngine);
       if (this.chatEngine) {
-        resolve(this.chatEngine.addParticipant(this.id, nickName, avatar));
+        resolve(this.chatEngine.addParticipant(this.id, nickName, avatar, silent));
       } else resolve(null);
     });
   }
@@ -672,12 +608,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   public sendMessage(sender: string, message: string, metadata: TenrxChatMessageMetadata, receipentId?: string) {
     TenrxLibraryLogger.debug('TenrxLiveChatInterface: Sending message.');
     if (this.chatEngine) {
-      console.log('Sending message to chat engine', {
-        sender,
-        interface: this.id,
-        message,
-        receipentId,
-      });
       this.chatEngine.sendMessage(sender, { message, metadata }, receipentId, this.id);
     }
   }

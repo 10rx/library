@@ -78,6 +78,7 @@ export default class TenrxChatEngine {
         id,
         nickName: this.internalChatParticipants[id].nickName,
         avatar: this.internalChatParticipants[id].avatar,
+        silent: false
       });
     });
     this.notifyInterfaces({
@@ -159,7 +160,7 @@ export default class TenrxChatEngine {
    * @return {*}  {string} - The id of the participant.
    * @memberof TenrxChatEngine
    */
-  public addParticipant(interfaceId: string, nickName: string, avatar = ''): string {
+  public addParticipant(interfaceId: string, nickName: string, avatar = '', silent = false): string {
     TenrxLibraryLogger.debug(`Adding participant with nickName '${nickName}'`);
     if (this.internalChatStatus === TenrxChatStatus.Active) {
       const id = TenrxChatEngine.getRandomId();
@@ -167,6 +168,7 @@ export default class TenrxChatEngine {
         nickName,
         id,
         avatar,
+        silent
       };
       this.internalChatParticipants[id] = {
         nickName,
