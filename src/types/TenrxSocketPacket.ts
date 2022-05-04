@@ -16,10 +16,10 @@ export default interface TenrxSocketPacket {
   /**
    * The session this packet is for
    *
-   * @type {number}
+   * @type {string}
    * @memberof TenrxSocketPacket
    */
-  sessionID: number;
+  sessionID: string;
 
   /**
    * The auth key for the session

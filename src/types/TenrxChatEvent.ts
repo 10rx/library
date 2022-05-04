@@ -85,7 +85,7 @@ export interface TenrxChatParticipantJoinedPayload {
    * @type {boolean}
    * @memberof TenrxChatParticipantJoinedPayload
    */
-  silent: boolean
+  silent: boolean;
 }
 
 /**

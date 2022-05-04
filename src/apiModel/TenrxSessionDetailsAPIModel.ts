@@ -9,7 +9,7 @@ export default interface TenrxSessionDetailsAPIModel {
     ChatUrl: string;
     ChatSession: {
       SessionKey: string;
-      SessionID: number;
+      SessionID: string;
     };
   };
 }

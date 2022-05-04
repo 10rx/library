@@ -102,10 +102,10 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    * Chat session ID
    *
    * @private
-   * @type {number}
+   * @type {string}
    * @memberof TenrxLiveChatInterface
    */
-  private sessionID: number;
+  private sessionID: string;
 
   /**
    * Chat session key
@@ -270,14 +270,14 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   /**
    * Creates an instance of TenrxLiveChatInterface.
    *
-   * @param {{ url: string; sessionID: number; sessionKey: string; }} socketInfo - Info the socket needs to connect
+   * @param {{ url: string; sessionID: string; sessionKey: string; }} socketInfo - Info the socket needs to connect
    * @param {string} [id] - The id of the interface in the chat. This is usually created by the chatengine.
    * @memberof TenrxLiveChatInterface
    */
   constructor(
     sessionInfo: {
       url: string;
-      sessionID: number;
+      sessionID: string;
       sessionKey: string;
     },
     id?: string,
@@ -424,7 +424,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    * @memberof TenrxLiveChatInterface
    */
   private async handlePacket(packet: TenrxSocketPacket) {
-    console.log('got packet', packet);
     switch (packet.type.toUpperCase()) {
       case 'TYPING': {
         const payload = packet.payload as TenrxSocketTypingPayload;
