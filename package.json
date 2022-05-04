@@ -35,6 +35,7 @@
     "@types/jest": "^27.0.2",
     "@types/luxon": "^2.0.8",
     "@types/node-fetch": "^2.5.12",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.8.0",
     "check-tag-matches": "^1.0.0",
@@ -61,7 +62,9 @@
     "isaac": "^0.0.5",
     "luxon": "^2.2.0",
     "node-fetch": "^2.6.6",
-    "tslog": "^3.2.2"
+    "socket.io-client": "^4.4.1",
+    "tslog": "^3.2.2",
+    "uuid": "^8.3.2"
   },
   "exports": {
     ".": {

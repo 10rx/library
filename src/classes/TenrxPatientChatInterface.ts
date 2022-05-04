@@ -139,7 +139,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         const participantJoinedPayload = event.payload as TenrxChatParticipantJoinedPayload;
         this.participants[participantJoinedPayload.id] = participantJoinedPayload;
         TenrxLibraryLogger.debug(`${participantJoinedPayload.nickName} has joined the chat.`);
-        if (this.onParticipantJoined) this.onParticipantJoined(this, participantJoinedPayload.id);
+        if (this.onParticipantJoined && !participantJoinedPayload.silent) this.onParticipantJoined(this, participantJoinedPayload.id);
         break;
       case TenrxChatEventType.ChatParticipantLeft:
         if (event.senderId) {
@@ -158,12 +158,12 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         break;
       case TenrxChatEventType.ChatMessage:
         const message = event.payload as TenrxChatMessagePayload;
-        const senderMessage = event.senderId ? this.participants[event.senderId].nickName : 'Unknown';
+        const senderMessage = this.getNickName(event.senderId);
         TenrxLibraryLogger.debug(`${senderMessage}: ${message.message}`);
         if (this.onMessageReceived) this.onMessageReceived(this, event.senderId, message.message, message.metadata);
         break;
       case TenrxChatEventType.ChatTypingStarted:
-        const senderTyping = event.senderId ? this.participants[event.senderId].nickName : 'Unknown';
+        const senderTyping = this.getNickName(event.senderId);
         TenrxLibraryLogger.debug(`${senderTyping} started typing`);
         if (event.senderId) {
           if (this.onTypingStarted) this.onTypingStarted(this, event.senderId);
@@ -172,7 +172,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         }
         break;
       case TenrxChatEventType.ChatTypingEnded:
-        const senderTypingEnded = event.senderId ? this.participants[event.senderId].nickName : 'Unknown';
+        const senderTypingEnded = this.getNickName(event.senderId);
         TenrxLibraryLogger.debug(`${senderTypingEnded} stopped typing`);
         if (event.senderId) {
           if (this.onTypingEnded) this.onTypingEnded(this, event.senderId);
@@ -202,6 +202,18 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
     this.avatar = avatar;
   }
 
+  /**
+   * Get the nickname for a participant
+   *
+   * @param {(string | null)} id
+   * @return {*}
+   * @memberof TenrxPatientChatInterface
+   */
+  public getNickName(id: string | null) {
+    if (id === this.id) return this.nickName;
+    if (id && this.participants[id]) return this.participants[id].nickName;
+    return 'Unknown';
+  }
   /**
    * Enters the chat session.
    *

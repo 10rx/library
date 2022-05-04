@@ -19,6 +19,7 @@ import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPat
 import { DateTime } from 'luxon';
 import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
 import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
+import TenrxSessionDetailsAPIModel from '../apiModel/TenrxSessionDetailsAPIModel.js';
 import TenrxCheckoutAPIModel from '../apiModel/TenrxCheckoutAPIModel.js';
 
 /**
@@ -1031,6 +1032,122 @@ export default class TenrxApiEngine {
     }
   }
 
+  /**
+   * Open up a chat session for the patient
+   *
+   * @param {(1 | 2)} chatType - The chat type. 1 for doctor 2 for pharma
+   * @param {string} orderID
+   * @return {*}  {(Promise<{ url: string; sessionID: number; sessionKey: string; error: any | null }>)}
+   * @memberof TenrxApiEngine
+   */
+  public async getPatientChatSessionDetails(
+    chatType: 1 | 2,
+    orderID: string,
+  ): Promise<{ url: string; sessionID: string; sessionKey: string; error: any | null }> {
+    try {
+      // The backend wants it as a query for whatever reason
+      const response = await this.authPost(`${this.baseapi}/api/v1/Chat/OpenUserChatSession`, {}, undefined, {
+        OrderNumber: orderID, // eslint-disable-line @typescript-eslint/naming-convention -- backend doesn't want camel case
+        ChatRoom: `${chatType}`, // eslint-disable-line @typescript-eslint/naming-convention -- backend doesn't want camel case
+      });
+
+      const details: { url: string; sessionID: string; sessionKey: string; error: any | null } = {
+        url: '',
+        sessionID: '',
+        sessionKey: '',
+        error: null,
+      };
+
+      if (response.status !== 200) {
+        details.error = response.error;
+        return details;
+      }
+      const content = response.content as TenrxSessionDetailsAPIModel;
+      if (content.apiStatus.statusCode !== 200) {
+        details.error = content.apiStatus.message;
+        return details;
+      }
+
+      if (content.data) {
+        details.url = content.data.ChatUrl;
+        details.sessionID = content.data.ChatSession.SessionID;
+        details.sessionKey = content.data.ChatSession.SessionKey;
+        return details;
+      }
+      details.error = 'No Data';
+      return details;
+    } catch (error) {
+      return {
+        url: '',
+        sessionID: '',
+        sessionKey: '',
+        error,
+      };
+    }
+  }
+
+  /**
+   * Open up a chat session for the staff
+   *
+   * @param {(1 | 2)} chatType - The chat type. 1 for doctor 2 for pharma
+   * @param {string} orderID - The ID of the order the chat session is for
+   * @param {string} authToken - The auth token of staff member
+   * @return {*}  {(Promise<{ url: string; sessionID: number; sessionKey: string; error: any | null }>)}
+   * @memberof TenrxApiEngine
+   */
+  public async getStaffChatSessionDetails(
+    chatType: 1 | 2,
+    orderID: string,
+    authToken: string,
+  ): Promise<{ url: string; sessionID: string; sessionKey: string; error: any | null }> {
+    try {
+      // The backend wants it as a query for whatever reason
+      const response = await this.post(
+        `${this.baseapi}/api/v1/admin/Chat/OpenStaffChatSession`,
+        {},
+        {
+          authorization: authToken,
+        },
+        {
+          OrderNumber: orderID, // eslint-disable-line @typescript-eslint/naming-convention -- backend doesn't want camel case
+          ChatRoom: `${chatType}`, // eslint-disable-line @typescript-eslint/naming-convention -- backend doesn't want camel case
+        },
+      );
+
+      const details: { url: string; sessionID: string; sessionKey: string; error: any | null } = {
+        url: '',
+        sessionID: '',
+        sessionKey: '',
+        error: null,
+      };
+
+      if (response.status !== 200) {
+        details.error = response.error;
+        return details;
+      }
+      const content = response.content as TenrxSessionDetailsAPIModel;
+      if (content.apiStatus.statusCode !== 200) {
+        details.error = content.apiStatus.message;
+        return details;
+      }
+
+      if (content.data) {
+        details.url = content.data.ChatUrl;
+        details.sessionID = content.data.ChatSession.SessionID;
+        details.sessionKey = content.data.ChatSession.SessionKey;
+        return details;
+      }
+      details.error = 'No Data';
+      return details;
+    } catch (error) {
+      return {
+        url: '',
+        sessionID: '',
+        sessionKey: '',
+        error,
+      };
+    }
+  }
 
   /**
    * Request a password reset token
@@ -1153,7 +1270,7 @@ export default class TenrxApiEngine {
    * Performs an authenticated POST request to the specified url.
    *
    * @param {string} url - The url to perform the POST request to.
-   * @param {object} params - The parameters to pass to the POST request.
+   * @param {object} body - The body to pass to the POST request.
    * @param {object} [headers={}] - The headers to pass to the POST request.
    * @param {Record<string, string>} [queryparams={}] - The query parameters to pass to the POST request
    * @param {number | undefined} [timeout=undefined] - How long until the request times out
@@ -1162,7 +1279,7 @@ export default class TenrxApiEngine {
    */
   public async authPost(
     url: string,
-    params: object,
+    body: object,
     headers: object = {},
     queryparams: Record<string, string> = {},
     timeout: number | undefined = undefined,
@@ -1172,14 +1289,14 @@ export default class TenrxApiEngine {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const authHeaders = { ...headers, Authorization: `${this.accesstoken}` };
     TenrxLibraryLogger.debug('Preparing to execute authenticated POST WebCall: ');
-    return await this.post(url, params, authHeaders, queryparams, timeout);
+    return await this.post(url, body, authHeaders, queryparams, timeout);
   }
 
   /**
    * Performs a POST request to the specified url
    *
    * @param {string} url - The url to perform the POST request to
-   * @param {object} [params={}] - The parameters to pass to the POST request
+   * @param {object} [body={}] - The body to pass to the POST request
    * @param {object} [headers={}] - The headers to pass to the POST request
    * @param {Record<string, string>} [queryparams={}] - The query parameters to pass to the POST request
    * @param {number | undefined} [timeout=undefined] - How long until the request times out
@@ -1188,12 +1305,12 @@ export default class TenrxApiEngine {
    */
   public async post(
     url: string,
-    params: object = {},
+    body: object = {},
     headers: object = {},
     queryparams: Record<string, string> = {},
     timeout: number | undefined = undefined,
   ): Promise<TenrxApiResult> {
-    TenrxLibraryLogger.debug('Executing POST WebCall: ', { url, params, headers, queryparams });
+    TenrxLibraryLogger.debug('Executing POST WebCall: ', { url, body, headers, queryparams });
     const returnvalue: TenrxApiResult = {
       status: 0,
       content: null,
@@ -1223,7 +1340,7 @@ export default class TenrxApiEngine {
           'Content-Type': 'application/json',
           ...headers,
         },
-        body: JSON.stringify(params), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
+        body: JSON.stringify(body), // body data type must match "Content-Type" header. So we need to fix this in the future to support other data types.
         signal: controller.signal,
       });
       if (timer) clearTimeout(timer);
