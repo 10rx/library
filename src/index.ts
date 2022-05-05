@@ -19,6 +19,7 @@ export { default as TenrxQuestionnaireBot, TenrxQuestionnaireBotOptions } from '
 export { default as TenrxPatientChatInterface } from './classes/TenrxPatientChatInterface.js';
 export { default as TenrxOrder } from './classes/TenrxOrder.js';
 export { default as TenrxPromotion } from './classes/TenrxPromotion.js';
+export { default as TenrxLiveChatInterface } from './classes/TenrxLiveChatInterface.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -99,6 +100,7 @@ export {
   TenrxLoginAPIModelData,
   TenrxLoginAPIModelPatientData,
 } from './apiModel/TenrxLoginAPIModel.js';
+export { default as TenrxSessionDetailsAPIModel } from './apiModel/TenrxSessionDetailsAPIModel.js';
 
 // Enums
 export {
