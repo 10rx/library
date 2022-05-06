@@ -78,7 +78,7 @@ export default class TenrxChatEngine {
         id,
         nickName: this.internalChatParticipants[id].nickName,
         avatar: this.internalChatParticipants[id].avatar,
-        silent: false
+        silent: false,
       });
     });
     this.notifyInterfaces({
@@ -168,7 +168,7 @@ export default class TenrxChatEngine {
         nickName,
         id,
         avatar,
-        silent
+        silent,
       };
       this.internalChatParticipants[id] = {
         nickName,

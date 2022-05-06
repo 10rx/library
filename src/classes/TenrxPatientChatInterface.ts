@@ -139,7 +139,8 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
         const participantJoinedPayload = event.payload as TenrxChatParticipantJoinedPayload;
         this.participants[participantJoinedPayload.id] = participantJoinedPayload;
         TenrxLibraryLogger.debug(`${participantJoinedPayload.nickName} has joined the chat.`);
-        if (this.onParticipantJoined && !participantJoinedPayload.silent) this.onParticipantJoined(this, participantJoinedPayload.id);
+        if (this.onParticipantJoined && !participantJoinedPayload.silent)
+          this.onParticipantJoined(this, participantJoinedPayload.id);
         break;
       case TenrxChatEventType.ChatParticipantLeft:
         if (event.senderId) {
