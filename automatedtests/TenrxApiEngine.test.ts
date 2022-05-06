@@ -59,7 +59,7 @@ test('Login API Test Failure', async () => {
 });
 
 test('Login API Test Security Question', async () => {
-  const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz');
+  const result = await tenrx.login('12345@xyz.com', TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz'); 
   const content = result.content as TenrxLoginAPIModel;
   expect(content.statusCode).toBe(200);
   expect(content.access_token).toBeNull();
