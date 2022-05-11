@@ -164,7 +164,6 @@ export const getStatesValidForTenrx = async (apiEngine = useTenrxApi()): Promise
 /**
  * Refreshes the current token that the api engine has.
  *
- * @param {string} [language='en'] - The language to use.
  * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
  * @return {*}  {(Promise<TenrxAccessToken | null>)} - The promise that resolves to the new token or null if the token could not be refreshed.
  */

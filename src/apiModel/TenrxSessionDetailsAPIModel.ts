@@ -6,10 +6,10 @@ export default interface TenrxSessionDetailsAPIModel {
     appError: string;
   };
   data: {
-    ChatUrl: string;
-    ChatSession: {
-      SessionKey: string;
-      SessionID: string;
+    chatUrl: string;
+    chatSession: {
+      sessionKey: string;
+      sessionID: string;
     };
   };
 }

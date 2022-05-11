@@ -1069,9 +1069,9 @@ export default class TenrxApiEngine {
       }
 
       if (content.data) {
-        details.url = content.data.ChatUrl;
-        details.sessionID = content.data.ChatSession.SessionID;
-        details.sessionKey = content.data.ChatSession.SessionKey;
+        details.url = content.data.chatUrl;
+        details.sessionID = content.data.chatSession.sessionID;
+        details.sessionKey = content.data.chatSession.sessionKey;
         return details;
       }
       details.error = 'No Data';
@@ -1132,9 +1132,9 @@ export default class TenrxApiEngine {
       }
 
       if (content.data) {
-        details.url = content.data.ChatUrl;
-        details.sessionID = content.data.ChatSession.SessionID;
-        details.sessionKey = content.data.ChatSession.SessionKey;
+        details.url = content.data.chatUrl;
+        details.sessionID = content.data.chatSession.sessionID;
+        details.sessionKey = content.data.chatSession.sessionKey;
         return details;
       }
       details.error = 'No Data';
