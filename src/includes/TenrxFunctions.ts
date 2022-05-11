@@ -573,7 +573,7 @@ export const registerUser = async (
 
 /**
  * Reset users password
- * 
+ *
  * @param {string} emailAddress - The users email address
  * @param {string} token - The reset token
  * @param {string} password - The new plain password
