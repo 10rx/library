@@ -230,6 +230,7 @@ export default class TenrxCart {
    * @param {boolean} [hasPrescriptionAttached=false] - Whether or not the product has a prescription attached.
    * @param {boolean} [hidden=false] - Whether or not the product is hidden.
    * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
+   * @param {boolean} [taxable=true] - Whether or not the item is taxable
    * @memberof TenrxCart
    */
   public addItem(
@@ -238,6 +239,7 @@ export default class TenrxCart {
     strength = '',
     hidden = false,
     shipToExternalPharmacy = false,
+    taxable = true
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
     this.addEntry({
@@ -249,7 +251,7 @@ export default class TenrxCart {
       price: strengthMatch ? strengthMatch.price : item.price,
       strength,
       rx: item.rx,
-      taxable: !!item.treatmentTypeId, // if treatmentTypeId is 0 means item is consult fee which is not taxed
+      taxable,
       photoPath: item.photoPath,
       hidden,
       shipToExternalPharmacy,
