@@ -239,7 +239,7 @@ export default class TenrxCart {
     strength = '',
     hidden = false,
     shipToExternalPharmacy = false,
-    taxable = true
+    taxable = true,
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
     this.addEntry({
