@@ -609,6 +609,13 @@ export const tenrxRoundTo = (num: number, decimals = 2): number => {
 export const isBrowser: boolean = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 /**
+ * Returns true if this script is being executed in react native.
+ *
+ * @type {boolean}
+ */
+export const isNative: boolean = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative'; // ? Says deprecated but react native sets this
+
+/**
  * Returns true if this script is being executed in node. Otherwise, it returns false.
  *
  * @type {boolean}
@@ -623,13 +630,3 @@ export const isNode: boolean =
  */
 export const isWebWorker: boolean =
   typeof self === 'object' && self.constructor && self.constructor.name === 'DedicatedWorkerGlobalScope';
-
-/**
- * Returns true if this script is being executed in JSDOM. Otherwise, it returns false.
- *
- * @type {boolean}
- */
-export const isJsDom: boolean =
-  (typeof window !== 'undefined' && window.name === 'nodejs') ||
-  (typeof navigator !== 'undefined' &&
-    (navigator.userAgent.includes('Node.js') || navigator.userAgent.includes('jsdom')));

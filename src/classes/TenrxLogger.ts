@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 import { ISettingsParam, TLogLevelName, Logger, ISettings, ILogObject, TTransportLogger, TLogLevelColor } from 'tslog';
 import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
-import { isBrowser } from '../includes/TenrxFunctions.js';
+import { isBrowser, isNative } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 
 /**
@@ -17,7 +18,7 @@ export default class TenrxLogger {
 
   private static _instance: TenrxLogger | null = null;
 
-  public noConsole = true;
+  public noConsole = isNative && process.env.NODE_ENV === 'development' ? false : true;
 
   /**
    * Creates an instance of TenrxLogger.
@@ -35,7 +36,7 @@ export default class TenrxLogger {
           maskValuesOfKeys: ['access_token', 'authorization', 'password', 'Authorization'],
           maskPlaceholder: '********',
         };
-    this.internalLogger = isBrowser ? null : new Logger({ ignoreStackLevels: 4, ...this.internalSettings });
+    this.internalLogger = isBrowser || isNative ? null : new Logger({ ignoreStackLevels: 4, ...this.internalSettings });
   }
 
   /**
@@ -145,13 +146,8 @@ export default class TenrxLogger {
   public silly(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       this.internalLogger.silly(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('silly') >= this.logLevels.indexOf(this.settings.minLevel)) console.log(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('silly') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.log(...args);
   }
 
   /**
@@ -162,13 +158,8 @@ export default class TenrxLogger {
   public trace(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       return this.internalLogger.trace(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('trace') >= this.logLevels.indexOf(this.settings.minLevel)) console.log(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('trace') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.log(...args);
   }
 
   /**
@@ -179,13 +170,8 @@ export default class TenrxLogger {
   public debug(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       return this.internalLogger.debug(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('debug') >= this.logLevels.indexOf(this.settings.minLevel)) console.debug(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('debug') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.debug(...args);
   }
 
   /**
@@ -196,13 +182,8 @@ export default class TenrxLogger {
   public info(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       return this.internalLogger.info(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('info') >= this.logLevels.indexOf(this.settings.minLevel)) console.info(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('info') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.info(...args);
   }
 
   /**
@@ -213,13 +194,8 @@ export default class TenrxLogger {
   public warn(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       return this.internalLogger.warn(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('warn') >= this.logLevels.indexOf(this.settings.minLevel)) console.warn(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('warn') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.warn(...args);
   }
 
   /**
@@ -230,13 +206,8 @@ export default class TenrxLogger {
   public error(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       return this.internalLogger.error(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('error') >= this.logLevels.indexOf(this.settings.minLevel)) console.error(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('error') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.error(...args);
   }
 
   /**
@@ -247,13 +218,8 @@ export default class TenrxLogger {
   public fatal(...args: unknown[]): ILogObject | void {
     if (this.internalLogger) {
       return this.internalLogger.fatal(...args);
-    } else {
-      if (!this.noConsole) {
-        // Need to do this because of the way for the linter to not complain.
-        // eslint-disable-next-line no-console
-        if (this.logLevels.indexOf('fatal') >= this.logLevels.indexOf(this.settings.minLevel)) console.error(...args);
-      }
-    }
+    } else if (!this.noConsole && this.logLevels.indexOf('fatal') >= this.logLevels.indexOf(this.settings.minLevel))
+      console.error(...args);
   }
 
   /**
