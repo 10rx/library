@@ -211,7 +211,7 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
    * @memberof TenrxPatientChatInterface
    */
   public getNickName(id: string | null) {
-    if (id === this.id) return this.nickName;
+    if (id === this.participantId) return this.nickName;
     if (id && this.participants[id]) return this.participants[id].nickName;
     return 'Unknown';
   }

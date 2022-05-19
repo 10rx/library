@@ -134,6 +134,6 @@ export {
   tenrxRoundTo,
   isBrowser,
   isNode,
+  isNative,
   isWebWorker,
-  isJsDom,
 } from './includes/TenrxFunctions.js';

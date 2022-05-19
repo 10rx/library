@@ -21,7 +21,7 @@ import TenrxSocketPacket, {
   TenrxSocketTypingPayload,
 } from '../types/TenrxSocketPacket.js';
 import TenrxChatInterface from './TenrxChatInterface.js';
-import { v4 as uuid } from 'uuid';
+import uuid from 'react-native-uuid';
 
 /**
  * Represents a chat interface that interacts with the patient. It contains events that can be connected to any frontend framework.
@@ -302,6 +302,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
     this.socket.onAny((_event: string, packet: TenrxSocketPacket) => void this.handlePacket(packet));
 
     this.socket.on('disconnect', (reason) => {
+      if (this.onDisconnected) this.onDisconnected(reason);
       if (this.aliveTimer) {
         clearTimeout(this.aliveTimer);
         this.aliveTimer = null;
@@ -358,7 +359,9 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    */
   private createPacket(type: PacketType, payload: PacketPayload): TenrxSocketPacket {
     return {
-      id: uuid(),
+      // eslint-disable-next-line
+      // @ts-ignore
+      id: uuid.default ? uuid.default.v4() : uuid.v4(), //  eslint-disable-line
       sessionID: this.sessionID,
       sessionKey: this.sessionKey,
       type,
