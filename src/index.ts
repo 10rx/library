@@ -111,6 +111,7 @@ export {
   TenrxChatStatus,
   TenrxQuestionnaireAnswerType,
   TenrxQuestionnaireBotStatus,
+  TenrxShippingType
 } from './includes/TenrxEnums.js';
 
 // Functions

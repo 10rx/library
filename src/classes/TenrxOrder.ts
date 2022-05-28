@@ -1,5 +1,6 @@
 import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
+import { TenrxShippingType } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxAppointment from '../types/TenrxAppointment.js';
@@ -36,6 +37,15 @@ export default class TenrxOrder {
    */
   public totalPrice: number;
 
+
+  /**
+   * The shipping speed of the order
+   *
+   * @type {TenrxShippingType}
+   * @memberof TenrxOrder
+   */
+  public shippingType: TenrxShippingType;
+
   private internalOrderProducts: TenrxOrderProductEntry[];
 
   /**
@@ -60,6 +70,7 @@ export default class TenrxOrder {
     this.orderId = '';
     this.orderDate = new Date();
     this.totalPrice = 0;
+    this.shippingType = 0;
     if (orderData) {
       this.processOrderData(orderData);
     }
@@ -69,6 +80,7 @@ export default class TenrxOrder {
     this.orderId = orderData.orderNumber;
     this.orderDate = new Date(orderData.orderDate);
     this.totalPrice = orderData.totalPrice;
+    this.shippingType = orderData.shippingType;
     if (orderData.orderProducts && orderData.orderProducts.length > 0) {
       orderData.orderProducts.forEach((orderProduct) => {
         this.internalOrderProducts.push({
