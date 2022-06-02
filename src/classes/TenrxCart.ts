@@ -739,12 +739,15 @@ export default class TenrxCart {
   /**
    * Sends the patient images to the backend servers.
    *
-   * @param {string} orderNumber - The order number associated 
+   * @param {string} orderNumber - The order number associated
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxSendPatientImagesResult>} - The result of the sending of the images.
    * @memberof TenrxCart
    */
-  public async sendPatientImages(orderNumber: string, apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
+  public async sendPatientImages(
+    orderNumber: string,
+    apiEngine = useTenrxApi(),
+  ): Promise<TenrxSendPatientImagesResult> {
     const result: TenrxSendPatientImagesResult = {
       patientImagesSentMessage: 'Unable to send patient images.',
       patientImagesSent: false,
