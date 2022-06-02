@@ -116,7 +116,7 @@ export default class TenrxApiEngine {
     try {
       const response = this.authPost(`/api/v1/Patient/CreateAppointment`, {
         orderNumber: orderId,
-        startDate: DateTime.fromJSDate(startDate).toUTC().toISO({ suppressMilliseconds: true }),
+        appointmentDateTime: DateTime.fromJSDate(startDate).toUTC().toISO({ suppressMilliseconds: true }),
       });
       return response;
     } catch (error) {

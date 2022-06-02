@@ -653,7 +653,7 @@ export default class TenrxCart {
         );
       }
       if (Object.keys(this.internalPatientImages).length > 0) {
-        result.patientImagesDetails = await this.sendPatientImages(apiEngine);
+        result.patientImagesDetails = await this.sendPatientImages(result.orderDetails.invoiceNumber, apiEngine);
       }
 
       if (
@@ -739,11 +739,12 @@ export default class TenrxCart {
   /**
    * Sends the patient images to the backend servers.
    *
+   * @param {string} orderNumber - The order number associated 
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxSendPatientImagesResult>} - The result of the sending of the images.
    * @memberof TenrxCart
    */
-  public async sendPatientImages(apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
+  public async sendPatientImages(orderNumber: string, apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
     const result: TenrxSendPatientImagesResult = {
       patientImagesSentMessage: 'Unable to send patient images.',
       patientImagesSent: false,
@@ -755,6 +756,7 @@ export default class TenrxCart {
         Object.keys(this.internalPatientImages).forEach((visitTypeId) => {
           if (this.internalPatientImages[visitTypeId] && this.internalPatientImages[visitTypeId].length > 0) {
             patientImagesApiPayloads.push({
+              orderNumber,
               visitTypeId: Number(visitTypeId),
               patientImages: this.internalPatientImages[visitTypeId],
             });
