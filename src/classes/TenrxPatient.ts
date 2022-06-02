@@ -494,7 +494,7 @@ export default class TenrxPatient {
             firstName: this.firstName,
             lastName: this.lastName,
             middleName: this.middleName,
-            dob: DateTime.fromJSDate(this.dob).toUTC().toISO({ suppressMilliseconds: true }),
+            dob: DateTime.fromJSDate(this.dob).toUTC().set({ hour: 0, minute: 0, second: 0, millisecond: 0}).toISO(),
             gender: this.gender,
             phoneNumber: this.phoneNumber,
           },
