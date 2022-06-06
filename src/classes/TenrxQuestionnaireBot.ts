@@ -222,6 +222,13 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     }
   }
 
+  public updateAnswer(data: TenrxQuestionnaireAnswer) {
+    const index = this.internalAnswers.findIndex((answer) => answer.questionId === data.questionId);
+    if (index === -1) return false;
+    this.internalAnswers[index] = data;
+    return true;
+  }
+
   /**
    * Creates an instance of TenrxQuestionnaireBot.
    *
