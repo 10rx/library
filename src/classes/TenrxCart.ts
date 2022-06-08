@@ -582,6 +582,9 @@ export default class TenrxCart {
         },
       ],
       amount: this.total,
+      totalTax: this.tax,
+      subtotal: this.subTotal + this.subHiddenTotal,
+      shippingFees: this.shippingCost,
       patientProducts: {
         medicationProducts,
         totalPrice: this.total,

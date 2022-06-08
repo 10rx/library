@@ -1199,6 +1199,26 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Get details for an order
+   *
+   * @param {string} orderID
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getOrderDetails(orderID: string): Promise<TenrxApiResult> {
+    try {
+      return await this.authGet('/api/v1/Patient/GetPatientOrderDetails', { orderNumber: orderID });
+    } catch (error) {
+      TenrxLibraryLogger.error('getOrderDetails() Error: ', error);
+      return {
+        status: 0,
+        content: null,
+        error
+      }
+    }
+  }
+
+  /**
    * Performs an authenticated GET request to the specified url.
    *
    * @param {string} url - The url to perform the GET request to.
