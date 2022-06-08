@@ -246,3 +246,55 @@ export enum TenrxShippingType {
    */
   Expedited,
 }
+
+export enum TenrxOrderStatusID {
+  Requested = 1,
+  StaffReviewed,
+  PendingDoctor,
+  DoctorAssigned,
+  DoctorReviewed,
+  PrescriptionIssued,
+  PrescriptionReviewed,
+  PrescriptionFulfilled,
+  Shipped,
+  Completed,
+  Hold,
+  Rejected,
+  AppointmentRequested,
+  AppointmentScheduled,
+}
+
+export const TenrxOrderStatus = {
+  [TenrxOrderStatusID.Requested]: 'Requested',
+  [TenrxOrderStatusID.StaffReviewed]: 'Staff Reviewed',
+  [TenrxOrderStatusID.PendingDoctor]: 'Pending Doctor Assignment',
+  [TenrxOrderStatusID.DoctorAssigned]: 'Doctor Assigned',
+  [TenrxOrderStatusID.DoctorReviewed]: 'Doctor Reviewed',
+  [TenrxOrderStatusID.PrescriptionIssued]: 'Prescription Issued',
+  [TenrxOrderStatusID.PrescriptionReviewed]: 'Prescription Reviewed',
+  [TenrxOrderStatusID.PrescriptionFulfilled]: 'Prescription Fulfilled',
+  [TenrxOrderStatusID.Shipped]: 'Shipped',
+  [TenrxOrderStatusID.Completed]: 'Completed',
+  [TenrxOrderStatusID.Hold]: 'Hold',
+  [TenrxOrderStatusID.Rejected]: 'Rejected',
+  [TenrxOrderStatusID.AppointmentRequested]: 'Appointment Requested',
+  [TenrxOrderStatusID.AppointmentScheduled]: 'Appointment Scheduled',
+};
+
+export enum TenrxProductStatusID {
+  Ready = 1,
+  Verified,
+  Filled,
+  Shipped,
+  OnOrder,
+  PartialOrder,
+}
+
+export const TenrxProductStatus = {
+  [TenrxProductStatusID.Ready]: 'Ready',
+  [TenrxProductStatusID.Verified]: 'Verified',
+  [TenrxProductStatusID.Filled]: 'Filled',
+  [TenrxProductStatusID.Shipped]: 'Shipped',
+  [TenrxProductStatusID.OnOrder]: 'On Order',
+  [TenrxProductStatusID.PartialOrder]: 'Partial Order',
+};

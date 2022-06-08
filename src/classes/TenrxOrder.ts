@@ -1,10 +1,13 @@
+import TenrxAPIModel from '../apiModel/TenrxAPIModel.js';
 import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
+import TenrxOrderDetailsModel from '../apiModel/TenrxOrderDetailsModel.js';
 import { TenrxShippingType } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxAppointment from '../types/TenrxAppointment.js';
 import TenrxMeetingInformation from '../types/TenrxMeetingInformation.js';
+import TenrxOrderDetailsResult from '../types/TenrxOrderDetailsResult.js';
 import TenrxOrderProductEntry from '../types/TenrxOrderProductEntry.js';
 
 /**
@@ -246,6 +249,46 @@ export default class TenrxOrder {
       }
     } catch (error) {
       TenrxLibraryLogger.error('Error scheduling appointment.', error);
+    }
+  }
+
+  public static async getOrderDetails(orderID: string): Promise<TenrxOrderDetailsResult | { error: string }> {
+    try {
+      const response = await useTenrxApi().getOrderDetails(orderID);
+      const content = response.content as TenrxAPIModel<TenrxOrderDetailsModel[]>;
+
+      if (!response.content || content.apiStatus.statusCode === 500) return { error: 'Server error' };
+      if (content.apiStatus.statusCode === 404) return { error: 'Unknown order' };
+
+      const orderDetails: TenrxOrderDetailsResult = {
+        tax: content.data[0].totalTax,
+        subtotal: content.data[0].subtotal,
+        shippingFee: content.data[0].shippingFees,
+        orderStatus: content.data[0].orderStatus,
+        shippingType: content.data[0].shippingType,
+        last4: content.data[0].last4,
+        shippingAddress: {
+          address1: content.data[0].address1,
+          address2: content.data[0].address2,
+          city: content.data[0].city,
+          zipCode: content.data[0].zipCode,
+        },
+        tracking: {
+          id: content.data[0].trackingNumber,
+          carrier: content.data[0].carrier,
+        },
+        products: content.data.map((product) => ({
+          name: product.productName,
+          status: product.productStatusId,
+          subtotal: product.subtotal,
+          tax: product.totalTax,
+        })),
+      };
+
+      return orderDetails;
+    } catch (error) {
+      TenrxLibraryLogger.error('Error getting order details: ', error);
+      return { error: 'Error getting order details' };
     }
   }
 }
