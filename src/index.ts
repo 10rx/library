@@ -57,7 +57,7 @@ export {
   TenrxChatStartedPayload,
   TenrxChatMessageMetadata,
 } from './types/TenrxChatEvent.js';
-export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult'
+export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -116,7 +116,7 @@ export {
   TenrxOrderStatus,
   TenrxOrderStatusID,
   TenrxProductStatus,
-  TenrxProductStatusID
+  TenrxProductStatusID,
 } from './includes/TenrxEnums.js';
 
 // Functions
