@@ -132,10 +132,10 @@ export default class TenrxOrder {
     try {
       const response = await apiEngine.getDoctorAvailabilityForPatient(this.orderId, startDate, endDate);
       if (response.status === 200) {
-        const content = response.content as { data: TenrxGetDoctorAvailabilityForPatientAPIModel; statusCode: number };
+        const content = response.content as TenrxAPIModel<TenrxGetDoctorAvailabilityForPatientAPIModel>;
         if (content) {
           if (content.data) {
-            if (content.statusCode === 200) {
+            if (content.apiStatus.statusCode === 200) {
               const doctorName = content.data.doctorName;
               if (content.data.appointmentSlots && content.data.appointmentSlots.length > 0) {
                 content.data.appointmentSlots.forEach((appointment) => {
@@ -226,29 +226,35 @@ export default class TenrxOrder {
   /**
    * Schedules an appointment for the order.
    *
-   * @param {TenrxAppointment} appointment - The appointment to schedule.
+   * @param {Date} startDate - The time for the appointment to be scheduled
    * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
    * @memberof TenrxOrder
    */
-  public async scheduleAppointment(appointment: TenrxAppointment, apiEngine = useTenrxApi()): Promise<void> {
+  public async scheduleAppointment(startDate: Date, apiEngine = useTenrxApi()): Promise<{ error: string | null }> {
     try {
-      const response = await apiEngine.createAppointment(this.orderId, appointment.startDate);
+      const response = await apiEngine.createAppointment(this.orderId, startDate);
+      const value: { error: string | null } = { error: null };
       if (response.status === 200) {
-        const content = response.content as { statusCode: number };
+        const content = response.content as TenrxAPIModel<undefined>;
         if (content) {
-          if (content.statusCode === 200) {
+          if (content.apiStatus.statusCode === 200) {
             TenrxLibraryLogger.info('Appointment scheduled.');
           } else {
+            value.error = content.apiStatus.message;
             TenrxLibraryLogger.error('Error scheduling appointment.', content);
           }
         } else {
+          value.error = 'No response from server';
           TenrxLibraryLogger.error('The response content is null.');
         }
       } else {
+        value.error = `Server responded with ${response.status}`;
         TenrxLibraryLogger.error('Error scheduling appointment.', response);
       }
+      return value;
     } catch (error) {
       TenrxLibraryLogger.error('Error scheduling appointment.', error);
+      return { error: 'Error scheduling appointment' };
     }
   }
 
