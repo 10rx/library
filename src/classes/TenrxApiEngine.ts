@@ -1213,8 +1213,8 @@ export default class TenrxApiEngine {
       return {
         status: 0,
         content: null,
-        error
-      }
+        error,
+      };
     }
   }
 
