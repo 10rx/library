@@ -271,7 +271,7 @@ export default class TenrxPatient {
                     defaultDuration: appointment.defaultDuration,
                     appointmentStatusCode: appointment.appointmentStatusCode,
                     cancelTypeId: appointment.cancelTypeId,
-                    cancelReason: appointment.cancelReason
+                    cancelReason: appointment.cancelReason,
                   });
                 }
                 this.internalAppointmentsLoaded = true;
