@@ -6,4 +6,5 @@ export default interface TenrxGetAppointmentsForPatientAPIModel {
   appointmentStatusCode: number;
   cancelTypeId: number;
   cancelReason: string | null;
+  docotorName: string;
 }
