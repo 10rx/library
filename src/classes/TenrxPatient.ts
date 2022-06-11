@@ -264,9 +264,14 @@ export default class TenrxPatient {
               if (content.data) {
                 for (const appointment of content.data) {
                   this.internalAppointments.push({
-                    doctorName: 'Unknown doctor.',
+                    doctorName: appointment.docotorName,
                     startDate: new Date(appointment.startDateTime),
                     endDate: new Date(appointment.endDateTime),
+                    orderNumber: appointment.orderNumber,
+                    defaultDuration: appointment.defaultDuration,
+                    appointmentStatusCode: appointment.appointmentStatusCode,
+                    cancelTypeId: appointment.cancelTypeId,
+                    cancelReason: appointment.cancelReason
                   });
                 }
                 this.internalAppointmentsLoaded = true;

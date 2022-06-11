@@ -5,7 +5,6 @@ import TenrxOrderDetailsModel from '../apiModel/TenrxOrderDetailsModel.js';
 import { TenrxShippingType } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
-import TenrxAppointment from '../types/TenrxAppointment.js';
 import TenrxMeetingInformation from '../types/TenrxMeetingInformation.js';
 import TenrxOrderDetailsResult from '../types/TenrxOrderDetailsResult.js';
 import TenrxOrderProductEntry from '../types/TenrxOrderProductEntry.js';
@@ -120,15 +119,29 @@ export default class TenrxOrder {
    * @param {Date} startDate - The start date of the range.
    * @param {Date} endDate - The end date of the range.
    * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
-   * @return {*}  {TenrxAppointment[]} - The list of possible appointment dates.
+   * @return {*}  {{
+      doctorName: string;
+      startDate: Date;
+      endDate: Date;
+    }[]} - The list of possible appointment dates.
    * @memberof TenrxOrder
    */
   public async getPossibleAppointmentDates(
     startDate: Date,
     endDate: Date,
     apiEngine = useTenrxApi(),
-  ): Promise<TenrxAppointment[]> {
-    const result: TenrxAppointment[] = [];
+  ): Promise<
+    {
+      doctorName: string;
+      startDate: Date;
+      endDate: Date;
+    }[]
+  > {
+    const result: {
+      doctorName: string;
+      startDate: Date;
+      endDate: Date;
+    }[] = [];
     try {
       const response = await apiEngine.getDoctorAvailabilityForPatient(this.orderId, startDate, endDate);
       if (response.status === 200) {
