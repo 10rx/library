@@ -231,7 +231,7 @@ export default class TenrxProduct {
                 this.rx = data.isRx;
                 this.treatmentTypeId = data.treatmentTypeId;
                 this.genderId = data.genderId;
-                this.photoPaths = data.photoPaths[0];
+                this.photoPaths = data.photoPaths;
                 this.defaultPrice = data.defaultPrice;
                 this.sellingPrice = data.sellingPrice;
                 this.maxQuantityPurchasable = this.rx ? 10 : 0; // TODO This needs to come from the API
