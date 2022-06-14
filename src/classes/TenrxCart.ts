@@ -242,6 +242,8 @@ export default class TenrxCart {
     taxable = true,
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
+    // eslint-disable-next-line no-console
+    console.warn('CHECK THIS', item)
     this.addEntry({
       productId: item.id,
       productName: item.name,
