@@ -164,7 +164,7 @@ export default class TenrxProduct {
       this.treatmentTypeId = data.treatmentTypeId;
       this.genderId = data.genderId;
       this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
-      this.photoPaths = data.photoPaths[0];
+      this.photoPaths = data.photoPaths;
       this.defaultPrice = data.defaultPrice;
     } else {
       this.id = 0;
