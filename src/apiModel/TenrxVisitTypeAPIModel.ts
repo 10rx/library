@@ -5,7 +5,7 @@ export default interface TenrxVisitTypeAPIModel {
   displayOrder: number;
   level: number;
   parentVisitTypeId: number;
-  photoPath: string;
+  photoPaths: string[];
   visitTypeListings: TenrxVisitTypeAPIModel[];
   shortDescription?: string;
   description?: string;

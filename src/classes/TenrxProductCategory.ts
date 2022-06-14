@@ -60,7 +60,7 @@ export default class TenrxProductCategory {
    * @type {string}
    * @memberof TenrxProductCategory
    */
-  photoPath: string;
+  photoPaths: string[];
 
   /**
    * Contains the list of sub categories.
@@ -109,7 +109,7 @@ export default class TenrxProductCategory {
     this.treatmentTypeId = data.treatmentTypeId;
     this.visitTypeCategoryId = data.visitTypeCategoryId;
     this.active = data.isActive;
-    this.photoPath = data.photoPath;
+    this.photoPaths = [...data.photoPaths];
     this.loaded = false;
     this.productCatagories = [];
     this.internalProducts = [];

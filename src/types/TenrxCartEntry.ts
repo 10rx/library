@@ -75,7 +75,7 @@ export default interface TenrxCartEntry {
    * @type {(string | string[])}
    * @memberof TenrxCartEntry
    */
-  photoPath: string | string[];
+  photoPaths: string | string[];
 
   /**
    * True if the product is taxable.

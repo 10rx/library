@@ -91,7 +91,7 @@ export default interface TenrxOrderProductEntry {
    * @type {string}
    * @memberof TenrxOrderProductEntry
    */
-  photoPath: string;
+  photoPaths: string[];
 
   /**
    * The photo thumbnail path of the product.

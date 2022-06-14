@@ -252,7 +252,9 @@ export default class TenrxCart {
       strength,
       rx: item.rx,
       taxable,
-      photoPath: item.photoPaths,
+      // TODO: This is a hack to get the product images to show up in the cart.
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      photoPaths: [...item.photoPaths],
       hidden,
       shipToExternalPharmacy,
     });
@@ -364,7 +366,7 @@ export default class TenrxCart {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
           if (curr.taxable) {
-            let price = curr.price;
+            let price: number = curr.price;
             if (this.internalPromotions.length > 0) {
               price = price - this.internalPromotions[0].calculateOrderDiscount(price);
             }
