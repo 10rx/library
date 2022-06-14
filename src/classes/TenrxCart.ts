@@ -252,7 +252,7 @@ export default class TenrxCart {
       strength,
       rx: item.rx,
       taxable,
-      photoPath: item.photoPath,
+      photoPath: item.photoPaths,
       hidden,
       shipToExternalPharmacy,
     });
