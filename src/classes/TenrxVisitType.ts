@@ -70,7 +70,7 @@ export default class TenrxVisitType {
    * @type {string}
    * @memberof TenrxVisitType
    */
-  photoPaths: string[];
+  photoPath: string;
 
   /**
    * The list of sub visit types.
@@ -120,7 +120,7 @@ export default class TenrxVisitType {
     this.displayOrder = data.displayOrder;
     this.parentVisitTypeId = data.parentVisitTypeId;
     this.level = data.level;
-    this.photoPaths = [...data.photoPaths];
+    this.photoPath = data.photoPath;
     this.visitTypeListings = [];
     this.shortDescription = data.shortDescription ? data.shortDescription : '';
     this.description = data.description ? data.description : '';
