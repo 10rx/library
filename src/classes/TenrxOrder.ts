@@ -96,7 +96,7 @@ export default class TenrxOrder {
           category: orderProduct.category,
           treatmentType: orderProduct.treatmentType,
           status: orderProduct.status,
-          photoPaths: [...orderProduct.photoPaths],
+          photoPaths: orderProduct.photoPaths,
           photoThumbnailPath: orderProduct.photoThumbnailPath,
         });
       });

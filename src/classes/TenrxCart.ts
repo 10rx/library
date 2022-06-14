@@ -252,8 +252,6 @@ export default class TenrxCart {
       strength,
       rx: item.rx,
       taxable,
-      // TODO: This is a hack to get the product images to show up in the cart.
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       photoPaths: item.photoPaths,
       hidden,
       shipToExternalPharmacy,
