@@ -164,7 +164,7 @@ export default class TenrxProduct {
       this.treatmentTypeId = data.treatmentTypeId;
       this.genderId = data.genderId;
       this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
-      this.photoPaths = [...data.photoPaths];
+      this.photoPaths = data.photoPaths;
       this.defaultPrice = data.defaultPrice;
     } else {
       this.id = 0;
@@ -231,7 +231,7 @@ export default class TenrxProduct {
                 this.rx = data.isRx;
                 this.treatmentTypeId = data.treatmentTypeId;
                 this.genderId = data.genderId;
-                this.photoPaths = [...data.photoPaths];
+                this.photoPaths = data.photoPaths;
                 this.defaultPrice = data.defaultPrice;
                 this.sellingPrice = data.sellingPrice;
                 this.maxQuantityPurchasable = this.rx ? 10 : 0; // TODO This needs to come from the API
