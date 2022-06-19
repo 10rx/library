@@ -1,6 +1,6 @@
 {
   "name": "@10rx/10rx-library",
-  "version": "0.0.45",
+  "version": "0.0.46",
   "description": "Javascript Library for 10rx product",
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
