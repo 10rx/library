@@ -86,6 +86,15 @@ export default interface TenrxOrderProductEntry {
   status: string;
 
   /**
+   * The photo path
+   *
+   * @deprecated
+   * @type {string}
+   * @memberof TenrxOrderProductEntry
+   */
+  photoPath?: string;
+
+  /**
    * The photo of the actual product.
    *
    * @type {string}

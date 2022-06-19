@@ -9,6 +9,7 @@ export default interface TenrxOrderProductAPIModel {
   category: string;
   treatmentType: string;
   status: string;
+  photoPath?: string;
   photoPaths: string[];
   photoThumbnailPath: string;
   isRx: boolean;
