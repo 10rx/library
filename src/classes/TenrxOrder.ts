@@ -96,7 +96,11 @@ export default class TenrxOrder {
           category: orderProduct.category,
           treatmentType: orderProduct.treatmentType,
           status: orderProduct.status,
-          photoPaths: orderProduct.photoPaths,
+          photoPaths: orderProduct.photoPaths
+            ? orderProduct.photoPaths
+            : orderProduct.photoPath
+            ? [orderProduct.photoPath]
+            : [],
           photoThumbnailPath: orderProduct.photoThumbnailPath,
         });
       });
@@ -285,6 +289,9 @@ export default class TenrxOrder {
         shippingFee: content.data[0].shippingFees,
         orderStatus: content.data[0].orderStatus,
         shippingType: content.data[0].shippingType,
+        discount: content.data[0].discount,
+        totalBeforeTax: content.data[0].totalBeforeTax,
+        grandTotal: content.data[0].grandTotal,
         last4: content.data[0].last4,
         shippingAddress: {
           address1: content.data[0].address1,
@@ -301,6 +308,7 @@ export default class TenrxOrder {
           status: product.productStatusId,
           subtotal: product.subtotal,
           tax: product.totalTax,
+          itemSubtotal: product.itemSubtotal,
         })),
       };
 

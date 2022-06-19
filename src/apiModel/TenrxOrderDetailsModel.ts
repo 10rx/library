@@ -14,4 +14,8 @@ export default interface TenrxOrderDetailsModel {
   subtotal: number;
   trackingNumber: string | null;
   carrier: string | null;
+  itemSubtotal: number;
+  discount: number;
+  totalBeforeTax: number;
+  grandTotal: number;
 }
