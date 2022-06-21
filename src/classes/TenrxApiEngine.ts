@@ -221,7 +221,7 @@ export default class TenrxApiEngine {
   public async getPatientOrders(): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Getting patient orders from API');
     try {
-      const response = this.authGet(`/api/v1/Patient/GetPatientOrders`);
+      const response = this.authGet(`/api/v1/Patient/GetPatientOrdersV1`);
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('getPatientOrders() Error: ', error);

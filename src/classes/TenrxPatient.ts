@@ -316,9 +316,12 @@ export default class TenrxPatient {
               const data = content.data;
               if (data.patientOrders) {
                 if (data.patientOrders) {
-                  for (const order of data.patientOrders) {
-                    this.internalOrders.push(new TenrxOrder(order));
-                  }
+                  this.internalOrders.push(
+                    ...data.patientOrders
+                      .filter((order) => order.orderProducts.length)
+                      .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+                      .map((order) => new TenrxOrder(order)),
+                  );
                   this.internalOrdersLoaded = true;
                 }
               } else {
