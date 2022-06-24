@@ -71,10 +71,10 @@ export default class TenrxProduct {
   /**
    * Contains the path(s) of the picture(s) of the product.
    *
-   * @type {(string | string[])}
+   * @type {string[]}
    * @memberof TenrxProduct
    */
-  photoPaths: string | string[];
+  photoPaths: string[];
 
   /**
    * Contains the default price of the product.
@@ -164,7 +164,7 @@ export default class TenrxProduct {
       this.treatmentTypeId = data.treatmentTypeId;
       this.genderId = data.genderId;
       this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
-      this.photoPaths = data.photoPaths;
+      this.photoPaths = data.photoPaths.filter((img) => img.length);
       this.defaultPrice = data.defaultPrice;
     } else {
       this.id = 0;
@@ -231,7 +231,11 @@ export default class TenrxProduct {
                 this.rx = data.isRx;
                 this.treatmentTypeId = data.treatmentTypeId;
                 this.genderId = data.genderId;
-                this.photoPaths = data.photoPaths ? data.photoPaths : data.photoPath ? [data.photoPath] : [];
+                this.photoPaths = data.photoPaths
+                  ? data.photoPaths.filter((img) => img.length)
+                  : data.photoPath
+                  ? [data.photoPath]
+                  : [];
                 this.defaultPrice = data.defaultPrice;
                 this.sellingPrice = data.sellingPrice;
                 this.maxQuantityPurchasable = this.rx ? 10 : 0; // TODO This needs to come from the API

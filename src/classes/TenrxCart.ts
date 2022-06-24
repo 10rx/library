@@ -24,6 +24,7 @@ import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 import TenrxExternalPharmacyInformation from '../types/TenrxExternalPharmacyInformation.js';
 import TenrxProduct from './TenrxProduct.js';
 import { TenrxStorageScope } from './TenrxStorage.js';
+import { TenrxPharmacyType, TenrxShippingType } from '../includes/TenrxEnums.js';
 
 /**
  * Represents the tenrx cart for products, and any other information. If entries are modified directly, then forceRecalculate must be manually called in order to keep everything in sync.
@@ -252,7 +253,7 @@ export default class TenrxCart {
       strength,
       rx: item.rx,
       taxable,
-      photoPaths: item.photoPaths,
+      photoPaths: item.photoPaths.filter((img) => img.length),
       hidden,
       shipToExternalPharmacy,
     });
@@ -523,6 +524,7 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
+    shippingType: TenrxShippingType,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     timeout = 10000,
     patientComment = '',
@@ -554,8 +556,8 @@ export default class TenrxCart {
       cardId: 0,
       stripeToken: card.cardId,
       status: 0,
-      shippingType: 0,
-      pharmacyType: 0,
+      shippingType,
+      pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
       couponCode: this.internalPromotions[0]?.couponCode ?? null,
       orderId: 0,
       paymentCardDetails: {
