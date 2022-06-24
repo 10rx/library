@@ -237,9 +237,13 @@ export enum TenrxQuestionnaireBotStatus {
  */
 export enum TenrxShippingType {
   /**
+   * Not being shipped and instead being sent to external pharmacy
+   */
+  External,
+  /**
    * Standard shipping speed.
    */
-  Standard = 1,
+  Standard,
 
   /**
    * Expedited shipping speed.
@@ -298,3 +302,8 @@ export const TenrxProductStatus = {
   [TenrxProductStatusID.OnOrder]: 'On Order',
   [TenrxProductStatusID.PartialOrder]: 'Partial Order',
 };
+
+export enum TenrxPharmacyType {
+  Internal = 1,
+  External,
+}

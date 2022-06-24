@@ -117,6 +117,7 @@ export {
   TenrxOrderStatusID,
   TenrxProductStatus,
   TenrxProductStatusID,
+  TenrxPharmacyType,
 } from './includes/TenrxEnums.js';
 
 // Functions

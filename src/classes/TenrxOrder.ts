@@ -97,8 +97,8 @@ export default class TenrxOrder {
           treatmentType: orderProduct.treatmentType,
           status: orderProduct.status,
           photoPaths: orderProduct.photoPaths
-            ? orderProduct.photoPaths
-            : orderProduct.photoPath
+            ? orderProduct.photoPaths.filter((img) => img.length)
+            : orderProduct.photoPath?.length
             ? [orderProduct.photoPath]
             : [],
           photoThumbnailPath: orderProduct.photoThumbnailPath,

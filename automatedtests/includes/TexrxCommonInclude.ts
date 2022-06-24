@@ -13,7 +13,7 @@ import TenrxFileStorage from './TenrxFileStorage.js';
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
 export const TEST_API_BASE_URL = 'https://10rxapi.csscloudservices.com';
 
-export const TEST_USERNAME_EXISTS = 'test@test.com';
+export const TEST_USERNAME_EXISTS = '456@xyz.com';
 export const TEST_USERNAME_NOT_EXISTS = 'nonexistingtest@test.com';
 
 export const TEST_PASSWORD_SUCCESS = 'Password1!';
