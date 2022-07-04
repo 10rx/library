@@ -723,7 +723,7 @@ export default class TenrxCart {
   public attachPatientImages(visitTypeId: number, images: TenrxPatientImage[]): void {
     if (this.internalPatientImages) {
       if (this.internalPatientImages[visitTypeId]) {
-        this.internalPatientImages[visitTypeId].concat(images);
+        this.internalPatientImages[visitTypeId] = this.internalPatientImages[visitTypeId].concat(images);
       } else {
         this.internalPatientImages[visitTypeId] = images;
       }
