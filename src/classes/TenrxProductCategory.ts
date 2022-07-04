@@ -109,7 +109,7 @@ export default class TenrxProductCategory {
     this.treatmentTypeId = data.treatmentTypeId;
     this.visitTypeCategoryId = data.visitTypeCategoryId;
     this.active = data.isActive;
-    this.photoPaths = data.photoPaths ?  data.photoPaths.filter((img) => img.length) : [];
+    this.photoPaths = data.photoPaths ? data.photoPaths.filter((img) => img.length) : [];
     this.loaded = false;
     this.productCatagories = [];
     this.internalProducts = [];
