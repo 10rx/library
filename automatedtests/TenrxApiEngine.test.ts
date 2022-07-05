@@ -58,20 +58,21 @@ test('Login API Test Failure', async () => {
   expect(tenrx.isAuthenticated).toBe(false);
 });
 
-test('Login API Test Security Question', async () => {
-  const result = await tenrx.login('12345@xyz.com', TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz'); 
-  const content = result.content as TenrxLoginAPIModel;
-  expect(content.statusCode).toBe(200);
-  expect(content.access_token).toBeNull();
-  expect(content.data).not.toBeNull();
-  const data = content.data as TenrxQuestionAPIModel[];
-  expect(data.length).toBeGreaterThan(0);
-  expect(content.message).not.toBeNull();
-  expect(content.message.length).toBeGreaterThan(0);
-  expect(content.patientData).toBeNull();
-  expect(result.error).toBeNull();
-  expect(tenrx.isAuthenticated).toBe(false);
-});
+// TODO: Reenable test when security questions are ready
+// test('Login API Test Security Question', async () => {
+//   const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz'); 
+//   const content = result.content as TenrxLoginAPIModel;
+//   expect(content.statusCode).toBe(200);
+//   expect(content.access_token).toBeNull();
+//   expect(content.data).not.toBeNull();
+//   const data = content.data as TenrxQuestionAPIModel[];
+//   expect(data.length).toBeGreaterThan(0);
+//   expect(content.message).not.toBeNull();
+//   expect(content.message.length).toBeGreaterThan(0);
+//   expect(content.patientData).toBeNull();
+//   expect(result.error).toBeNull();
+//   expect(tenrx.isAuthenticated).toBe(false);
+// });
 
 test('Login API Test Success', async () => {
   const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en');
