@@ -230,8 +230,9 @@ export default class TenrxCart {
    * @param {string} [strength=''] - The strength of the product to add to the cart.
    * @param {boolean} [hasPrescriptionAttached=false] - Whether or not the product has a prescription attached.
    * @param {boolean} [hidden=false] - Whether or not the product is hidden.
-   * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
    * @param {boolean} [taxable=true] - Whether or not the item is taxable
+   * @param {boolean} [addInstead=false] - Should a new entry be made instead of changing quantity
+   * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
    * @memberof TenrxCart
    */
   public addItem(
@@ -239,24 +240,34 @@ export default class TenrxCart {
     quantity: number,
     strength = '',
     hidden = false,
-    shipToExternalPharmacy = false,
     taxable = true,
+    addInstead = false,
+    shipToExternalPharmacy = false,
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
-    this.addEntry({
-      productId: item.id,
-      productName: item.name,
-      productDetails: item.description,
-      treatmentTypeId: item.treatmentTypeId,
-      quantity,
-      price: strengthMatch ? strengthMatch.price : item.price,
-      strength,
-      rx: item.rx,
-      taxable,
-      photoPaths: item.photoPaths.filter((img) => img.length),
-      hidden,
-      shipToExternalPharmacy,
-    });
+
+    const exists = this.internalCartEntries.find(
+      (product) => product.productId === item.id && product.strength === strength,
+    );
+
+    if (exists && !addInstead) {
+      exists.quantity += quantity;
+    } else {
+      this.addEntry({
+        productId: item.id,
+        productName: item.name,
+        productDetails: item.description,
+        treatmentTypeId: item.treatmentTypeId,
+        quantity,
+        price: strengthMatch ? strengthMatch.price : item.price,
+        strength,
+        rx: item.rx,
+        taxable,
+        photoPaths: item.photoPaths.filter((img) => img.length),
+        hidden,
+        shipToExternalPharmacy,
+      });
+    }
   }
 
   /**
