@@ -89,6 +89,22 @@ export interface TenrxChatParticipantJoinedPayload {
 }
 
 /**
+ * Represents the payload of a participant leave event
+ *
+ * @export
+ * @interface TenrxChatParticipantLeftPayload
+ */
+export interface TenrxChatParticipantLeftPayload {
+  /**
+   * Should the participant be removed
+   *
+   * @type {boolean}
+   * @memberof TenrxChatParticipantLeftPayload
+   */
+  remove: boolean;
+}
+
+/**
  * Represents the payload of a chat message.
  *
  * @export
@@ -135,5 +151,6 @@ export type TenrxChatStartedPayload = TenrxChatParticipantJoinedPayload[];
 
 export type TenrxChatEventPayload =
   | TenrxChatParticipantJoinedPayload
+  | TenrxChatParticipantLeftPayload
   | TenrxChatMessagePayload
   | TenrxChatStartedPayload;

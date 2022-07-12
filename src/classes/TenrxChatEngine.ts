@@ -3,7 +3,11 @@ import TenrxChatInternalError from '../exceptions/TenrxChatInternalError.js';
 import TenrxChatNotActive from '../exceptions/TenrxChatNotActive.js';
 import { TenrxChatEventType, TenrxChatStatus } from '../includes/TenrxEnums.js';
 import { TenrxLibraryLogger } from '../index.js';
-import TenrxChatEvent, { TenrxChatParticipantJoinedPayload, TenrxChatMessagePayload } from '../types/TenrxChatEvent.js';
+import TenrxChatEvent, {
+  TenrxChatParticipantJoinedPayload,
+  TenrxChatMessagePayload,
+  TenrxChatEventPayload,
+} from '../types/TenrxChatEvent.js';
 import TenrxChatInterface from './TenrxChatInterface.js';
 
 /**
@@ -13,7 +17,10 @@ import TenrxChatInterface from './TenrxChatInterface.js';
  * @class TenrxChatEngine
  */
 export default class TenrxChatEngine {
-  private internalChatParticipants: Record<string, { nickName: string; avatar: string; interfaceId: string }>;
+  private internalChatParticipants: Record<
+    string,
+    { nickName: string; avatar: string; interfaceId: string; customID: string | null }
+  >;
   private internalChatStatus: TenrxChatStatus;
   private internalInterfaces: Record<string, TenrxChatInterface>;
 
@@ -90,23 +97,6 @@ export default class TenrxChatEngine {
     });
   }
 
-  // TODO Delete this function
-  private notifyParticipants(event: TenrxChatEvent, excludeParticipant?: string): void {
-    setTimeout(() => {
-      if (this.internalChatStatus === TenrxChatStatus.Active) {
-        Object.keys(this.internalChatParticipants).forEach((id) => {
-          if (excludeParticipant !== id) {
-            const actualEvent = { ...event, recipientId: event.recipientId ? event.recipientId : id };
-            this.internalInterfaces[this.internalChatParticipants[id].interfaceId].onEvent(actualEvent);
-          }
-        });
-      } else {
-        TenrxLibraryLogger.error(`Unable to notify participants. Chat is not active.`);
-        throw new TenrxChatNotActive(`Unable to notify participants. Chat is not active.`, 'TenrxChatEngine');
-      }
-    }, 0);
-  }
-
   private notifyInterfaces(event: TenrxChatEvent, excludeInterface?: string): void {
     setTimeout(() => {
       Object.keys(this.internalInterfaces).forEach((id) => {
@@ -152,15 +142,45 @@ export default class TenrxChatEngine {
   }
 
   /**
+   * Send pseudo events
+   *
+   * @param {string} interfaceID - Interface thats sending the event
+   * @param {string} senderID - Participant thats sending the event
+   * @param {TenrxChatEventType} type - Type of event
+   * @param {TenrxChatEvent} payload - Payload for event
+   * @memberof TenrxChatEngine
+   */
+  public pseudoNotify(interfaceID: string, senderID: string, type: TenrxChatEventType, payload: TenrxChatEventPayload) {
+    this.notifyInterfaces(
+      {
+        timestamp: DateTime.now().toJSDate(),
+        senderId: senderID,
+        recipientId: null,
+        type,
+        payload,
+      },
+      interfaceID,
+    );
+  }
+
+  /**
    * Adds a participant to the chat engine.
    *
    * @param {string} interfaceId - The id of the interface where this participant is.
    * @param {string} nickName - The nick name of the participant.
    * @param {string} [avatar=''] - The avatar of the participant.
+   * @param {boolean} [silent=false] - Should the join event be silent
+   * @param {string} [customID=null] - Custom ID for participant
    * @return {*}  {string} - The id of the participant.
    * @memberof TenrxChatEngine
    */
-  public addParticipant(interfaceId: string, nickName: string, avatar = '', silent = false): string {
+  public addParticipant(
+    interfaceId: string,
+    nickName: string,
+    avatar = '',
+    silent = false,
+    customID: string | null = null,
+  ): string {
     TenrxLibraryLogger.debug(`Adding participant with nickName '${nickName}'`);
     if (this.internalChatStatus === TenrxChatStatus.Active) {
       const id = TenrxChatEngine.getRandomId();
@@ -174,6 +194,7 @@ export default class TenrxChatEngine {
         nickName,
         avatar,
         interfaceId,
+        customID,
       };
       this.notifyInterfaces(
         {
@@ -199,17 +220,19 @@ export default class TenrxChatEngine {
    * @param {string} interfaceId - The id of the interface where this participant is.
    * @memberof TenrxChatEngine
    */
-  public removeParticipant(participantId: string, interfaceId: string): void {
+  public removeParticipant(participantId: string, interfaceId: string, remove = true): void {
     TenrxLibraryLogger.debug(`Removing participant with id '${participantId}'`);
     if (this.internalChatParticipants[participantId]) {
-      delete this.internalChatParticipants[participantId];
+      if (remove) delete this.internalChatParticipants[participantId];
       this.notifyInterfaces(
         {
           timestamp: DateTime.now().toJSDate(),
           senderId: participantId,
           recipientId: null,
           type: TenrxChatEventType.ChatParticipantLeft,
-          payload: null,
+          payload: {
+            remove,
+          },
         },
         interfaceId,
       );
@@ -308,5 +331,15 @@ export default class TenrxChatEngine {
    */
   private static getRandomId(): string {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  /**
+   * Get all the participants the engine knows about
+   *
+   * @readonly
+   * @memberof TenrxChatEngine
+   */
+  public get participants() {
+    return this.internalChatParticipants;
   }
 }

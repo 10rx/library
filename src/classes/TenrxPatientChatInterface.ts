@@ -4,6 +4,7 @@ import TenrxChatEvent, {
   TenrxChatMessageMetadata,
   TenrxChatMessagePayload,
   TenrxChatParticipantJoinedPayload,
+  TenrxChatParticipantLeftPayload,
   TenrxChatStartedPayload,
 } from '../types/TenrxChatEvent.js';
 import TenrxChatInterface from './TenrxChatInterface.js';
@@ -143,13 +144,14 @@ export default class TenrxPatientChatInterface extends TenrxChatInterface {
           this.onParticipantJoined(this, participantJoinedPayload.id);
         break;
       case TenrxChatEventType.ChatParticipantLeft:
+        const participantLeftPayload = event.payload as TenrxChatParticipantLeftPayload;
         if (event.senderId) {
           const participantId = event.senderId;
           if (this.participants[participantId]) {
             if (this.onParticipantLeft) this.onParticipantLeft(this, participantId);
             const nickName = this.participants[participantId] ? this.participants[participantId].nickName : 'Unknown';
             TenrxLibraryLogger.debug(`${nickName} has participant left the chat.`);
-            delete this.participants[event.senderId];
+            if (participantLeftPayload.remove) delete this.participants[event.senderId];
           } else {
             TenrxLibraryLogger.warn(`Unknown participant has left the chat. Id: ${participantId}`);
           }
