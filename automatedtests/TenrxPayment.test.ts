@@ -36,7 +36,7 @@ test('GetPaymentCards Test Successful', async () => {
 });
 
 test('PlaceOrder Test Successful', async () => {
-  const sampleProduct = (await TenrxProduct.getProductByID(2290)) as TenrxProduct;
+  const sampleProduct = (await TenrxProduct.getProductByID(2791)) as TenrxProduct;
   const cart = getSampleFullCart(sampleProduct);
   const answerOption: TenrxQuestionnaireAnswerOption = {
     id: 0,
