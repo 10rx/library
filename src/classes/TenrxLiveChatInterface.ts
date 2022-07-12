@@ -149,6 +149,15 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   private isTyping: boolean;
 
   /**
+   * Has the server acknowledged that we joined the chat?
+   *
+   * @private
+   * @type {boolean}
+   * @memberof TenrxLiveChatInterface
+   */
+  private gotFirstReply = false;
+
+  /**
    * This is the main event handler for the chat interface. It will be called by the chat engine when an event is received.
    *
    * @param {TenrxChatEvent} event - The event that was received.
@@ -331,7 +340,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
    * @memberof TenrxLiveChatInterface
    */
   public get isReady() {
-    return this.socket.connected && !!this.chatEngine && !!this.id;
+    return this.socket.connected && !!this.chatEngine && !!this.id && this.gotFirstReply;
   }
 
   /**
@@ -603,6 +612,7 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
             } else console.warn('Unable to send message because there is no chat engine id for them', message);
           }
         }
+        this.gotFirstReply = true;
       }
     }
   }
