@@ -45,6 +45,7 @@ export default class TenrxCart {
   private internalAnswers: Record<string, TenrxQuestionnaireAnswer[]>;
   private internalPatientImages: Record<string, TenrxPatientImage[]>;
   private internalPromotions: TenrxPromotion[];
+  private internalExternalPharmacy = false;
 
   /**
    * Creates an instance of TenrxCart.
@@ -375,14 +376,12 @@ export default class TenrxCart {
     if (this.internalTaxAmount < 0) {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
-          if (curr.taxable) {
-            let price: number = curr.price;
-            if (this.internalPromotions.length > 0) {
-              price = price - this.internalPromotions[0].calculateOrderDiscount(price);
-            }
-            return acc + price * this.internalTaxRate;
+          if (!curr.taxable || (this.internalExternalPharmacy && curr.rx)) return acc;
+          let price: number = curr.price;
+          if (this.internalPromotions.length > 0) {
+            price = price - this.internalPromotions[0].calculateOrderDiscount(price);
           }
-          return acc;
+          return acc + price * this.internalTaxRate;
         }, 0),
       );
     }
@@ -400,10 +399,8 @@ export default class TenrxCart {
     if (this.internalSubTotal < 0) {
       this.internalSubTotal = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
-          if (!curr.hidden) {
-            return acc + curr.price * curr.quantity;
-          }
-          return acc;
+          if (curr.hidden || (this.internalExternalPharmacy && curr.rx)) return acc;
+          return acc + curr.price * curr.quantity;
         }, 0),
       );
       this.internalDiscountAmount = 0;
@@ -989,5 +986,14 @@ export default class TenrxCart {
       TenrxCart.internalInstance = new TenrxCart();
     }
     return TenrxCart.internalInstance;
+  }
+
+  /**
+   * Set if the order will be going to external pharmacy
+   *
+   * @memberof TenrxCart
+   */
+  public set externalPharmacy(value: boolean) {
+    this.internalExternalPharmacy = value;
   }
 }
