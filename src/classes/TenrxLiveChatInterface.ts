@@ -140,6 +140,13 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
   public onDisconnected: ((reason: string) => void) | undefined;
 
   /**
+   * Ready event
+   *
+   * @memberof TenrxLiveChatInterface
+   */
+  public onReady?: () => void;
+
+  /**
    * Is the patient typing
    *
    * @private
@@ -584,6 +591,9 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
           }
         }
 
+        this.gotFirstReply = true;
+        if (this.onReady) this.onReady();
+
         const lookup: {
           [key: string]: string | undefined;
         } = {};
@@ -612,7 +622,6 @@ export default class TenrxLiveChatInterface extends TenrxChatInterface {
             } else console.warn('Unable to send message because there is no chat engine id for them', message);
           }
         }
-        this.gotFirstReply = true;
       }
     }
   }
