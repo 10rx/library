@@ -120,6 +120,8 @@ export {
   TenrxPharmacyType,
 } from './includes/TenrxEnums.js';
 
+export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';
+
 // Functions
 export {
   initializeTenrx,
