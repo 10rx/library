@@ -49,6 +49,21 @@ export default class TenrxOrder {
 
   private internalOrderProducts: TenrxOrderProductEntry[];
 
+
+  /**
+   * External pharmacy address
+   */
+  public externalPharmacyAddress: {
+    pharmacyName: string;
+    apartmentNumber: string;
+    address1: string;
+    address2: string;
+    city: string;
+    stateName: string;
+    zipCode: string;
+    country: string;
+  } | null = null;
+
   /**
    * Gets the products of the order.
    *
@@ -82,6 +97,7 @@ export default class TenrxOrder {
     this.orderDate = new Date(orderData.orderDate);
     this.totalPrice = orderData.totalPrice;
     this.shippingType = orderData.shippingType;
+    this.externalPharmacyAddress = orderData.externalPharmacyAddress;
     if (orderData.orderProducts && orderData.orderProducts.length > 0) {
       orderData.orderProducts.forEach((orderProduct) => {
         this.internalOrderProducts.push({
