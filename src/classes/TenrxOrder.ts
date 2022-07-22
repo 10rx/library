@@ -49,7 +49,6 @@ export default class TenrxOrder {
 
   private internalOrderProducts: TenrxOrderProductEntry[];
 
-
   /**
    * External pharmacy address
    */
