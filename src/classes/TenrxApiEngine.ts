@@ -798,7 +798,7 @@ export default class TenrxApiEngine {
     }
   }
 
-  private processLoginResponse(response: TenrxApiResult, callerForLogPurposes: string): void {
+  public processLoginResponse(response: TenrxApiResult, callerForLogPurposes: string): void {
     if (response && response.status === 200) {
       TenrxLibraryLogger.silly(`${callerForLogPurposes} Response: `, response.content);
       if (response.content) {
