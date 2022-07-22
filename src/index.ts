@@ -102,6 +102,7 @@ export {
   TenrxLoginAPIModelPatientData,
 } from './apiModel/TenrxLoginAPIModel.js';
 export { default as TenrxSessionDetailsAPIModel } from './apiModel/TenrxSessionDetailsAPIModel.js';
+export { default as TenrxAPIModel } from './apiModel/TenrxAPIModel.js';
 
 // Enums
 export {
