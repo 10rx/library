@@ -28,4 +28,44 @@ export default interface TenrxAppointment {
    * @memberof TenrxAppointment
    */
   endDate: Date;
+
+  /**
+   * Order number the appointment is for
+   *
+   * @type {string}
+   * @memberof TenrxAppointment
+   */
+  orderNumber: string;
+
+  /**
+   * The duration of the meeting
+   *
+   * @type {number}
+   * @memberof TenrxAppointment
+   */
+  defaultDuration: number;
+
+  /**
+   * Status code?
+   *
+   * @type {number}
+   * @memberof TenrxAppointment
+   */
+  appointmentStatusCode: number;
+
+  /**
+   * Cancel Type
+   *
+   * @type {number}
+   * @memberof TenrxAppointment
+   */
+  cancelTypeId: number;
+
+  /**
+   * Cancel reason
+   *
+   * @type {(string | null)}
+   * @memberof TenrxAppointment
+   */
+  cancelReason: string | null;
 }

@@ -57,6 +57,7 @@ export {
   TenrxChatStartedPayload,
   TenrxChatMessageMetadata,
 } from './types/TenrxChatEvent.js';
+export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -101,6 +102,7 @@ export {
   TenrxLoginAPIModelPatientData,
 } from './apiModel/TenrxLoginAPIModel.js';
 export { default as TenrxSessionDetailsAPIModel } from './apiModel/TenrxSessionDetailsAPIModel.js';
+export { default as TenrxAPIModel } from './apiModel/TenrxAPIModel.js';
 
 // Enums
 export {
@@ -111,7 +113,15 @@ export {
   TenrxChatStatus,
   TenrxQuestionnaireAnswerType,
   TenrxQuestionnaireBotStatus,
+  TenrxShippingType,
+  TenrxOrderStatus,
+  TenrxOrderStatusID,
+  TenrxProductStatus,
+  TenrxProductStatusID,
+  TenrxPharmacyType,
 } from './includes/TenrxEnums.js';
+
+export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';
 
 // Functions
 export {
@@ -134,6 +144,6 @@ export {
   tenrxRoundTo,
   isBrowser,
   isNode,
+  isNative,
   isWebWorker,
-  isJsDom,
 } from './includes/TenrxFunctions.js';

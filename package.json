@@ -1,6 +1,6 @@
 {
   "name": "@10rx/10rx-library",
-  "version": "0.0.36",
+  "version": "0.0.55",
   "description": "Javascript Library for 10rx product",
   "main": "dist/commonjs/index.js",
   "module": "dist/esm/index.js",
@@ -58,13 +58,16 @@
     "dist/**/*"
   ],
   "dependencies": {
+    "@babel/runtime": "^7.18.0",
+    "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "isaac": "^0.0.5",
     "luxon": "^2.2.0",
-    "node-fetch": "^2.6.6",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
+    "react-native-uuid": "^2.0.1",
     "socket.io-client": "^4.4.1",
-    "tslog": "^3.2.2",
-    "uuid": "^8.3.2"
+    "tslog": "^3.2.2"
   },
   "exports": {
     ".": {

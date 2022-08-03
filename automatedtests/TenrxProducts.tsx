@@ -31,5 +31,5 @@ test('Product End to End Successful', async () => {
       }
     }
   }
-  jest.setTimeout(5000);
+  jest.setTimeout(10000);
 });

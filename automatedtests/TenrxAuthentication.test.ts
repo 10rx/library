@@ -11,6 +11,8 @@ Testlogger.setSettings({
   type: 'pretty',
 });
 
+jest.setTimeout(30000);
+
 test('Authenticate Test Fail', async () => {
   const result = await authenticateTenrx(TEST_USERNAME_NOT_EXISTS, TEST_PASSWORD_FAILED);
   expect(result).not.toBeNull();

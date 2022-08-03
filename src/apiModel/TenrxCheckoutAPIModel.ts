@@ -28,6 +28,9 @@ export default interface TenrxCheckoutAPIModel {
     price: number;
   }[];
   amount: number;
+  totalTax: number;
+  subtotal: number;
+  shippingFees: number;
   patientProducts: {
     medicationProducts: {
       id: number;

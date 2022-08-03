@@ -3,7 +3,8 @@ export default interface TenrxMedicationProductDetailAPIModel {
   name: string;
   nameEs: string;
   defaultPrice: string;
-  photoPath: string;
+  photoPath?: string;
+  photoPaths: string[];
   treatementType: string;
   isActive: boolean;
   isRx: boolean;

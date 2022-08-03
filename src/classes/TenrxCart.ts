@@ -24,6 +24,7 @@ import TenrxStreetAddress from '../types/TenrxStreetAddress.js';
 import TenrxExternalPharmacyInformation from '../types/TenrxExternalPharmacyInformation.js';
 import TenrxProduct from './TenrxProduct.js';
 import { TenrxStorageScope } from './TenrxStorage.js';
+import { TenrxPharmacyType, TenrxShippingType } from '../includes/TenrxEnums.js';
 
 /**
  * Represents the tenrx cart for products, and any other information. If entries are modified directly, then forceRecalculate must be manually called in order to keep everything in sync.
@@ -44,6 +45,7 @@ export default class TenrxCart {
   private internalAnswers: Record<string, TenrxQuestionnaireAnswer[]>;
   private internalPatientImages: Record<string, TenrxPatientImage[]>;
   private internalPromotions: TenrxPromotion[];
+  private internalExternalPharmacy = false;
 
   /**
    * Creates an instance of TenrxCart.
@@ -229,8 +231,9 @@ export default class TenrxCart {
    * @param {string} [strength=''] - The strength of the product to add to the cart.
    * @param {boolean} [hasPrescriptionAttached=false] - Whether or not the product has a prescription attached.
    * @param {boolean} [hidden=false] - Whether or not the product is hidden.
-   * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
    * @param {boolean} [taxable=true] - Whether or not the item is taxable
+   * @param {boolean} [addInstead=false] - Should a new entry be made instead of changing quantity
+   * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
    * @memberof TenrxCart
    */
   public addItem(
@@ -238,24 +241,34 @@ export default class TenrxCart {
     quantity: number,
     strength = '',
     hidden = false,
-    shipToExternalPharmacy = false,
     taxable = true,
+    addInstead = false,
+    shipToExternalPharmacy = false,
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
-    this.addEntry({
-      productId: item.id,
-      productName: item.name,
-      productDetails: item.description,
-      treatmentTypeId: item.treatmentTypeId,
-      quantity,
-      price: strengthMatch ? strengthMatch.price : item.price,
-      strength,
-      rx: item.rx,
-      taxable,
-      photoPath: item.photoPath,
-      hidden,
-      shipToExternalPharmacy,
-    });
+
+    const exists = this.internalCartEntries.find(
+      (product) => product.productId === item.id && product.strength === strength,
+    );
+
+    if (exists && !addInstead) {
+      exists.quantity += quantity;
+    } else {
+      this.addEntry({
+        productId: item.id,
+        productName: item.name,
+        productDetails: item.description,
+        treatmentTypeId: item.treatmentTypeId,
+        quantity,
+        price: strengthMatch ? strengthMatch.price : item.price,
+        strength,
+        rx: item.rx,
+        taxable,
+        photoPaths: item.photoPaths.filter((img) => img.length),
+        hidden,
+        shipToExternalPharmacy,
+      });
+    }
   }
 
   /**
@@ -363,14 +376,12 @@ export default class TenrxCart {
     if (this.internalTaxAmount < 0) {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
-          if (curr.taxable) {
-            let price = curr.price;
-            if (this.internalPromotions.length > 0) {
-              price = price - this.internalPromotions[0].calculateOrderDiscount(price);
-            }
-            return acc + price * this.internalTaxRate;
+          if (!curr.taxable || (this.internalExternalPharmacy && curr.rx)) return acc;
+          let price: number = curr.price;
+          if (this.internalPromotions.length > 0) {
+            price = price - this.internalPromotions[0].calculateOrderDiscount(price);
           }
-          return acc;
+          return acc + price * this.internalTaxRate;
         }, 0),
       );
     }
@@ -388,10 +399,8 @@ export default class TenrxCart {
     if (this.internalSubTotal < 0) {
       this.internalSubTotal = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
-          if (!curr.hidden) {
-            return acc + curr.price * curr.quantity;
-          }
-          return acc;
+          if (curr.hidden || (this.internalExternalPharmacy && curr.rx)) return acc;
+          return acc + curr.price * curr.quantity;
         }, 0),
       );
       this.internalDiscountAmount = 0;
@@ -523,6 +532,7 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
+    shippingType: TenrxShippingType,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     timeout = 10000,
     patientComment = '',
@@ -554,8 +564,8 @@ export default class TenrxCart {
       cardId: 0,
       stripeToken: card.cardId,
       status: 0,
-      shippingType: 0,
-      pharmacyType: 0,
+      shippingType,
+      pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
       couponCode: this.internalPromotions[0]?.couponCode ?? null,
       orderId: 0,
       paymentCardDetails: {
@@ -582,6 +592,9 @@ export default class TenrxCart {
         },
       ],
       amount: this.total,
+      totalTax: this.tax,
+      subtotal: this.subTotal + this.subHiddenTotal,
+      shippingFees: this.shippingCost,
       patientProducts: {
         medicationProducts,
         totalPrice: this.total,
@@ -653,7 +666,7 @@ export default class TenrxCart {
         );
       }
       if (Object.keys(this.internalPatientImages).length > 0) {
-        result.patientImagesDetails = await this.sendPatientImages(apiEngine);
+        result.patientImagesDetails = await this.sendPatientImages(result.orderDetails.invoiceNumber, apiEngine);
       }
 
       if (
@@ -718,7 +731,7 @@ export default class TenrxCart {
   public attachPatientImages(visitTypeId: number, images: TenrxPatientImage[]): void {
     if (this.internalPatientImages) {
       if (this.internalPatientImages[visitTypeId]) {
-        this.internalPatientImages[visitTypeId].concat(images);
+        this.internalPatientImages[visitTypeId] = this.internalPatientImages[visitTypeId].concat(images);
       } else {
         this.internalPatientImages[visitTypeId] = images;
       }
@@ -739,11 +752,15 @@ export default class TenrxCart {
   /**
    * Sends the patient images to the backend servers.
    *
+   * @param {string} orderNumber - The order number associated
    * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
    * @return {*}  {Promise<TenrxSendPatientImagesResult>} - The result of the sending of the images.
    * @memberof TenrxCart
    */
-  public async sendPatientImages(apiEngine = useTenrxApi()): Promise<TenrxSendPatientImagesResult> {
+  public async sendPatientImages(
+    orderNumber: string,
+    apiEngine = useTenrxApi(),
+  ): Promise<TenrxSendPatientImagesResult> {
     const result: TenrxSendPatientImagesResult = {
       patientImagesSentMessage: 'Unable to send patient images.',
       patientImagesSent: false,
@@ -755,6 +772,7 @@ export default class TenrxCart {
         Object.keys(this.internalPatientImages).forEach((visitTypeId) => {
           if (this.internalPatientImages[visitTypeId] && this.internalPatientImages[visitTypeId].length > 0) {
             patientImagesApiPayloads.push({
+              orderNumber,
               visitTypeId: Number(visitTypeId),
               patientImages: this.internalPatientImages[visitTypeId],
             });
@@ -968,5 +986,14 @@ export default class TenrxCart {
       TenrxCart.internalInstance = new TenrxCart();
     }
     return TenrxCart.internalInstance;
+  }
+
+  /**
+   * Set if the order will be going to external pharmacy
+   *
+   * @memberof TenrxCart
+   */
+  public set externalPharmacy(value: boolean) {
+    this.internalExternalPharmacy = value;
   }
 }

@@ -4,7 +4,7 @@ export default interface TenrxTreatmentProductListAPIModel {
   nameEs: string;
   defaultPrice: string;
   totalRecords: number;
-  photoPath: string;
+  photoPaths: string[];
   subCategoryIcon: string;
   treatementType: string;
   isActive: boolean;

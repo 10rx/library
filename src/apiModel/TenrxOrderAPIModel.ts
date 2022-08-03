@@ -9,5 +9,14 @@ export default interface TenrxOrderAPIModel {
   pharmacyType: number;
   orderStatusId: number;
   orderStatus: string;
-  externalPharmacyAddress: any;
+  externalPharmacyAddress: {
+    pharmacyName: string;
+    apartmentNumber: string;
+    address1: string;
+    address2: string;
+    city: string;
+    stateName: string;
+    zipCode: string;
+    country: string;
+  } | null;
 }

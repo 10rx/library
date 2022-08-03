@@ -264,9 +264,14 @@ export default class TenrxPatient {
               if (content.data) {
                 for (const appointment of content.data) {
                   this.internalAppointments.push({
-                    doctorName: 'Unknown doctor.',
+                    doctorName: appointment.docotorName,
                     startDate: new Date(appointment.startDateTime),
                     endDate: new Date(appointment.endDateTime),
+                    orderNumber: appointment.orderNumber,
+                    defaultDuration: appointment.defaultDuration,
+                    appointmentStatusCode: appointment.appointmentStatusCode,
+                    cancelTypeId: appointment.cancelTypeId,
+                    cancelReason: appointment.cancelReason,
                   });
                 }
                 this.internalAppointmentsLoaded = true;
@@ -311,9 +316,12 @@ export default class TenrxPatient {
               const data = content.data;
               if (data.patientOrders) {
                 if (data.patientOrders) {
-                  for (const order of data.patientOrders) {
-                    this.internalOrders.push(new TenrxOrder(order));
-                  }
+                  this.internalOrders.push(
+                    ...data.patientOrders
+                      .filter((order) => order.orderProducts.length)
+                      .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
+                      .map((order) => new TenrxOrder(order)),
+                  );
                   this.internalOrdersLoaded = true;
                 }
               } else {
@@ -494,7 +502,7 @@ export default class TenrxPatient {
             firstName: this.firstName,
             lastName: this.lastName,
             middleName: this.middleName,
-            dob: DateTime.fromJSDate(this.dob).toUTC().toISO({ suppressMilliseconds: true }),
+            dob: DateTime.fromJSDate(this.dob).toUTC().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toISO(),
             gender: this.gender,
             phoneNumber: this.phoneNumber,
           },
