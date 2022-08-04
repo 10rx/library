@@ -106,8 +106,10 @@ export default class TenrxCart {
    *
    * @memberof TenrxCart
    */
-  public clearAnswers(): void {
-    this.internalAnswers = {};
+  public clearAnswers(treatmentID?: number): void {
+    if (treatmentID) {
+      delete this.internalAnswers[treatmentID];
+    } else this.internalAnswers = {};
   }
 
   /**
@@ -115,8 +117,10 @@ export default class TenrxCart {
    *
    * @memberof TenrxCart
    */
-  public clearPatientImages(): void {
-    this.internalPatientImages = {};
+  public clearPatientImages(treatmentID?: number): void {
+    if (treatmentID) {
+      delete this.internalPatientImages[treatmentID];
+    } else this.internalPatientImages = {};
   }
 
   /**
