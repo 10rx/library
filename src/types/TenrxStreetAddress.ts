@@ -54,4 +54,12 @@ export default interface TenrxStreetAddress {
    * @memberof TenrxStreetAddress
    */
   zipCode: string;
+
+  /**
+   * Phone number for address
+   *
+   * @type {string}
+   * @memberof TenrxStreetAddress
+   */
+  phone?: string;
 }
