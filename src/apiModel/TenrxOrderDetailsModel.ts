@@ -18,4 +18,7 @@ export default interface TenrxOrderDetailsModel {
   discount: number;
   totalBeforeTax: number;
   grandTotal: number;
+  doctorName: string;
+  doctorPhone: string;
+  doctorEmail: string;
 }
