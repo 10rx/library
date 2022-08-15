@@ -325,6 +325,11 @@ export default class TenrxOrder {
           tax: product.totalTax,
           itemSubtotal: product.itemSubtotal,
         })),
+        doctor: {
+          name: content.data[0].doctorName,
+          phone: content.data[0].doctorPhone,
+          email: content.data[0].doctorEmail,
+        },
       };
 
       return orderDetails;

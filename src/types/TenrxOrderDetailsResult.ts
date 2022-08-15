@@ -28,4 +28,9 @@ export default interface TenrxOrderDetailsResult {
     itemSubtotal: number;
   }[];
   error?: string;
+  doctor: {
+    name: string;
+    phone: string;
+    email: string;
+  };
 }
