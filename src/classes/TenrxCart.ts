@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
 import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { TenrxStateIdToStateName } from '../includes/TenrxStates.js';
@@ -106,8 +107,10 @@ export default class TenrxCart {
    *
    * @memberof TenrxCart
    */
-  public clearAnswers(): void {
-    this.internalAnswers = {};
+  public clearAnswers(treatmentID?: number): void {
+    if (treatmentID) {
+      delete this.internalAnswers[treatmentID];
+    } else this.internalAnswers = {};
   }
 
   /**
@@ -115,8 +118,10 @@ export default class TenrxCart {
    *
    * @memberof TenrxCart
    */
-  public clearPatientImages(): void {
-    this.internalPatientImages = {};
+  public clearPatientImages(treatmentID?: number): void {
+    if (treatmentID) {
+      delete this.internalPatientImages[treatmentID];
+    } else this.internalPatientImages = {};
   }
 
   /**
@@ -575,16 +580,14 @@ export default class TenrxCart {
         addressCity: card.address.city,
         addressCountry: TenrxEnumCountry[card.country],
         addressLine1: card.address.address1,
-        addressLine2: card.address.address2,
+        addressLine2: card.address.address2 ?? null,
         addressState: TenrxStateIdToStateName[card.address.stateId],
         addressZip: card.address.zipCode,
         brand: card.brand,
         country: TenrxEnumCountry[card.country],
         last4: card.last4,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        exp_month: card.expMonth,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        exp_year: card.expYear,
+        exp_month: Number(card.expMonth),
+        exp_year: Number(card.expYear),
       },
       price: [
         {
@@ -593,6 +596,7 @@ export default class TenrxCart {
       ],
       amount: this.total,
       totalTax: this.tax,
+      taxPrice: this.tax,
       subtotal: this.subTotal + this.subHiddenTotal,
       shippingFees: this.shippingCost,
       patientProducts: {
@@ -603,9 +607,9 @@ export default class TenrxCart {
         couponCode: this.internalPromotions[0]?.couponCode ?? null,
         externalPharmacyAddress: shipToExternalPharmacy
           ? {
-              apartmentNumber: shipToExternalPharmacy.address.aptNumber,
+              apartmentNumber: shipToExternalPharmacy.address.aptNumber ?? null,
               address1: shipToExternalPharmacy.address.address1,
-              address2: shipToExternalPharmacy.address.address2,
+              address2: shipToExternalPharmacy.address.address2 ?? null,
               city: shipToExternalPharmacy.address.city,
               stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
               zipCode: shipToExternalPharmacy.address.zipCode,
@@ -613,15 +617,15 @@ export default class TenrxCart {
               pharmacyName: shipToExternalPharmacy.name,
             }
           : null,
-        shippingAddress: {
-          apartmentNumber: shippingAddress.aptNumber,
-          address1: shippingAddress.address1,
-          address2: shippingAddress.address2,
-          city: shippingAddress.city,
-          stateName: TenrxStateIdToStateName[shippingAddress.stateId],
-          zipCode: shippingAddress.zipCode,
-          country: 'US',
-        },
+      },
+      orderShippingAddress: {
+        addressLine1: shippingAddress.address1,
+        addressLine2: shippingAddress.address2 ?? null,
+        city: shippingAddress.city,
+        state: TenrxStateIdToStateName[shippingAddress.stateId],
+        zipCode: shippingAddress.zipCode,
+        countryID: TenrxEnumCountry.US,
+        phoneNumber: shippingAddress.phone ?? null,
       },
     };
 

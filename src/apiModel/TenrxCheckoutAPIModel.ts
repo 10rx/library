@@ -15,25 +15,25 @@ export default interface TenrxCheckoutAPIModel {
     addressCity: string;
     addressCountry: string;
     addressLine1: string;
-    addressLine2?: string;
+    addressLine2: string | null;
     addressState: string;
     addressZip: string;
     brand: string;
     country: string;
     last4: string;
-    exp_month: string;
-    exp_year: string;
+    exp_month: number;
+    exp_year: number;
   };
   price: {
     price: number;
   }[];
   amount: number;
   totalTax: number;
+  taxPrice: number;
   subtotal: number;
   shippingFees: number;
   patientProducts: {
     medicationProducts: {
-      id: number;
       productName: string;
       productDetails: string;
       quantity: number;
@@ -46,23 +46,23 @@ export default interface TenrxCheckoutAPIModel {
     userName: string;
     couponCode: string | null;
     externalPharmacyAddress: {
-      apartmentNumber?: string;
+      apartmentNumber: string | null;
       address1: string;
-      address2?: string;
+      address2: string | null;
       city: string;
       stateName: string;
       zipCode: string;
       country: string;
       pharmacyName: string;
     } | null;
-    shippingAddress: {
-      apartmentNumber?: string;
-      address1: string;
-      address2?: string;
-      city: string;
-      stateName: string;
-      zipCode: string;
-      country: string;
-    };
+  };
+  orderShippingAddress: {
+    addressLine1: string;
+    addressLine2: string | null;
+    city: string;
+    state: string;
+    zipCode: string;
+    countryID: number;
+    phoneNumber: string | null;
   };
 }
