@@ -141,6 +141,14 @@ export default class TenrxProduct {
   maxQuantityPurchasable: number;
 
   /**
+   * The ID to use for the questionnaire
+   *
+   * @type {(number | null)}
+   * @memberof TenrxProduct
+   */
+  questionnaireID: number | null;
+
+  /**
    * Creates an instance of TenrxProduct.
    *
    * @param {TenrxTreatmentProductListAPIModel} data - The data to be used to create the instance.
@@ -166,6 +174,7 @@ export default class TenrxProduct {
       this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
       this.photoPaths = data.photoPaths.filter((img) => img.length);
       this.defaultPrice = data.defaultPrice;
+      this.questionnaireID = data.questionnaireID;
     } else {
       this.id = 0;
       this.categoryId = 0;
@@ -176,6 +185,7 @@ export default class TenrxProduct {
       this.name = '';
       this.photoPaths = [];
       this.defaultPrice = '';
+      this.questionnaireID = null;
     }
     this.outOfStock = false;
     this.loaded = false;
@@ -256,6 +266,7 @@ export default class TenrxProduct {
                     });
                   }
                 }
+                this.questionnaireID = data.questionnaireID;
                 this.loaded = true;
               } else {
                 TenrxLibraryLogger.error(`Error while loading product with id: ${this.id}: No data.`);
