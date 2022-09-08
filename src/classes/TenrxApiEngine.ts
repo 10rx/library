@@ -739,7 +739,7 @@ export default class TenrxApiEngine {
   public async uploadPatientAffectedImages(details: TenrxUploadPatientAffectedImagesAPIModel): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Uploading patient affected images to API');
     try {
-      const response = await this.authPost(`/api/v1/Patient/UploadPatientAffectedImgaes`, details);
+      const response = await this.authPost(`/api/v1/Patient/UploadPatientAffectedImages`, details);
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('uploadPatientAffectedImages() Error: ', error);
