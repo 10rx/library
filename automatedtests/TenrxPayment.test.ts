@@ -5,7 +5,15 @@ import {
   TEST_PASSWORD_SUCCESS,
   TEST_USERNAME_EXISTS,
 } from './includes/TexrxCommonInclude.js';
-import { authenticateTenrx, TenrxProduct, TenrxQuestionnaireAnswer, TenrxQuestionnaireAnswerOption, TenrxQuestionnaireAnswerType, TenrxShippingType } from '../src/index.js';
+import {
+  authenticateTenrx,
+  TenrxProduct,
+  TenrxQuestionnaireAnswer,
+  TenrxQuestionnaireAnswerOption,
+  TenrxQuestionnaireAnswerType,
+  TenrxShippingType,
+  TenrxStripeCreditCard,
+} from '../src/index.js';
 import TenrxUserAccount from '../src/classes/TenrxUserAccount.js';
 import { TenrxLoginAPIModelData } from '../src/apiModel/TenrxLoginAPIModel.js';
 import TenrxPatient from '../src/classes/TenrxPatient.js';
@@ -44,8 +52,8 @@ test('PlaceOrder Test Successful', async () => {
     optionValue: 'Test answer',
     optionInfo: '',
     numericValue: 0,
-    displayOrder: 0
-  }
+    displayOrder: 0,
+  };
   const answer: TenrxQuestionnaireAnswer = {
     questionId: 669,
     questionTypeId: 1,
@@ -64,7 +72,12 @@ test('PlaceOrder Test Successful', async () => {
       await patient.load();
       expect(patient.wallet).not.toBeNull();
       expect(patient.wallet.cards.length).toBeGreaterThan(0);
-      const checkoutResponse = await cart.checkout(accountData.emailId, patient.wallet.cards[0], TEST_ADDRESS, TenrxShippingType.Standard);
+      const checkoutResponse = await cart.checkout(
+        accountData.emailId,
+        patient.wallet.cards.at(-1) as TenrxStripeCreditCard,
+        TEST_ADDRESS,
+        TenrxShippingType.Standard,
+      );
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(true);
     }
