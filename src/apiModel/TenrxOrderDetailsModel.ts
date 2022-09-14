@@ -1,24 +1,32 @@
 export default interface TenrxOrderDetailsModel {
-  address1: string;
-  address2: string | null;
-  city: string;
-  zipCode: string;
+  address: Address;
+  products: Product[];
   last4: string;
-  createdDate: string;
-  productName: string;
-  productStatusId: number;
-  orderStatus: number;
+  datePlaced: string;
+  status: number;
   shippingType: number;
-  shippingFees: number;
-  totalTax: number;
   subtotal: number;
-  trackingNumber: string | null;
-  carrier: string | null;
-  itemSubtotal: number;
+  tax: number;
   discount: number;
-  totalBeforeTax: number;
-  grandTotal: number;
-  doctorName: string;
-  doctorPhone: string;
-  doctorEmail: string;
+  shippingCost: number;
+  total: number;
+  trackingNumber: string | null;
+  trackingCarrier: string | null;
+  doctorName: string | null;
+  doctorEmail: string | null;
+}
+
+interface Product {
+  name: string;
+  quantity: number;
+  price: number;
+  total: number;
+  status: number;
+}
+
+interface Address {
+  address1: string;
+  address2: string;
+  city: string;
+  zip: string;
 }
