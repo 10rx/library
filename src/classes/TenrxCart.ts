@@ -287,17 +287,17 @@ export default class TenrxCart {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   public async getTaxInformation(address: TenrxStreetAddress, apiEngine = useTenrxApi()): Promise<void> {
-    // TODO - Implement additive tax.
+    // This is now handled by the backend.
     TenrxLibraryLogger.info('Getting tax information for items in cart.');
     const productsForTaxCalculaitons: {
       productId: number;
-      price: number;
+      quantity: number;
     }[] = [];
     this.internalCartEntries.forEach((entry) => {
       if (entry.taxable)
         productsForTaxCalculaitons.push({
           productId: entry.productId,
-          price: entry.price,
+          quantity: entry.quantity,
         });
     });
     const taxInformation = await apiEngine.getProductTax({
@@ -317,9 +317,7 @@ export default class TenrxCart {
         const content = taxInformation.content as {
           apiStatus: { statusCode: number; message: string };
           data: {
-            productTaxResponse: { productId: number; isTaxable: boolean }[];
             totalTax: number;
-            additiveTax: number;
             taxRate: number;
           };
         };
@@ -328,21 +326,10 @@ export default class TenrxCart {
             if (content.data) {
               if (content.data.totalTax) {
                 this.internalTaxRate = content.data.taxRate;
+                this.internalTaxAmount = content.data.totalTax;
               } else {
                 TenrxLibraryLogger.error('No tax rate found.', content.data);
                 throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
-              }
-              if (content.data.productTaxResponse) {
-                this.internalCartEntries.forEach((entry) => {
-                  const taxResponse = content.data.productTaxResponse.find((x) => x.productId === entry.productId);
-                  if (taxResponse) {
-                    entry.taxable = taxResponse.isTaxable;
-                  }
-                });
-                this.forceRecalculate();
-              } else {
-                TenrxLibraryLogger.error('No product tax response found.', content.data);
-                throw new TenrxLoadError('No product tax response found.', 'TenrxCart', null);
               }
             } else {
               TenrxLibraryLogger.error('No tax data found.', content);
@@ -378,6 +365,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get tax(): number {
+    // Backend now handles this logic
     if (this.internalTaxAmount < 0) {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
@@ -386,7 +374,7 @@ export default class TenrxCart {
           if (this.internalPromotions.length > 0) {
             price = price - this.internalPromotions[0].calculateOrderDiscount(price);
           }
-          return acc + price * this.internalTaxRate;
+          return acc + price * this.internalTaxRate * curr.quantity;
         }, 0),
       );
     }

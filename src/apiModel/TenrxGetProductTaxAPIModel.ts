@@ -1,7 +1,7 @@
 export default interface TenrxGetProductTaxAPIModel {
   productsForTaxCalculaitons: {
     productId: number;
-    price: number;
+    quantity: number;
   }[];
   shippingAddress: {
     apartmentNumber?: string;
