@@ -324,7 +324,7 @@ export default class TenrxCart {
         if (content.apiStatus) {
           if (content.apiStatus.statusCode === 200) {
             if (content.data) {
-              if (content.data.totalTax) {
+              if (content.data.totalTax || content.data.totalTax === 0) {
                 this.internalTaxRate = content.data.taxRate;
                 this.internalTaxAmount = content.data.totalTax;
               } else {
