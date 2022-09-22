@@ -13,6 +13,7 @@ export default interface TenrxCheckoutAPIModel {
   patientProducts: PatientProduct[];
   orderShippingAddress: OrderShippingAddress;
   externalPharmacyAddress: ExternalPharmacyAddress | null;
+  images: string[];
 }
 
 interface ExternalPharmacyAddress {
@@ -40,6 +41,7 @@ interface PatientProduct {
   productId: number;
   quantity: number;
   strength: string;
+  refillID: number | null;
 }
 
 interface PaymentCardDetails {

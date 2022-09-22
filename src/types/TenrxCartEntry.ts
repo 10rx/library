@@ -100,4 +100,12 @@ export default interface TenrxCartEntry {
    * @memberof TenrxCartEntry
    */
   shipToExternalPharmacy: boolean;
+
+  /**
+   * ID of refill if this item is for a refill
+   *
+   * @type {(number | null)}
+   * @memberof TenrxCartEntry
+   */
+  refillID: number | null;
 }

@@ -16,6 +16,8 @@ import {
   TenrxStripeCreditCard,
   useTenrxApi,
   useTenrxStorage,
+  TenrxUploadStagingImage,
+  TenrxAPIModel,
 } from '../index.js';
 import TenrxCartCheckoutResult from '../types/TenrxCartCheckoutResult.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
@@ -47,6 +49,7 @@ export default class TenrxCart {
   private internalPatientImages: Record<string, TenrxPatientImage[]>;
   private internalPromotions: TenrxPromotion[];
   private internalExternalPharmacy = false;
+  private internalStagingImages: { key: string; productID: number }[];
 
   /**
    * Creates an instance of TenrxCart.
@@ -67,6 +70,7 @@ export default class TenrxCart {
     this.internalPatientImages = {};
     this.internalPromotions = [];
     this.internalDiscountAmount = 0;
+    this.internalStagingImages = [];
   }
 
   /**
@@ -239,6 +243,7 @@ export default class TenrxCart {
    * @param {boolean} [taxable=true] - Whether or not the item is taxable
    * @param {boolean} [addInstead=false] - Should a new entry be made instead of changing quantity
    * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
+   * @param {number} [refillID=null] - ID of prescription to refill
    * @memberof TenrxCart
    */
   public addItem(
@@ -249,6 +254,7 @@ export default class TenrxCart {
     taxable = true,
     addInstead = false,
     shipToExternalPharmacy = false,
+    refillID: number | null = null,
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
 
@@ -272,6 +278,7 @@ export default class TenrxCart {
         photoPaths: item.photoPaths.filter((img) => img.length),
         hidden,
         shipToExternalPharmacy,
+        refillID,
       });
     }
   }
@@ -531,27 +538,6 @@ export default class TenrxCart {
     patientComment = '',
     apiEngine = useTenrxApi(),
   ) {
-    const medicationProducts: {
-      id: number;
-      productName: string;
-      productDetails: string;
-      quantity: number;
-      price: number;
-      productId: number;
-      strength: string;
-    }[] = [];
-    this.cartEntries.forEach((entry) => {
-      medicationProducts.push({
-        id: 0,
-        productName: entry.productName,
-        productDetails: entry.productDetails,
-        quantity: entry.quantity,
-        price: entry.price,
-        productId: entry.productId,
-        strength: entry.strength,
-      });
-    });
-
     const body: TenrxCheckoutAPIModel = {
       userName,
       cardId: 0,
@@ -581,6 +567,7 @@ export default class TenrxCart {
         productId: p.productId,
         quantity: p.quantity,
         strength: p.strength,
+        refillID: p.refillID,
       })),
       orderShippingAddress: {
         addressLine1: shippingAddress.address1,
@@ -603,6 +590,7 @@ export default class TenrxCart {
             pharmacyName: shipToExternalPharmacy.name,
           }
         : null,
+      images: this.internalStagingImages.map((image) => image.key),
     };
 
     const result: TenrxCartCheckoutResult = {
@@ -715,6 +703,29 @@ export default class TenrxCart {
       } else {
         this.internalPatientImages[visitTypeId] = images;
       }
+    }
+  }
+
+  /**
+   * Upload images to staging
+   *
+   * @param {TenrxUploadStagingImage[]} images
+   * @param {*} [apiEngine=useTenrxApi()]
+   * @return {*}
+   * @memberof TenrxCart
+   */
+  public async uploadStagingImages(images: TenrxUploadStagingImage[], apiEngine = useTenrxApi()) {
+    try {
+      const response = await apiEngine.uploadStagingImages(images);
+      const content = response.content as TenrxAPIModel<{ success: string[]; fail: string[] }>;
+      if (content.data.success.length) {
+        this.internalStagingImages.push(
+          ...content.data.success.map((key) => ({ key, productID: images[0].productID })),
+        );
+      }
+      return content.data;
+    } catch (error) {
+      throw error;
     }
   }
 
