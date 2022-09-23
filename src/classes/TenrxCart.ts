@@ -83,6 +83,7 @@ export default class TenrxCart {
     this.clearPatientImages();
     this.clearProducts();
     this.clearPromotions();
+    this.clearStagingImages();
   }
 
   /**
@@ -126,6 +127,15 @@ export default class TenrxCart {
     if (treatmentID) {
       delete this.internalPatientImages[treatmentID];
     } else this.internalPatientImages = {};
+  }
+
+  /**
+   * Clear all staging images
+   *
+   * @memberof TenrxCart
+   */
+  public clearStagingImages() {
+    this.internalStagingImages = [];
   }
 
   /**
@@ -195,6 +205,9 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public removeEntry(index: number): void {
+    const product = this.internalCartEntries[index];
+    if (product)
+      this.internalStagingImages = this.internalStagingImages.filter((i) => i.productID !== product.productId);
     this.internalCartEntries.splice(index, 1);
     this.forceRecalculate();
   }
