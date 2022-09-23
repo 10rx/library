@@ -307,3 +307,16 @@ export enum TenrxPharmacyType {
   Internal = 1,
   External,
 }
+
+/**
+ * Roles an image can have
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxImageRoles {
+  ID = 1,
+  Selfie,
+  Prescription,
+  Extra,
+}

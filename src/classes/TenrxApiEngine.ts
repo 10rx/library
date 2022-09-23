@@ -21,6 +21,7 @@ import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestP
 import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
 import TenrxSessionDetailsAPIModel from '../apiModel/TenrxSessionDetailsAPIModel.js';
 import TenrxCheckoutAPIModel from '../apiModel/TenrxCheckoutAPIModel.js';
+import { TenrxUploadStagingImage, TenrxAPIModel, TenrxRefillModel } from '../index.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -1210,6 +1211,53 @@ export default class TenrxApiEngine {
       return await this.authGet('/api/v1/Patient/GetPatientOrderDetails', { orderNumber: orderID });
     } catch (error) {
       TenrxLibraryLogger.error('getOrderDetails() Error: ', error);
+      return {
+        status: 0,
+        content: null,
+        error,
+      };
+    }
+  }
+
+  /**
+   * Get all refills for a patient
+   *
+   * @return {*}  {Promise<TenrxAPIModel<TenrxRefillModel[]>>}
+   * @memberof TenrxApiEngine
+   */
+  public async getRefills(): Promise<TenrxAPIModel<TenrxRefillModel[]>> {
+    try {
+      const response = await this.authGet('/api/v1/Patient/GetRefills');
+      const content = response.content as TenrxAPIModel<TenrxRefillModel[]>;
+      return {
+        apiStatus: content.apiStatus,
+        data: content.data,
+      };
+    } catch (error) {
+      TenrxLibraryLogger.error('getRefills() Error: ', error);
+      return {
+        apiStatus: {
+          statusCode: 0,
+          message: error as string,
+          appError: '',
+        },
+        data: [],
+      };
+    }
+  }
+
+  /**
+   * Upload images to staging
+   *
+   * @param {TenrxUploadStagingImage[]} images
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async uploadStagingImages(images: TenrxUploadStagingImage[]): Promise<TenrxApiResult> {
+    try {
+      return await this.authPost('/api/v1/Patient/UploadStagingImages', images);
+    } catch (error) {
+      TenrxLibraryLogger.error('uploadStagingImages() Error: ', error);
       return {
         status: 0,
         content: null,
