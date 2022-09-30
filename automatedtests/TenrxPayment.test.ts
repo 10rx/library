@@ -76,7 +76,6 @@ test('PlaceOrder Test Successful', async () => {
         accountData.emailId,
         patient.wallet.cards.at(-1) as TenrxStripeCreditCard,
         TEST_ADDRESS,
-        TenrxShippingType.Standard,
       );
       expect(checkoutResponse).not.toBeNull();
       expect(checkoutResponse.checkoutSuccessful).toBe(true);

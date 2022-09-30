@@ -194,6 +194,7 @@ export default class TenrxProduct {
     this.precautions = '';
     this.sellingPrice = '';
     this.maxQuantityPurchasable = 0;
+    this.load = this.load.bind(this);
     if (load) {
       this.load(language, apiEngine).catch((e) => {
         throw new TenrxLoadError(
@@ -213,7 +214,7 @@ export default class TenrxProduct {
    * @memberof TenrxProduct
    * @throws {TenrxLoadError} - Throws an error if the product could not be loaded.
    */
-  public async load(language = 'en', apiEngine = useTenrxApi()) {
+  public async load(language = 'en', apiEngine = useTenrxApi()): Promise<void> {
     if (!this.loaded) {
       TenrxLibraryLogger.info('Loading product with id: ' + String(this.id));
       try {
