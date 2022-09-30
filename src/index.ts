@@ -122,6 +122,9 @@ export {
   TenrxProductStatusID,
   TenrxPharmacyType,
   TenrxImageRoles,
+  TenrxFeeItem,
+  TenrxFeeNames,
+  TenrxFeeCost,
 } from './includes/TenrxEnums.js';
 
 export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';

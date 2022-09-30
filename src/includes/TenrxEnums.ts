@@ -320,3 +320,27 @@ export enum TenrxImageRoles {
   Prescription,
   Extra,
 }
+
+/**
+ * Product IDs of fee items
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxFeeItem {
+  DoctorFree = 2466,
+  DoctorPaid = 2821,
+  Consultation = 2469,
+}
+
+export const TenrxFeeNames = {
+  [TenrxFeeItem.DoctorFree]: 'Doctor Fee Free',
+  [TenrxFeeItem.DoctorPaid]: 'Doctor Fee Paid',
+  [TenrxFeeItem.Consultation]: 'Consultation Fee',
+};
+
+export const TenrxFeeCost = {
+  [TenrxFeeItem.DoctorFree]: 0,
+  [TenrxFeeItem.DoctorPaid]: 45,
+  [TenrxFeeItem.Consultation]: 45,
+};

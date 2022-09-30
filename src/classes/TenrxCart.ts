@@ -18,6 +18,9 @@ import {
   useTenrxStorage,
   TenrxUploadStagingImage,
   TenrxAPIModel,
+  TenrxFeeItem,
+  TenrxFeeNames,
+  TenrxFeeCost,
 } from '../index.js';
 import TenrxCartCheckoutResult from '../types/TenrxCartCheckoutResult.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
@@ -86,6 +89,7 @@ export default class TenrxCart {
     this.clearProducts();
     this.clearPromotions();
     this.clearStagingImages();
+    this.internalShippingType = TenrxShippingType.Standard;
   }
 
   /**
@@ -265,11 +269,14 @@ export default class TenrxCart {
     item: TenrxProduct,
     quantity: number,
     strength = '',
-    hidden = false,
-    taxable = true,
-    addInstead = false,
-    shipToExternalPharmacy = false,
-    refillID: number | null = null,
+    options?: {
+      hidden?: boolean;
+      taxable?: boolean;
+      addInstead?: boolean;
+      shipToExternalPharmacy?: boolean;
+      refillID?: number | null;
+      isFee?: boolean;
+    },
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
 
@@ -277,7 +284,7 @@ export default class TenrxCart {
       (product) => product.productId === item.id && product.strength === strength,
     );
 
-    if (exists && !addInstead) {
+    if (exists && options?.addInstead) {
       exists.quantity += quantity;
     } else {
       this.addEntry({
@@ -289,11 +296,12 @@ export default class TenrxCart {
         price: strengthMatch ? strengthMatch.price : item.price,
         strength,
         rx: item.rx,
-        taxable,
+        taxable: options?.taxable ?? true,
         photoPaths: item.photoPaths.filter((img) => img.length),
-        hidden,
-        shipToExternalPharmacy,
-        refillID,
+        hidden: options?.hidden ?? false,
+        shipToExternalPharmacy: options?.shipToExternalPharmacy ?? false,
+        refillID: options?.refillID ?? null,
+        isFee: options?.isFee ?? false,
       });
     }
   }
@@ -534,6 +542,71 @@ export default class TenrxCart {
 
   public set shippingType(value: TenrxShippingType) {
     this.internalShippingType = value;
+  }
+
+  /**
+   * Add fee item to cart if doesn't exist already
+   *
+   * @param {TenrxFeeItem} feeID
+   * @param {number} [visitType]
+   * @return {*}
+   * @memberof TenrxCart
+   */
+  public addFee(feeID: TenrxFeeItem, visitType?: number) {
+    const exists = this.internalCartEntries.find((p) =>
+      visitType ? p.productId === feeID && p.treatmentTypeId === visitType : p.productId === feeID,
+    );
+
+    if (exists) return;
+
+    this.addItem(
+      new TenrxProduct({
+        id: feeID,
+        name: TenrxFeeNames[feeID],
+        nameEs: TenrxFeeNames[feeID],
+        defaultPrice: TenrxFeeCost[feeID].toString(),
+        totalRecords: 0,
+        photoPaths: feeID === TenrxFeeItem.Consultation ? ['/consultWithADoctor.png'] : [],
+        subCategoryIcon: '',
+        treatementType: '',
+        isActive: true,
+        isRx: feeID === TenrxFeeItem.Consultation,
+        subCategory: null,
+        quantity: 1,
+        expiryDate: new Date().toISOString(),
+        treatmentTypeId: visitType || 0,
+        categoryId: 1,
+        genderId: 0,
+        questionnaireID: null,
+      }),
+      1,
+      '-1',
+      {
+        hidden: feeID !== TenrxFeeItem.Consultation,
+        taxable: false,
+        isFee: true,
+      },
+    );
+  }
+
+  /**
+   * Change fee IDs
+   *
+   * @param {TenrxFeeItem} oldFeeID
+   * @param {TenrxFeeItem} newFeeID
+   * @param {number} [visitType]
+   * @memberof TenrxCart
+   */
+  public changeFee(oldFeeID: TenrxFeeItem, newFeeID: TenrxFeeItem, visitType?: number) {
+    for (const entry of this.internalCartEntries) {
+      if (entry.productId === oldFeeID) {
+        if (visitType && entry.treatmentTypeId !== visitType) continue;
+        entry.productId = newFeeID;
+        entry.productName = TenrxFeeNames[newFeeID];
+        entry.price = TenrxFeeCost[newFeeID];
+      }
+    }
+    this.saveSync();
   }
 
   /**
@@ -930,7 +1003,7 @@ export default class TenrxCart {
    */
   public async save(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): Promise<void> {
     TenrxLibraryLogger.info('Saving cart entries asynchronous.');
-    await storage.save(scope, 'cart', this.internalCartEntries);
+    await storage.save(scope, 'cart', { entries: this.internalCartEntries, keys: this.internalStagingImages });
   }
 
   /**
@@ -943,11 +1016,16 @@ export default class TenrxCart {
    */
   public async load(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): Promise<void> {
     TenrxLibraryLogger.info('Loading cart entries asynchronous.');
-    const cartEntries = await storage.load<TenrxCartEntry[]>(scope, 'cart');
-    if (cartEntries) {
-      this.internalCartEntries = cartEntries;
+    const savedCart = await storage.load<{ entries: TenrxCartEntry[]; keys: { key: string; productID: number }[] }>(
+      scope,
+      'cart',
+    );
+    if (savedCart) {
+      this.internalCartEntries = savedCart.entries;
+      this.internalStagingImages = savedCart.keys;
     } else {
       this.internalCartEntries = [];
+      this.internalStagingImages = [];
     }
     this.internalLoaded = true;
   }
@@ -961,7 +1039,7 @@ export default class TenrxCart {
    */
   public saveSync(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): void {
     TenrxLibraryLogger.info('Saving cart entries synchronous.');
-    storage.saveSync(scope, 'cart', this.internalCartEntries);
+    storage.saveSync(scope, 'cart', { entries: this.internalCartEntries, keys: this.internalStagingImages });
   }
 
   /**
@@ -973,11 +1051,16 @@ export default class TenrxCart {
    */
   public loadSync(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): void {
     TenrxLibraryLogger.info('Loading cart entries synchronous.');
-    const cartEntries = storage.loadSync<TenrxCartEntry[]>(scope, 'cart');
-    if (cartEntries) {
-      this.internalCartEntries = cartEntries;
+    const savedCart = storage.loadSync<{ entries: TenrxCartEntry[]; keys: { key: string; productID: number }[] }>(
+      scope,
+      'cart',
+    );
+    if (savedCart) {
+      this.internalCartEntries = savedCart.entries;
+      this.internalStagingImages = savedCart.keys;
     } else {
       this.internalCartEntries = [];
+      this.internalStagingImages = [];
     }
     this.internalLoaded = true;
   }

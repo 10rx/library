@@ -108,4 +108,12 @@ export default interface TenrxCartEntry {
    * @memberof TenrxCartEntry
    */
   refillID: number | null;
+
+  /**
+   * Is entry a fee item
+   *
+   * @type {boolean}
+   * @memberof TenrxCartEntry
+   */
+  isFee: boolean;
 }

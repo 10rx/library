@@ -2,7 +2,7 @@ import TenrxAPIModel from '../apiModel/TenrxAPIModel.js';
 import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
 import TenrxOrderDetailsModel from '../apiModel/TenrxOrderDetailsModel.js';
-import { TenrxShippingType } from '../includes/TenrxEnums.js';
+import { TenrxShippingType, TenrxFeeItem } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxMeetingInformation from '../types/TenrxMeetingInformation.js';
@@ -117,6 +117,7 @@ export default class TenrxOrder {
             ? [orderProduct.photoPath]
             : [],
           photoThumbnailPath: orderProduct.photoThumbnailPath,
+          isFee: Object.values(TenrxFeeItem).includes(orderProduct.productId),
         });
       });
     }

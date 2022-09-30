@@ -117,4 +117,12 @@ export default interface TenrxOrderProductEntry {
    * @memberof TenrxOrderProductEntry
    */
   rx: boolean;
+
+  /**
+   * Is the product a fee
+   *
+   * @type {boolean}
+   * @memberof TenrxOrderProductEntry
+   */
+  isFee: boolean;
 }
