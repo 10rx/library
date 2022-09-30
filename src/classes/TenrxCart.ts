@@ -50,6 +50,7 @@ export default class TenrxCart {
   private internalPromotions: TenrxPromotion[];
   private internalExternalPharmacy = false;
   private internalStagingImages: { key: string; productID: number }[];
+  private internalShippingType: TenrxShippingType;
 
   /**
    * Creates an instance of TenrxCart.
@@ -71,6 +72,7 @@ export default class TenrxCart {
     this.internalPromotions = [];
     this.internalDiscountAmount = 0;
     this.internalStagingImages = [];
+    this.internalShippingType = TenrxShippingType.Standard;
   }
 
   /**
@@ -509,6 +511,7 @@ export default class TenrxCart {
   public get cartEntries(): TenrxCartEntry[] {
     return this.internalCartEntries;
   }
+
   /**
    * Gets the shipping cost.
    *
@@ -516,16 +519,21 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get shippingCost(): number {
-    return this.internalShippingCost;
+    let cost = 0;
+    switch (this.internalShippingType) {
+      case TenrxShippingType.Expedited:
+        cost = 45;
+        break;
+    }
+    return cost;
   }
 
-  /**
-   * Sets the shipping cost.
-   *
-   * @memberof TenrxCart
-   */
-  public set shippingCost(value: number) {
-    this.internalShippingCost = value;
+  public get shippingType(): TenrxShippingType {
+    return this.internalShippingType;
+  }
+
+  public set shippingType(value: TenrxShippingType) {
+    this.internalShippingType = value;
   }
 
   /**
@@ -545,7 +553,6 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
-    shippingType: TenrxShippingType,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     timeout = 10000,
     patientComment = '',
@@ -571,7 +578,7 @@ export default class TenrxCart {
         exp_year: Number(card.expYear),
       },
       status: 0,
-      shippingType,
+      shippingType: this.internalShippingType,
       pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
       couponCode: this.internalPromotions[0]?.couponCode || null,
       orderId: 0,
