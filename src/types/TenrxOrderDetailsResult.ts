@@ -5,8 +5,8 @@ export default interface TenrxOrderDetailsResult {
   subtotal: number;
   shippingFee: number;
   discount: number;
-  totalBeforeTax: number;
-  grandTotal: number;
+  total: number;
+  datePlaced: Date;
   orderStatus: TenrxOrderStatusID;
   shippingType: TenrxShippingType;
   last4: string;
@@ -22,15 +22,14 @@ export default interface TenrxOrderDetailsResult {
   };
   products: {
     name: string;
+    quantity: number;
+    price: number;
+    total: number;
     status: TenrxProductStatusID;
-    subtotal: number;
-    tax: number;
-    itemSubtotal: number;
   }[];
   error?: string;
   doctor: {
-    name: string;
-    phone: string;
-    email: string;
+    name: string | null;
+    email: string | null;
   };
 }

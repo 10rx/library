@@ -307,3 +307,40 @@ export enum TenrxPharmacyType {
   Internal = 1,
   External,
 }
+
+/**
+ * Roles an image can have
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxImageRoles {
+  ID = 1,
+  Selfie,
+  Prescription,
+  Extra,
+}
+
+/**
+ * Product IDs of fee items
+ *
+ * @export
+ * @enum {number}
+ */
+export enum TenrxFeeItem {
+  DoctorFree = 2466,
+  DoctorPaid = 2821,
+  Consultation = 2469,
+}
+
+export const TenrxFeeNames = {
+  [TenrxFeeItem.DoctorFree]: 'Doctor Fee Free',
+  [TenrxFeeItem.DoctorPaid]: 'Doctor Fee Paid',
+  [TenrxFeeItem.Consultation]: 'Consultation Fee',
+};
+
+export const TenrxFeeCost = {
+  [TenrxFeeItem.DoctorFree]: 0,
+  [TenrxFeeItem.DoctorPaid]: 45,
+  [TenrxFeeItem.Consultation]: 45,
+};

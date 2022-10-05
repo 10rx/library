@@ -2,7 +2,7 @@ import TenrxAPIModel from '../apiModel/TenrxAPIModel.js';
 import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
 import TenrxOrderDetailsModel from '../apiModel/TenrxOrderDetailsModel.js';
-import { TenrxShippingType } from '../includes/TenrxEnums.js';
+import { TenrxShippingType, TenrxFeeItem } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxMeetingInformation from '../types/TenrxMeetingInformation.js';
@@ -117,6 +117,7 @@ export default class TenrxOrder {
             ? [orderProduct.photoPath]
             : [],
           photoThumbnailPath: orderProduct.photoThumbnailPath,
+          isFee: Object.values(TenrxFeeItem).includes(orderProduct.productId),
         });
       });
     }
@@ -293,43 +294,36 @@ export default class TenrxOrder {
   public static async getOrderDetails(orderID: string): Promise<TenrxOrderDetailsResult | { error: string }> {
     try {
       const response = await useTenrxApi().getOrderDetails(orderID);
-      const content = response.content as TenrxAPIModel<TenrxOrderDetailsModel[]>;
+      const content = response.content as TenrxAPIModel<TenrxOrderDetailsModel>;
 
       if (!response.content || content.apiStatus.statusCode === 500) return { error: 'Server error' };
       if (content.apiStatus.statusCode === 404) return { error: 'Unknown order' };
 
       const orderDetails: TenrxOrderDetailsResult = {
-        tax: content.data[0].totalTax,
-        subtotal: content.data[0].subtotal,
-        shippingFee: content.data[0].shippingFees,
-        orderStatus: content.data[0].orderStatus,
-        shippingType: content.data[0].shippingType,
-        discount: content.data[0].discount,
-        totalBeforeTax: content.data[0].totalBeforeTax,
-        grandTotal: content.data[0].grandTotal,
-        last4: content.data[0].last4,
-        shippingAddress: {
-          address1: content.data[0].address1,
-          address2: content.data[0].address2,
-          city: content.data[0].city,
-          zipCode: content.data[0].zipCode,
-        },
+        tax: content.data.tax,
+        total: content.data.total,
+        datePlaced: new Date(content.data.datePlaced),
+        subtotal: content.data.subtotal,
+        shippingFee: content.data.shippingCost,
+        orderStatus: content.data.status,
+        shippingType: content.data.shippingType,
+        discount: content.data.discount,
+        last4: content.data.last4,
         tracking: {
-          id: content.data[0].trackingNumber,
-          carrier: content.data[0].carrier,
+          id: content.data.trackingNumber,
+          carrier: content.data.trackingCarrier,
         },
-        products: content.data.map((product) => ({
-          name: product.productName,
-          status: product.productStatusId,
-          subtotal: product.subtotal,
-          tax: product.totalTax,
-          itemSubtotal: product.itemSubtotal,
-        })),
         doctor: {
-          name: content.data[0].doctorName,
-          phone: content.data[0].doctorPhone,
-          email: content.data[0].doctorEmail,
+          name: content.data.doctorName,
+          email: content.data.doctorEmail,
         },
+        shippingAddress: {
+          address1: content.data.address.address1,
+          address2: content.data.address.address2,
+          city: content.data.address.city,
+          zipCode: content.data.address.zip,
+        },
+        products: content.data.products,
       };
 
       return orderDetails;

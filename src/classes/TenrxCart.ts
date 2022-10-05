@@ -16,6 +16,11 @@ import {
   TenrxStripeCreditCard,
   useTenrxApi,
   useTenrxStorage,
+  TenrxUploadStagingImage,
+  TenrxAPIModel,
+  TenrxFeeItem,
+  TenrxFeeNames,
+  TenrxFeeCost,
 } from '../index.js';
 import TenrxCartCheckoutResult from '../types/TenrxCartCheckoutResult.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
@@ -47,6 +52,8 @@ export default class TenrxCart {
   private internalPatientImages: Record<string, TenrxPatientImage[]>;
   private internalPromotions: TenrxPromotion[];
   private internalExternalPharmacy = false;
+  private internalStagingImages: { key: string; productID: number }[];
+  private internalShippingType: TenrxShippingType;
 
   /**
    * Creates an instance of TenrxCart.
@@ -67,6 +74,8 @@ export default class TenrxCart {
     this.internalPatientImages = {};
     this.internalPromotions = [];
     this.internalDiscountAmount = 0;
+    this.internalStagingImages = [];
+    this.internalShippingType = TenrxShippingType.Standard;
   }
 
   /**
@@ -79,6 +88,8 @@ export default class TenrxCart {
     this.clearPatientImages();
     this.clearProducts();
     this.clearPromotions();
+    this.clearStagingImages();
+    this.internalShippingType = TenrxShippingType.Standard;
   }
 
   /**
@@ -122,6 +133,15 @@ export default class TenrxCart {
     if (treatmentID) {
       delete this.internalPatientImages[treatmentID];
     } else this.internalPatientImages = {};
+  }
+
+  /**
+   * Clear all staging images
+   *
+   * @memberof TenrxCart
+   */
+  public clearStagingImages() {
+    this.internalStagingImages = [];
   }
 
   /**
@@ -191,6 +211,9 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public removeEntry(index: number): void {
+    const product = this.internalCartEntries[index];
+    if (product)
+      this.internalStagingImages = this.internalStagingImages.filter((i) => i.productID !== product.productId);
     this.internalCartEntries.splice(index, 1);
     this.forceRecalculate();
   }
@@ -239,16 +262,21 @@ export default class TenrxCart {
    * @param {boolean} [taxable=true] - Whether or not the item is taxable
    * @param {boolean} [addInstead=false] - Should a new entry be made instead of changing quantity
    * @param {boolean} [shipToExternalPharmacy=false] - Whether or not to ship the product to an external pharmacy.
+   * @param {number} [refillID=null] - ID of prescription to refill
    * @memberof TenrxCart
    */
   public addItem(
     item: TenrxProduct,
     quantity: number,
     strength = '',
-    hidden = false,
-    taxable = true,
-    addInstead = false,
-    shipToExternalPharmacy = false,
+    options?: {
+      hidden?: boolean;
+      taxable?: boolean;
+      addInstead?: boolean;
+      shipToExternalPharmacy?: boolean;
+      refillID?: number | null;
+      isFee?: boolean;
+    },
   ): void {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
 
@@ -256,7 +284,7 @@ export default class TenrxCart {
       (product) => product.productId === item.id && product.strength === strength,
     );
 
-    if (exists && !addInstead) {
+    if (exists && options?.addInstead) {
       exists.quantity += quantity;
     } else {
       this.addEntry({
@@ -268,10 +296,12 @@ export default class TenrxCart {
         price: strengthMatch ? strengthMatch.price : item.price,
         strength,
         rx: item.rx,
-        taxable,
+        taxable: options?.taxable ?? true,
         photoPaths: item.photoPaths.filter((img) => img.length),
-        hidden,
-        shipToExternalPharmacy,
+        hidden: options?.hidden ?? false,
+        shipToExternalPharmacy: options?.shipToExternalPharmacy ?? false,
+        refillID: options?.refillID ?? null,
+        isFee: options?.isFee ?? false,
       });
     }
   }
@@ -287,17 +317,17 @@ export default class TenrxCart {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   public async getTaxInformation(address: TenrxStreetAddress, apiEngine = useTenrxApi()): Promise<void> {
-    // TODO - Implement additive tax.
+    // This is now handled by the backend.
     TenrxLibraryLogger.info('Getting tax information for items in cart.');
     const productsForTaxCalculaitons: {
       productId: number;
-      price: number;
+      quantity: number;
     }[] = [];
     this.internalCartEntries.forEach((entry) => {
       if (entry.taxable)
         productsForTaxCalculaitons.push({
           productId: entry.productId,
-          price: entry.price,
+          quantity: entry.quantity,
         });
     });
     const taxInformation = await apiEngine.getProductTax({
@@ -317,32 +347,19 @@ export default class TenrxCart {
         const content = taxInformation.content as {
           apiStatus: { statusCode: number; message: string };
           data: {
-            productTaxResponse: { productId: number; isTaxable: boolean }[];
             totalTax: number;
-            additiveTax: number;
             taxRate: number;
           };
         };
         if (content.apiStatus) {
           if (content.apiStatus.statusCode === 200) {
             if (content.data) {
-              if (content.data.totalTax) {
+              if (content.data.totalTax || content.data.totalTax === 0) {
                 this.internalTaxRate = content.data.taxRate;
+                this.internalTaxAmount = content.data.totalTax;
               } else {
                 TenrxLibraryLogger.error('No tax rate found.', content.data);
                 throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
-              }
-              if (content.data.productTaxResponse) {
-                this.internalCartEntries.forEach((entry) => {
-                  const taxResponse = content.data.productTaxResponse.find((x) => x.productId === entry.productId);
-                  if (taxResponse) {
-                    entry.taxable = taxResponse.isTaxable;
-                  }
-                });
-                this.forceRecalculate();
-              } else {
-                TenrxLibraryLogger.error('No product tax response found.', content.data);
-                throw new TenrxLoadError('No product tax response found.', 'TenrxCart', null);
               }
             } else {
               TenrxLibraryLogger.error('No tax data found.', content);
@@ -378,6 +395,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get tax(): number {
+    // Backend now handles this logic
     if (this.internalTaxAmount < 0) {
       this.internalTaxAmount = tenrxRoundTo(
         this.internalCartEntries.reduce((acc, curr) => {
@@ -386,7 +404,7 @@ export default class TenrxCart {
           if (this.internalPromotions.length > 0) {
             price = price - this.internalPromotions[0].calculateOrderDiscount(price);
           }
-          return acc + price * this.internalTaxRate;
+          return acc + price * this.internalTaxRate * curr.quantity;
         }, 0),
       );
     }
@@ -501,6 +519,7 @@ export default class TenrxCart {
   public get cartEntries(): TenrxCartEntry[] {
     return this.internalCartEntries;
   }
+
   /**
    * Gets the shipping cost.
    *
@@ -508,16 +527,86 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get shippingCost(): number {
-    return this.internalShippingCost;
+    let cost = 0;
+    switch (this.internalShippingType) {
+      case TenrxShippingType.Expedited:
+        cost = 45;
+        break;
+    }
+    return cost;
+  }
+
+  public get shippingType(): TenrxShippingType {
+    return this.internalShippingType;
+  }
+
+  public set shippingType(value: TenrxShippingType) {
+    this.internalShippingType = value;
   }
 
   /**
-   * Sets the shipping cost.
+   * Add fee item to cart if doesn't exist already
    *
+   * @param {TenrxFeeItem} feeID
+   * @param {number} [visitType]
+   * @return {*}
    * @memberof TenrxCart
    */
-  public set shippingCost(value: number) {
-    this.internalShippingCost = value;
+  public addFee(feeID: TenrxFeeItem, visitType?: number) {
+    const exists = this.internalCartEntries.find((p) =>
+      visitType ? p.productId === feeID && p.treatmentTypeId === visitType : p.productId === feeID,
+    );
+
+    if (exists) return;
+
+    this.addItem(
+      new TenrxProduct({
+        id: feeID,
+        name: TenrxFeeNames[feeID],
+        nameEs: TenrxFeeNames[feeID],
+        defaultPrice: TenrxFeeCost[feeID].toString(),
+        totalRecords: 0,
+        photoPaths: feeID === TenrxFeeItem.Consultation ? ['/consultWithADoctor.png'] : [],
+        subCategoryIcon: '',
+        treatementType: '',
+        isActive: true,
+        isRx: feeID === TenrxFeeItem.Consultation,
+        subCategory: null,
+        quantity: 1,
+        expiryDate: new Date().toISOString(),
+        treatmentTypeId: visitType || 0,
+        categoryId: 1,
+        genderId: 0,
+        questionnaireID: null,
+      }),
+      1,
+      '-1',
+      {
+        hidden: feeID !== TenrxFeeItem.Consultation,
+        taxable: false,
+        isFee: true,
+      },
+    );
+  }
+
+  /**
+   * Change fee IDs
+   *
+   * @param {TenrxFeeItem} oldFeeID
+   * @param {TenrxFeeItem} newFeeID
+   * @param {number} [visitType]
+   * @memberof TenrxCart
+   */
+  public changeFee(oldFeeID: TenrxFeeItem, newFeeID: TenrxFeeItem, visitType?: number) {
+    for (const entry of this.internalCartEntries) {
+      if (entry.productId === oldFeeID) {
+        if (visitType && entry.treatmentTypeId !== visitType) continue;
+        entry.productId = newFeeID;
+        entry.productName = TenrxFeeNames[newFeeID];
+        entry.price = TenrxFeeCost[newFeeID];
+      }
+    }
+    this.saveSync();
   }
 
   /**
@@ -537,87 +626,42 @@ export default class TenrxCart {
     userName: string,
     card: TenrxStripeCreditCard,
     shippingAddress: TenrxStreetAddress,
-    shippingType: TenrxShippingType,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     timeout = 10000,
     patientComment = '',
     apiEngine = useTenrxApi(),
   ) {
-    const medicationProducts: {
-      id: number;
-      productName: string;
-      productDetails: string;
-      quantity: number;
-      price: number;
-      productId: number;
-      strength: string;
-    }[] = [];
-    this.cartEntries.forEach((entry) => {
-      medicationProducts.push({
-        id: 0,
-        productName: entry.productName,
-        productDetails: entry.productDetails,
-        quantity: entry.quantity,
-        price: entry.price,
-        productId: entry.productId,
-        strength: entry.strength,
-      });
-    });
-
     const body: TenrxCheckoutAPIModel = {
       userName,
       cardId: 0,
       stripeToken: card.cardId,
-      status: 0,
-      shippingType,
-      pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
-      couponCode: this.internalPromotions[0]?.couponCode ?? null,
-      orderId: 0,
       paymentCardDetails: {
         cardId: card.cardId,
         paymentMethod: card.paymentMethod,
         name: card.nameOnCard,
         addressCity: card.address.city,
-        addressCountry: TenrxEnumCountry[card.country],
+        addressCountry: 'US',
         addressLine1: card.address.address1,
         addressLine2: card.address.address2 ?? null,
         addressState: TenrxStateIdToStateName[card.address.stateId],
         addressZip: card.address.zipCode,
         brand: card.brand,
-        country: TenrxEnumCountry[card.country],
         last4: card.last4,
         exp_month: Number(card.expMonth),
         exp_year: Number(card.expYear),
       },
-      price: [
-        {
-          price: this.total,
-        },
-      ],
-      amount: this.total,
-      totalTax: this.tax,
-      taxPrice: this.tax,
-      subtotal: this.subTotal + this.subHiddenTotal,
+      status: 0,
+      shippingType: this.internalShippingType,
+      pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
+      couponCode: this.internalPromotions[0]?.couponCode || null,
+      orderId: 0,
       shippingFees: this.shippingCost,
-      patientProducts: {
-        medicationProducts,
-        totalPrice: this.total,
-        visitTypeId: 0,
-        userName,
-        couponCode: this.internalPromotions[0]?.couponCode ?? null,
-        externalPharmacyAddress: shipToExternalPharmacy
-          ? {
-              apartmentNumber: shipToExternalPharmacy.address.aptNumber ?? null,
-              address1: shipToExternalPharmacy.address.address1,
-              address2: shipToExternalPharmacy.address.address2 ?? null,
-              city: shipToExternalPharmacy.address.city,
-              stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
-              zipCode: shipToExternalPharmacy.address.zipCode,
-              country: 'US',
-              pharmacyName: shipToExternalPharmacy.name,
-            }
-          : null,
-      },
+      patientProducts: this.cartEntries.map((p) => ({
+        productId: p.productId,
+        quantity: p.quantity,
+        strength: p.strength,
+        refillID: p.refillID,
+      })),
       orderShippingAddress: {
         addressLine1: shippingAddress.address1,
         addressLine2: shippingAddress.address2 ?? null,
@@ -625,8 +669,21 @@ export default class TenrxCart {
         state: TenrxStateIdToStateName[shippingAddress.stateId],
         zipCode: shippingAddress.zipCode,
         countryID: TenrxEnumCountry.US,
-        phoneNumber: shippingAddress.phone ?? null,
+        phoneNumber: shippingAddress.phone ?? '',
       },
+      externalPharmacyAddress: shipToExternalPharmacy
+        ? {
+            apartmentNumber: shipToExternalPharmacy.address.aptNumber ?? null,
+            address1: shipToExternalPharmacy.address.address1,
+            address2: shipToExternalPharmacy.address.address2 ?? null,
+            city: shipToExternalPharmacy.address.city,
+            stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
+            zipCode: shipToExternalPharmacy.address.zipCode,
+            country: 'US',
+            pharmacyName: shipToExternalPharmacy.name,
+          }
+        : null,
+      images: this.internalStagingImages.map((image) => image.key),
     };
 
     const result: TenrxCartCheckoutResult = {
@@ -739,6 +796,29 @@ export default class TenrxCart {
       } else {
         this.internalPatientImages[visitTypeId] = images;
       }
+    }
+  }
+
+  /**
+   * Upload images to staging
+   *
+   * @param {TenrxUploadStagingImage[]} images
+   * @param {*} [apiEngine=useTenrxApi()]
+   * @return {*}
+   * @memberof TenrxCart
+   */
+  public async uploadStagingImages(images: TenrxUploadStagingImage[], apiEngine = useTenrxApi()) {
+    try {
+      const response = await apiEngine.uploadStagingImages(images);
+      const content = response.content as TenrxAPIModel<{ success: string[]; fail: string[] }>;
+      if (content.data.success.length) {
+        this.internalStagingImages.push(
+          ...content.data.success.map((key) => ({ key, productID: images[0].productID })),
+        );
+      }
+      return content.data;
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -923,7 +1003,7 @@ export default class TenrxCart {
    */
   public async save(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): Promise<void> {
     TenrxLibraryLogger.info('Saving cart entries asynchronous.');
-    await storage.save(scope, 'cart', this.internalCartEntries);
+    await storage.save(scope, 'cart', { entries: this.internalCartEntries, keys: this.internalStagingImages });
   }
 
   /**
@@ -936,11 +1016,16 @@ export default class TenrxCart {
    */
   public async load(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): Promise<void> {
     TenrxLibraryLogger.info('Loading cart entries asynchronous.');
-    const cartEntries = await storage.load<TenrxCartEntry[]>(scope, 'cart');
-    if (cartEntries) {
-      this.internalCartEntries = cartEntries;
+    const savedCart = await storage.load<{ entries: TenrxCartEntry[]; keys: { key: string; productID: number }[] }>(
+      scope,
+      'cart',
+    );
+    if (savedCart) {
+      this.internalCartEntries = savedCart.entries;
+      this.internalStagingImages = savedCart.keys;
     } else {
       this.internalCartEntries = [];
+      this.internalStagingImages = [];
     }
     this.internalLoaded = true;
   }
@@ -954,7 +1039,7 @@ export default class TenrxCart {
    */
   public saveSync(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): void {
     TenrxLibraryLogger.info('Saving cart entries synchronous.');
-    storage.saveSync(scope, 'cart', this.internalCartEntries);
+    storage.saveSync(scope, 'cart', { entries: this.internalCartEntries, keys: this.internalStagingImages });
   }
 
   /**
@@ -966,11 +1051,16 @@ export default class TenrxCart {
    */
   public loadSync(scope: TenrxStorageScope = 'session', storage = useTenrxStorage()): void {
     TenrxLibraryLogger.info('Loading cart entries synchronous.');
-    const cartEntries = storage.loadSync<TenrxCartEntry[]>(scope, 'cart');
-    if (cartEntries) {
-      this.internalCartEntries = cartEntries;
+    const savedCart = storage.loadSync<{ entries: TenrxCartEntry[]; keys: { key: string; productID: number }[] }>(
+      scope,
+      'cart',
+    );
+    if (savedCart) {
+      this.internalCartEntries = savedCart.entries;
+      this.internalStagingImages = savedCart.keys;
     } else {
       this.internalCartEntries = [];
+      this.internalStagingImages = [];
     }
     this.internalLoaded = true;
   }

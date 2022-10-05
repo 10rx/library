@@ -30,4 +30,5 @@ export default interface TenrxMedicationProductDetailAPIModel {
       barcode: string;
     },
   ];
+  questionnaireID: number | null;
 }

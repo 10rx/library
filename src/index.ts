@@ -103,6 +103,8 @@ export {
 } from './apiModel/TenrxLoginAPIModel.js';
 export { default as TenrxSessionDetailsAPIModel } from './apiModel/TenrxSessionDetailsAPIModel.js';
 export { default as TenrxAPIModel } from './apiModel/TenrxAPIModel.js';
+export { default as TenrxUploadStagingImage } from './apiModel/TenrxUploadStagingImage.js';
+export { default as TenrxRefillModel } from './apiModel/TenrxRefillModel.js';
 
 // Enums
 export {
@@ -119,6 +121,10 @@ export {
   TenrxProductStatus,
   TenrxProductStatusID,
   TenrxPharmacyType,
+  TenrxImageRoles,
+  TenrxFeeItem,
+  TenrxFeeNames,
+  TenrxFeeCost,
 } from './includes/TenrxEnums.js';
 
 export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';
