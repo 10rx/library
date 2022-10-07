@@ -1,5 +1,6 @@
-import TenrxMedicationProductDetailAPIModel from '../apiModel/TenrxMedicationProductDetailAPIModel.js';
+import TenrxGetProductAPIModel from '../apiModel/TenrxGetProductAPIModel.js';
 import TenrxTreatmentProductListAPIModel from '../apiModel/TenrxTreatmentProductListAPIModel.js';
+import TenrxGetProductsAPIModel from '../apiModel/TenrxGetProductsAPIModel.js';
 import TenrxLoadError from '../exceptions/TenrxLoadError.js';
 import TenrxMedicationStrength from '../types/TenrxMedicationStrength.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
@@ -79,10 +80,10 @@ export default class TenrxProduct {
   /**
    * Contains the default price of the product.
    *
-   * @type {string}
+   * @type {number}
    * @memberof TenrxProduct
    */
-  defaultPrice: string;
+  defaultPrice: number;
 
   /**
    * Returns true if the product has been loaded completely from the api. Otherwise, returns false.
@@ -111,10 +112,10 @@ export default class TenrxProduct {
   /**
    * Contains the actual selling price of the product.
    *
-   * @type {string}
+   * @type {number}
    * @memberof TenrxProduct
    */
-  sellingPrice: string;
+  sellingPrice: number;
 
   /**
    * Returns true if the product is out of stock. Otherwise, returns false.
@@ -173,7 +174,7 @@ export default class TenrxProduct {
       this.genderId = data.genderId;
       this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
       this.photoPaths = data.photoPaths.filter((img) => img.length);
-      this.defaultPrice = data.defaultPrice;
+      this.defaultPrice = Number(data.defaultPrice);
       this.questionnaireID = data.questionnaireID;
     } else {
       this.id = 0;
@@ -184,7 +185,7 @@ export default class TenrxProduct {
       this.genderId = 0;
       this.name = '';
       this.photoPaths = [];
-      this.defaultPrice = '';
+      this.defaultPrice = 0;
       this.questionnaireID = null;
     }
     this.outOfStock = false;
@@ -192,7 +193,7 @@ export default class TenrxProduct {
     this.strengthLevels = [];
     this.description = '';
     this.precautions = '';
-    this.sellingPrice = '';
+    this.sellingPrice = 0;
     this.maxQuantityPurchasable = 0;
     this.load = this.load.bind(this);
     if (load) {
@@ -218,55 +219,46 @@ export default class TenrxProduct {
     if (!this.loaded) {
       TenrxLibraryLogger.info('Loading product with id: ' + String(this.id));
       try {
-        const response = await apiEngine.getMedicationProductDetail(this.id);
+        const response = await apiEngine.getProduct(this.id);
         if (response.status === 200) {
           const content = response.content as {
-            data: TenrxMedicationProductDetailAPIModel;
-            statusCode: number;
-            message: string;
+            apiStatus: {
+              message: string;
+              statusCode: number;
+            };
+            data: TenrxGetProductAPIModel;
           };
           if (content) {
             if (this.id === 2330) {
               TenrxLibraryLogger.info(`Product failing ${this.id} with name ${this.name}:`, content);
             }
-            if (content.statusCode === 200) {
+            if (content.apiStatus.statusCode === 200) {
               const data = content.data;
               if (data) {
-                this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
-                this.description =
-                  language === 'en' ? data.description : language === 'es' ? data.descriptionEs : data.description;
-                this.precautions =
-                  language === 'en' ? data.precautions : language === 'es' ? data.precautionsEs : data.precautions;
-                this.categoryId = data.categoryId;
-                this.active = data.isActive;
+                // ? If product has no variants than default is strength null
+                const defaultVariant = data.variants.find((v) => !v.strength);
+
+                this.name = language === 'es' ? data.nameEs : data.name;
+                this.description = language === 'es' ? data.descriptionEs : data.description;
+                this.precautions = language === 'es' ? data.precautionsEs : data.precautions;
+                this.categoryId = data.category;
+                this.active = true;
                 this.rx = data.isRx;
-                this.treatmentTypeId = data.treatmentTypeId;
-                this.genderId = data.genderId;
-                this.photoPaths = data.photoPaths
-                  ? data.photoPaths.filter((img) => img.length)
-                  : data.photoPath
-                  ? [data.photoPath]
-                  : [];
-                this.defaultPrice = data.defaultPrice;
-                this.sellingPrice = data.sellingPrice;
+                this.treatmentTypeId = data.visitType;
+                this.genderId = data.gender;
+                this.photoPaths = data.images;
+                this.defaultPrice = defaultVariant?.price || 0;
+                this.sellingPrice = defaultVariant?.price || 0;
                 this.maxQuantityPurchasable = this.rx ? 10 : 0; // TODO This needs to come from the API
-                if (data.medicationQuantityDetails) {
-                  if (data.medicationQuantityDetails.length > 0) {
-                    data.medicationQuantityDetails.forEach((strength) => {
-                      this.strengthLevels.push({
-                        strengthLevel: strength.medicationName,
-                        description:
-                          language === 'en'
-                            ? strength.productName.description
-                            : language === 'es'
-                            ? strength.productName.descriptionEs
-                            : strength.productName.description,
-                        price: strength.price,
-                        barcode: strength.barcode,
-                      });
-                    });
-                  }
-                }
+                this.strengthLevels = data.variants
+                  .filter((v) => v.strength)
+                  .map((v) => ({
+                    strengthLevel: v.strength as string,
+                    description: language === 'es' ? data.descriptionEs : data.description,
+                    price: v.price,
+                    barcode: '',
+                  }));
+
                 this.questionnaireID = data.questionnaireID;
                 this.loaded = true;
               } else {
@@ -279,10 +271,10 @@ export default class TenrxProduct {
               }
             } else {
               TenrxLibraryLogger.error(
-                `Error while attempting to load product with id: '${this.id}': ${content.message}`,
+                `Error while attempting to load product with id: '${this.id}': ${content.apiStatus.message}`,
               );
               throw new TenrxLoadError(
-                `Error while attempting to load product with id: '${this.id}': ${content.message}`,
+                `Error while attempting to load product with id: '${this.id}': ${content.apiStatus.message}`,
                 'TenrxProduct',
                 null,
               );
@@ -312,9 +304,7 @@ export default class TenrxProduct {
    * @memberof TenrxProduct
    */
   public get price(): number {
-    return this.sellingPrice !== '' && this.sellingPrice != null
-      ? Number(this.sellingPrice)
-      : Number(this.defaultPrice);
+    return this.sellingPrice;
   }
 
   /**
@@ -347,22 +337,18 @@ export default class TenrxProduct {
    * Gets all products from the API.
    *
    * @static
-   * @param {string} [language='en'] - The language to use for the product names.
    * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
-   * @return {*}  {(Promise<TenrxTreatmentProductListAPIModel[] | null>)}
+   * @return {*}  {(Promise<TenrxGetProductsAPIModel[] | null>)}
    * @memberof TenrxProduct
    */
-  public static async getAllProducts(
-    language = 'en',
-    apiEngine = useTenrxApi(),
-  ): Promise<TenrxTreatmentProductListAPIModel[] | null> {
+  public static async getAllProducts(apiEngine = useTenrxApi()): Promise<TenrxGetProductsAPIModel[] | null> {
     try {
       TenrxLibraryLogger.info('Getting all products.');
-      const response = await apiEngine.getTreatmentProductList(0, 0, 0, 0, '', true, 1, 500, '', '', language);
+      const response = await apiEngine.getProducts();
       if (response.status === 200) {
         if (response.content) {
           const content = response.content as {
-            data: TenrxTreatmentProductListAPIModel[];
+            data: TenrxGetProductsAPIModel[];
           };
           if (content.data) {
             return content.data;
