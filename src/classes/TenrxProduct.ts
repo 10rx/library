@@ -174,7 +174,7 @@ export default class TenrxProduct {
       this.genderId = data.genderId;
       this.name = language === 'en' ? data.name : language === 'es' ? data.nameEs : data.name;
       this.photoPaths = data.photoPaths.filter((img) => img.length);
-      this.defaultPrice = Number(data.defaultPrice);
+      this.defaultPrice = this.sellingPrice = Number(data.defaultPrice);
       this.questionnaireID = data.questionnaireID;
     } else {
       this.id = 0;
@@ -185,7 +185,7 @@ export default class TenrxProduct {
       this.genderId = 0;
       this.name = '';
       this.photoPaths = [];
-      this.defaultPrice = 0;
+      this.defaultPrice = this.sellingPrice = 0;
       this.questionnaireID = null;
     }
     this.outOfStock = false;
@@ -193,7 +193,6 @@ export default class TenrxProduct {
     this.strengthLevels = [];
     this.description = '';
     this.precautions = '';
-    this.sellingPrice = 0;
     this.maxQuantityPurchasable = 0;
     this.load = this.load.bind(this);
     if (load) {

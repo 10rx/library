@@ -587,6 +587,7 @@ export default class TenrxCart {
         isFee: true,
       },
     );
+    this.forceRecalculate();
   }
 
   /**
