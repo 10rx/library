@@ -105,6 +105,8 @@ export { default as TenrxSessionDetailsAPIModel } from './apiModel/TenrxSessionD
 export { default as TenrxAPIModel } from './apiModel/TenrxAPIModel.js';
 export { default as TenrxUploadStagingImage } from './apiModel/TenrxUploadStagingImage.js';
 export { default as TenrxRefillModel } from './apiModel/TenrxRefillModel.js';
+export { default as TenrxGetProductsAPIModel } from './apiModel/TenrxGetProductsAPIModel.js';
+export { default as TenrxGetProductAPIModel } from './apiModel/TenrxGetProductAPIModel.js';
 
 // Enums
 export {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxApiResult from '../types/TenrxApiResult.js';
@@ -1258,6 +1259,45 @@ export default class TenrxApiEngine {
       return await this.authPost('/api/v1/Patient/UploadStagingImages', images);
     } catch (error) {
       TenrxLibraryLogger.error('uploadStagingImages() Error: ', error);
+      return {
+        status: 0,
+        content: null,
+        error,
+      };
+    }
+  }
+
+  /**
+   * Get products
+   *
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getProducts(): Promise<TenrxApiResult> {
+    try {
+      return await this.get('/api/v1/Product/GetProducts');
+    } catch (error) {
+      TenrxLibraryLogger.error('getProducts() Error: ', error);
+      return {
+        status: 0,
+        content: null,
+        error,
+      };
+    }
+  }
+
+  /**
+   * Get product
+   *
+   * @param {(string | number)} ID
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getProduct(ID: string | number): Promise<TenrxApiResult> {
+    try {
+      return await this.get(`/api/v1/Product/GetProduct/${ID}`);
+    } catch (error) {
+      TenrxLibraryLogger.error('getProduct() Error: ', error);
       return {
         status: 0,
         content: null,
