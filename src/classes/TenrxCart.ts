@@ -49,7 +49,7 @@ export default class TenrxCart {
   private internalExternalPharmacy = false;
   private internalStagingImages: { key: string; productID: number }[];
   private internalShippingType: TenrxShippingType;
-  private internalCoupon: string | null;
+  private internalCouponDetails: { code: string; amount: number; percent: number } | null;
 
   /**
    * Creates an instance of TenrxCart.
@@ -69,7 +69,7 @@ export default class TenrxCart {
     this.internalDiscountAmount = 0;
     this.internalStagingImages = [];
     this.internalShippingType = TenrxShippingType.Standard;
-    this.internalCoupon = null;
+    this.internalCouponDetails = null;
   }
 
   /**
@@ -92,7 +92,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public clearPromotions(): void {
-    this.internalCoupon = null;
+    this.internalCouponDetails = null;
     this.internalDiscountAmount = 0;
     this.forceRecalculate();
   }
@@ -248,12 +248,12 @@ export default class TenrxCart {
       state: string;
       zipCode: string;
     },
-    coupon: string | null = this.internalCoupon,
+    coupon: string | null = this.coupon,
     force = false,
     engine = useTenrxApi(),
   ) {
     if (!coupon && this.internalTaxRate && !force) {
-      this.internalCoupon = null;
+      this.internalCouponDetails = null;
       this.internalDiscountAmount = 0;
       return false;
     }
@@ -266,25 +266,31 @@ export default class TenrxCart {
     if (response.status === 200) {
       const content = response.content as TenrxAPIModel<TenrxAPIGetCartTotalResponse>;
       if (content.apiStatus.statusCode !== 200) {
-        this.internalCoupon = null;
+        this.internalCouponDetails = null;
         this.internalDiscountAmount = 0;
         return false;
       }
 
       this.internalTaxRate = content.data.taxRate;
       this.internalDiscountAmount = content.data.discountAmount;
-      this.internalCoupon = content.data.couponApplied ? coupon : null;
+      this.internalCouponDetails = content.data.couponDetails.applied
+        ? {
+            code: coupon as string,
+            amount: content.data.couponDetails.amount,
+            percent: content.data.couponDetails.percent,
+          }
+        : null;
       this.forceRecalculate();
-      return content.data.couponApplied;
+      return content.data.couponDetails.applied;
     }
 
-    this.internalCoupon = null;
+    this.internalCouponDetails = null;
     this.internalDiscountAmount = 0;
     return false;
   }
 
   public get coupon() {
-    return this.internalCoupon;
+    return this.internalCouponDetails?.code || null;
   }
 
   /**
@@ -328,7 +334,12 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get discountAmount(): number {
-    return this.internalDiscountAmount;
+    if (this.internalCouponDetails) {
+      const amt = this.internalCartEntries.reduce((a, b) => a + b.price * b.quantity, 0);
+      return this.internalCouponDetails.percent
+        ? amt * this.internalCouponDetails.percent
+        : this.internalCouponDetails.amount;
+    } else return this.internalDiscountAmount;
   }
 
   /**
@@ -530,7 +541,7 @@ export default class TenrxCart {
       status: 0,
       shippingType: this.internalShippingType,
       pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
-      couponCode: this.internalCoupon,
+      couponCode: this.coupon,
       orderId: 0,
       shippingFees: this.shippingCost,
       patientProducts: this.cartEntries.map((p) => ({
