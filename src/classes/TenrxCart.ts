@@ -263,7 +263,6 @@ export default class TenrxCart {
       shippingPrice: this.shippingCost,
       productsInCart: this.cartEntries.map((i) => ({ productId: i.productId, quantity: i.quantity })),
     });
-
     if (response.status === 200) {
       const content = response.content as TenrxAPIModel<TenrxAPIGetCartTotalResponse>;
       if (content.apiStatus.statusCode !== 200) {
@@ -272,10 +271,10 @@ export default class TenrxCart {
         return false;
       }
 
-      this.forceRecalculate();
       this.internalTaxRate = content.data.taxRate;
       this.internalDiscountAmount = content.data.discountAmount;
       this.internalCoupon = content.data.couponApplied ? coupon : null;
+      this.forceRecalculate();
       return content.data.couponApplied;
     }
 
@@ -296,9 +295,9 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get tax(): number {
-    return (
+    return tenrxRoundTo(
       this.cartEntries.filter((i) => !i.rx || i.taxable).reduce((a, b) => a + b.price * b.quantity, 0) *
-      this.internalTaxRate
+        this.internalTaxRate,
     );
   }
 
@@ -361,7 +360,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get total(): number {
-    return this.subTotal + this.tax + this.subHiddenTotal + this.shippingCost - this.discountAmount;
+    return tenrxRoundTo(this.subTotal + this.tax + this.subHiddenTotal + this.shippingCost - this.discountAmount);
   }
 
   /**
