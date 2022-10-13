@@ -216,10 +216,10 @@ export default class TenrxCart {
     const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
 
     const exists = this.internalCartEntries.find(
-      (product) => product.productId === item.id && product.strength === strength,
+      (product) => product.productId === item.id && product.strength === strengthMatch?.strengthLevel,
     );
 
-    if (exists && options?.addInstead) {
+    if (exists && !options?.addInstead) {
       exists.quantity += quantity;
       this.forceRecalculate();
     } else {
@@ -230,7 +230,7 @@ export default class TenrxCart {
         treatmentTypeId: item.treatmentTypeId,
         quantity,
         price: strengthMatch ? strengthMatch.price : item.price,
-        strength,
+        strength: strengthMatch ? strengthMatch.strengthLevel : '-1',
         rx: item.rx,
         taxable: options?.taxable ?? true,
         photoPaths: item.photoPaths.filter((img) => img.length),
