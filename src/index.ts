@@ -107,6 +107,8 @@ export { default as TenrxUploadStagingImage } from './apiModel/TenrxUploadStagin
 export { default as TenrxRefillModel } from './apiModel/TenrxRefillModel.js';
 export { default as TenrxGetProductsAPIModel } from './apiModel/TenrxGetProductsAPIModel.js';
 export { default as TenrxGetProductAPIModel } from './apiModel/TenrxGetProductAPIModel.js';
+export { default as TenrxAPIGetCartTotalRequest } from './apiModel/TenrxAPIGetCartTotalRequest.js';
+export { default as TenrxAPIGetCartTotalResponse } from './apiModel/TenrxAPIGetCartTotalResponse.js';
 
 // Enums
 export {

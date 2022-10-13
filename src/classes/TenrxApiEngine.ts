@@ -22,7 +22,7 @@ import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestP
 import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
 import TenrxSessionDetailsAPIModel from '../apiModel/TenrxSessionDetailsAPIModel.js';
 import TenrxCheckoutAPIModel from '../apiModel/TenrxCheckoutAPIModel.js';
-import { TenrxUploadStagingImage, TenrxAPIModel, TenrxRefillModel } from '../index.js';
+import { TenrxUploadStagingImage, TenrxAPIModel, TenrxRefillModel, TenrxAPIGetCartTotalRequest } from '../index.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -1298,6 +1298,26 @@ export default class TenrxApiEngine {
       return await this.get(`/api/v1/Product/GetProduct/${ID}`);
     } catch (error) {
       TenrxLibraryLogger.error('getProduct() Error: ', error);
+      return {
+        status: 0,
+        content: null,
+        error,
+      };
+    }
+  }
+
+  /**
+   * Get cart total
+   *
+   * @param {TenrxAPIGetCartTotalRequest} data
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getCartTotal(data: TenrxAPIGetCartTotalRequest): Promise<TenrxApiResult> {
+    try {
+      return await this.authPost('/api/Payment/CartPriceCheck', data);
+    } catch (error) {
+      TenrxLibraryLogger.error('getCartTotal() Error: ', error);
       return {
         status: 0,
         content: null,
