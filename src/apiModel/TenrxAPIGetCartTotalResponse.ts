@@ -4,5 +4,11 @@ export default interface TenrxAPIGetCartTotalResponse {
   subtotal: number;
   discountAmount: number;
   grandTotal: number;
-  couponApplied: boolean;
+  couponDetails: CouponDetails;
+}
+
+interface CouponDetails {
+  amount: number;
+  percent: number;
+  applied: boolean;
 }
