@@ -335,9 +335,9 @@ export default class TenrxCart {
    */
   public get discountAmount(): number {
     if (this.internalCouponDetails) {
-      const amt = this.internalCartEntries.reduce((a, b) => a + b.price * b.quantity, 0);
+      const amt = this.internalCartEntries.reduce((a, b) => a + b.price * b.quantity, 0) + this.tax;
       return this.internalCouponDetails.percent
-        ? amt * this.internalCouponDetails.percent
+        ? tenrxRoundTo(amt * this.internalCouponDetails.percent)
         : this.internalCouponDetails.amount;
     } else return this.internalDiscountAmount;
   }
