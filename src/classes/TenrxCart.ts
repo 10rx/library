@@ -203,7 +203,7 @@ export default class TenrxCart {
   public addItem(
     item: TenrxProduct,
     quantity: number,
-    strength = '',
+    strength = '-1',
     options?: {
       hidden?: boolean;
       taxable?: boolean;
@@ -213,7 +213,10 @@ export default class TenrxCart {
       isFee?: boolean;
     },
   ): void {
-    const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
+    const strengthMatch =
+      strength !== '-1'
+        ? item.strengthLevels.find((x) => x.strengthLevel === strength)
+        : { strengthLevel: '-1', price: item.price };
 
     const exists = this.internalCartEntries.find(
       (product) => product.productId === item.id && product.strength === strengthMatch?.strengthLevel,
