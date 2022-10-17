@@ -331,16 +331,19 @@ export enum TenrxFeeItem {
   DoctorFree = 2466,
   DoctorPaid = 2821,
   Consultation = 2469,
+  ConsultationFree = 2831,
 }
 
 export const TenrxFeeNames = {
   [TenrxFeeItem.DoctorFree]: 'Doctor Fee Free',
   [TenrxFeeItem.DoctorPaid]: 'Doctor Fee Paid',
   [TenrxFeeItem.Consultation]: 'Consultation Fee',
+  [TenrxFeeItem.ConsultationFree]: 'Consultation Free',
 };
 
 export const TenrxFeeCost = {
   [TenrxFeeItem.DoctorFree]: 0,
   [TenrxFeeItem.DoctorPaid]: 45,
   [TenrxFeeItem.Consultation]: 45,
+  [TenrxFeeItem.ConsultationFree]: 0,
 };
