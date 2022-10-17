@@ -18,4 +18,6 @@ export default interface TenrxGetProductAPIModel {
 interface Variant {
   strength: string | null;
   price: number;
+  description: string | null;
+  descriptionEs: string | null;
 }

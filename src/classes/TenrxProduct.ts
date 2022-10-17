@@ -253,7 +253,8 @@ export default class TenrxProduct {
                   .filter((v) => v.strength)
                   .map((v) => ({
                     strengthLevel: v.strength as string,
-                    description: language === 'es' ? data.descriptionEs : data.description,
+                    description:
+                      language === 'es' ? v.descriptionEs || data.descriptionEs : v.description || data.description,
                     price: v.price,
                     barcode: '',
                   }));
