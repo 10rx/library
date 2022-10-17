@@ -6,9 +6,6 @@ import {
   TenrxCheckoutAPIModel,
   TenrxEnumCountry,
   TenrxLibraryLogger,
-  TenrxLoadError,
-  TenrxPromotion,
-  TenrxPromotionError,
   TenrxQuestionnaireAnswer,
   TenrxQuestionnaireAnswerType,
   tenrxRoundTo,
@@ -21,6 +18,7 @@ import {
   TenrxFeeItem,
   TenrxFeeNames,
   TenrxFeeCost,
+  TenrxAPIGetCartTotalResponse,
 } from '../index.js';
 import TenrxCartCheckoutResult from '../types/TenrxCartCheckoutResult.js';
 import TenrxCartEntry from '../types/TenrxCartEntry.js';
@@ -42,18 +40,16 @@ export default class TenrxCart {
   private internalCartEntries: TenrxCartEntry[];
   private internalCartTotalItems: number;
   private internalTaxRate: number;
-  private internalTaxAmount: number;
   private internalSubTotal: number;
   private internalDiscountAmount: number;
   private internalSubHiddenTotal: number;
   private internalLoaded: boolean;
-  private internalShippingCost: number;
   private internalAnswers: Record<string, TenrxQuestionnaireAnswer[]>;
   private internalPatientImages: Record<string, TenrxPatientImage[]>;
-  private internalPromotions: TenrxPromotion[];
   private internalExternalPharmacy = false;
   private internalStagingImages: { key: string; productID: number }[];
   private internalShippingType: TenrxShippingType;
+  private internalCouponDetails: { code: string; amount: number; percent: number } | null;
 
   /**
    * Creates an instance of TenrxCart.
@@ -64,18 +60,16 @@ export default class TenrxCart {
   constructor(data: TenrxCartEntry[] = []) {
     this.internalCartTotalItems = -1;
     this.internalCartEntries = data;
-    this.internalTaxRate = 0.07;
-    this.internalTaxAmount = -1;
+    this.internalTaxRate = 0;
     this.internalSubTotal = -1;
     this.internalSubHiddenTotal = -1;
     this.internalLoaded = false;
-    this.internalShippingCost = 0;
     this.internalAnswers = {};
     this.internalPatientImages = {};
-    this.internalPromotions = [];
     this.internalDiscountAmount = 0;
     this.internalStagingImages = [];
     this.internalShippingType = TenrxShippingType.Standard;
+    this.internalCouponDetails = null;
   }
 
   /**
@@ -98,7 +92,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public clearPromotions(): void {
-    this.internalPromotions = [];
+    this.internalCouponDetails = null;
     this.internalDiscountAmount = 0;
     this.forceRecalculate();
   }
@@ -145,52 +139,6 @@ export default class TenrxCart {
   }
 
   /**
-   * Gets all the promotions currently applied to the cart.
-   *
-   * @readonly
-   * @type {TenrxPromotion[]}
-   * @memberof TenrxCart
-   */
-  public get promotions(): TenrxPromotion[] {
-    return this.internalPromotions;
-  }
-
-  /**
-   * Applies a promotion to the cart.
-   *
-   * @param {TenrxPromotion} promotion - The promotion to apply.
-   * @memberof TenrxCart
-   */
-  public applyPromotion(promotion: TenrxPromotion) {
-    this.internalPromotions.push(promotion);
-    this.forceRecalculate();
-  }
-
-  /**
-   * Applies a coupon to the cart using a coupon code. This function is async because it performs a call to the tenrx api to get the promotion information.
-   *
-   * @param {string} couponCode - The coupon code to apply.
-   * @param {*} [apiEngine=useTenrxApi()] - The api engine to use.
-   * @return {*}  {Promise<boolean>} - True if the coupon was applied, false if it was not.
-   * @throws {TenrxPromotionError} - Throws an error if an error occurred while trying to get information regarding the promotion.
-   * @memberof TenrxCart
-   */
-  public async applyCouponCode(couponCode: string, apiEngine = useTenrxApi()): Promise<boolean> {
-    try {
-      const promotion = await TenrxPromotion.getPromotionInformation(couponCode, apiEngine);
-      if (promotion != null) {
-        this.applyPromotion(promotion);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      TenrxLibraryLogger.error('Failed to apply coupon code', error);
-      throw new TenrxPromotionError('Failed to apply coupon code.', error);
-    }
-  }
-
-  /**
    * Gets the total number of items in the cart.
    *
    * @readonly
@@ -198,10 +146,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get cartTotalItems(): number {
-    if (this.internalTaxAmount < 0) {
-      this.internalCartTotalItems = this.internalCartEntries.reduce((acc, cur) => acc + cur.quantity, 0);
-    }
-    return this.internalCartTotalItems;
+    return this.internalCartEntries.reduce((acc, cur) => acc + cur.quantity, 0);
   }
 
   /**
@@ -215,17 +160,7 @@ export default class TenrxCart {
     if (product)
       this.internalStagingImages = this.internalStagingImages.filter((i) => i.productID !== product.productId);
     this.internalCartEntries.splice(index, 1);
-    this.forceRecalculate();
-  }
-
-  /**
-   * Removes a promotion at a given index from the cart.
-   *
-   * @param {number} index
-   * @memberof TenrxCart
-   */
-  public removePromotion(index: number): void {
-    this.internalPromotions.splice(index, 1);
+    if (!this.internalCartEntries.length) this.clearCart();
     this.forceRecalculate();
   }
 
@@ -268,7 +203,7 @@ export default class TenrxCart {
   public addItem(
     item: TenrxProduct,
     quantity: number,
-    strength = '',
+    strength = '-1',
     options?: {
       hidden?: boolean;
       taxable?: boolean;
@@ -278,14 +213,18 @@ export default class TenrxCart {
       isFee?: boolean;
     },
   ): void {
-    const strengthMatch = strength !== '' ? item.strengthLevels.find((x) => x.strengthLevel === strength) : undefined;
+    const strengthMatch =
+      strength !== '-1'
+        ? item.strengthLevels.find((x) => x.strengthLevel === strength)
+        : { strengthLevel: '-1', price: item.price };
 
     const exists = this.internalCartEntries.find(
-      (product) => product.productId === item.id && product.strength === strength,
+      (product) => product.productId === item.id && product.strength === strengthMatch?.strengthLevel,
     );
 
-    if (exists && options?.addInstead) {
+    if (exists && !options?.addInstead) {
       exists.quantity += quantity;
+      this.forceRecalculate();
     } else {
       this.addEntry({
         productId: item.id,
@@ -294,7 +233,7 @@ export default class TenrxCart {
         treatmentTypeId: item.treatmentTypeId,
         quantity,
         price: strengthMatch ? strengthMatch.price : item.price,
-        strength,
+        strength: strengthMatch ? strengthMatch.strengthLevel : '-1',
         rx: item.rx,
         taxable: options?.taxable ?? true,
         photoPaths: item.photoPaths.filter((img) => img.length),
@@ -306,85 +245,55 @@ export default class TenrxCart {
     }
   }
 
-  /**
-   * Calculates the tax for the cart. Gets the tax rate and determines if each item is taxable or not.
-   *
-   * @param {TenrxStreetAddress} address - The address where the item is being shipped. This is used to calculate the tax and determine if each item is taxable or not.
-   * @param {*} [apiEngine=useTenrxApi()] - The API engine to use.
-   * @return {*}  {Promise<void>}
-   * @throws {TenrxLoadError} - Thrown if there is an issue with the API.
-   * @memberof TenrxCart
-   */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  public async getTaxInformation(address: TenrxStreetAddress, apiEngine = useTenrxApi()): Promise<void> {
-    // This is now handled by the backend.
-    TenrxLibraryLogger.info('Getting tax information for items in cart.');
-    const productsForTaxCalculaitons: {
-      productId: number;
-      quantity: number;
-    }[] = [];
-    this.internalCartEntries.forEach((entry) => {
-      if (entry.taxable)
-        productsForTaxCalculaitons.push({
-          productId: entry.productId,
-          quantity: entry.quantity,
-        });
-    });
-    const taxInformation = await apiEngine.getProductTax({
-      productsForTaxCalculaitons,
-      shippingAddress: {
-        apartmentNumber: address.aptNumber,
-        address1: address.address1,
-        address2: address.address2,
-        city: address.city,
-        stateName: TenrxStateIdToStateName[address.stateId],
-        country: 'US',
-        zipCode: address.zipCode,
-      },
-    });
-    if (taxInformation.status === 200) {
-      if (taxInformation.content) {
-        const content = taxInformation.content as {
-          apiStatus: { statusCode: number; message: string };
-          data: {
-            totalTax: number;
-            taxRate: number;
-          };
-        };
-        if (content.apiStatus) {
-          if (content.apiStatus.statusCode === 200) {
-            if (content.data) {
-              if (content.data.totalTax || content.data.totalTax === 0) {
-                this.internalTaxRate = content.data.taxRate;
-                this.internalTaxAmount = content.data.totalTax;
-              } else {
-                TenrxLibraryLogger.error('No tax rate found.', content.data);
-                throw new TenrxLoadError('No tax rate found.', 'TenrxCart', null);
-              }
-            } else {
-              TenrxLibraryLogger.error('No tax data found.', content);
-              throw new TenrxLoadError('No tax data found.', 'TenrxCart', null);
-            }
-          } else {
-            TenrxLibraryLogger.error('Error getting tax information.', content.apiStatus);
-            throw new TenrxLoadError('Error getting tax information.', 'TenrxCart', null);
-          }
-        } else {
-          TenrxLibraryLogger.error('Tax information apiStatus is null.', content);
-          throw new TenrxLoadError('Tax information apiStatus is null.', 'TenrxCart', taxInformation.error);
-        }
-      } else {
-        TenrxLibraryLogger.error('Tax information content is null.');
-        throw new TenrxLoadError('Tax information content is null.', 'TenrxCart', taxInformation.error);
-      }
-    } else {
-      TenrxLibraryLogger.error('Error getting tax information for items in cart. Status is not 200.', taxInformation);
-      throw new TenrxLoadError(
-        'Error getting tax information for items in cart. Status is not 200.',
-        'TenrxCart',
-        taxInformation.error,
-      );
+  public async calculateCart(
+    address: {
+      city: string;
+      state: string;
+      zipCode: string;
+    },
+    coupon: string | null = this.coupon,
+    force = false,
+    engine = useTenrxApi(),
+  ) {
+    if (!coupon && this.internalTaxRate && !force) {
+      this.internalCouponDetails = null;
+      this.internalDiscountAmount = 0;
+      return false;
     }
+    const response = await engine.getCartTotal({
+      orderShippingAddress: address,
+      couponCode: coupon,
+      shippingPrice: this.shippingCost,
+      productsInCart: this.cartEntries.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+    });
+    if (response.status === 200) {
+      const content = response.content as TenrxAPIModel<TenrxAPIGetCartTotalResponse>;
+      if (content.apiStatus.statusCode !== 200) {
+        this.internalCouponDetails = null;
+        this.internalDiscountAmount = 0;
+        return false;
+      }
+
+      this.internalTaxRate = content.data.taxRate;
+      this.internalDiscountAmount = content.data.discountAmount;
+      this.internalCouponDetails = content.data.couponDetails.applied
+        ? {
+            code: coupon as string,
+            amount: content.data.couponDetails.amount,
+            percent: content.data.couponDetails.percent,
+          }
+        : null;
+      this.forceRecalculate();
+      return content.data.couponDetails.applied;
+    }
+
+    this.internalCouponDetails = null;
+    this.internalDiscountAmount = 0;
+    return false;
+  }
+
+  public get coupon() {
+    return this.internalCouponDetails?.code || null;
   }
 
   /**
@@ -395,20 +304,10 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get tax(): number {
-    // Backend now handles this logic
-    if (this.internalTaxAmount < 0) {
-      this.internalTaxAmount = tenrxRoundTo(
-        this.internalCartEntries.reduce((acc, curr) => {
-          if (!curr.taxable || (this.internalExternalPharmacy && curr.rx)) return acc;
-          let price: number = curr.price;
-          if (this.internalPromotions.length > 0) {
-            price = price - this.internalPromotions[0].calculateOrderDiscount(price);
-          }
-          return acc + price * this.internalTaxRate * curr.quantity;
-        }, 0),
-      );
-    }
-    return this.internalTaxAmount;
+    return tenrxRoundTo(
+      this.cartEntries.filter((i) => !i.rx || i.taxable).reduce((a, b) => a + b.price * b.quantity, 0) *
+        this.internalTaxRate,
+    );
   }
 
   /**
@@ -426,16 +325,6 @@ export default class TenrxCart {
           return acc + curr.price * curr.quantity;
         }, 0),
       );
-      this.internalDiscountAmount = 0;
-      if (this.internalPromotions.length > 0) {
-        this.internalDiscountAmount = tenrxRoundTo(
-          this.internalPromotions[0].calculateOrderDiscount(this.internalSubTotal),
-        );
-        this.internalSubTotal = tenrxRoundTo(this.internalSubTotal - this.internalDiscountAmount);
-        if (this.internalSubTotal < 0) {
-          this.internalSubTotal = 0;
-        }
-      }
     }
     return this.internalSubTotal;
   }
@@ -448,10 +337,12 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get discountAmount(): number {
-    if (this.internalSubTotal < 0) {
-      TenrxLibraryLogger.silly('Calculating discount amount. Forcing recalculation.', this.subTotal);
-    }
-    return this.internalDiscountAmount;
+    if (this.internalCouponDetails) {
+      const amt = this.internalCartEntries.reduce((a, b) => a + b.price * b.quantity, 0) + this.tax;
+      return this.internalCouponDetails.percent
+        ? tenrxRoundTo(amt * this.internalCouponDetails.percent)
+        : this.internalCouponDetails.amount;
+    } else return this.internalDiscountAmount;
   }
 
   /**
@@ -483,7 +374,7 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public get total(): number {
-    return this.subTotal + this.tax + this.subHiddenTotal + this.shippingCost;
+    return tenrxRoundTo(this.subTotal + this.tax + this.subHiddenTotal + this.shippingCost - this.discountAmount);
   }
 
   /**
@@ -503,7 +394,6 @@ export default class TenrxCart {
    * @memberof TenrxCart
    */
   public forceRecalculate(): void {
-    this.internalTaxAmount = -1;
     this.internalSubTotal = -1;
     this.internalSubHiddenTotal = -1;
     this.internalCartTotalItems = -1;
@@ -587,6 +477,7 @@ export default class TenrxCart {
         isFee: true,
       },
     );
+    this.forceRecalculate();
   }
 
   /**
@@ -653,7 +544,7 @@ export default class TenrxCart {
       status: 0,
       shippingType: this.internalShippingType,
       pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
-      couponCode: this.internalPromotions[0]?.couponCode || null,
+      couponCode: this.coupon,
       orderId: 0,
       shippingFees: this.shippingCost,
       patientProducts: this.cartEntries.map((p) => ({

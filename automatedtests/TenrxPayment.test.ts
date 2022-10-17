@@ -12,6 +12,7 @@ import {
   TenrxQuestionnaireAnswerOption,
   TenrxQuestionnaireAnswerType,
   TenrxShippingType,
+  TenrxStateIdToStateName,
   TenrxStripeCreditCard,
 } from '../src/index.js';
 import TenrxUserAccount from '../src/classes/TenrxUserAccount.js';
@@ -61,7 +62,11 @@ test('PlaceOrder Test Successful', async () => {
     answers: [answerOption],
   };
   cart.attachAnswers(1, [answer]);
-  await cart.getTaxInformation(TEST_ADDRESS);
+  await cart.calculateCart({
+    city: TEST_ADDRESS.city,
+    state: TenrxStateIdToStateName[TEST_ADDRESS.stateId],
+    zipCode: TEST_ADDRESS.zipCode,
+  });
   const loginData = await authenticateTenrx('456@xyz.com', 'Password1!');
   if (loginData.status === 200) {
     if (loginData.patientData && loginData.accountData) {
