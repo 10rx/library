@@ -456,7 +456,8 @@ export default class TenrxCart {
         nameEs: TenrxFeeNames[feeID],
         defaultPrice: TenrxFeeCost[feeID].toString(),
         totalRecords: 0,
-        photoPaths: feeID === (TenrxFeeItem.Consultation || TenrxFeeItem.ConsultationFree) ? ['/consultWithADoctor.png'] : [],
+        photoPaths:
+          feeID === (TenrxFeeItem.Consultation || TenrxFeeItem.ConsultationFree) ? ['/consultWithADoctor.png'] : [],
         subCategoryIcon: '',
         treatementType: '',
         isActive: true,
