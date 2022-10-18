@@ -2,7 +2,7 @@ import TenrxAPIModel from '../apiModel/TenrxAPIModel.js';
 import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
 import TenrxOrderDetailsModel from '../apiModel/TenrxOrderDetailsModel.js';
-import { TenrxShippingType, TenrxFeeItem } from '../includes/TenrxEnums.js';
+import { TenrxShippingType, TenrxFeeItem, TenrxOrderStatusID, TenrxOrderStatus } from '../includes/TenrxEnums.js';
 import { useTenrxApi } from '../includes/TenrxFunctions.js';
 import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
 import TenrxMeetingInformation from '../types/TenrxMeetingInformation.js';
@@ -63,6 +63,8 @@ export default class TenrxOrder {
     country: string;
   } | null = null;
 
+  private internalStatusID: TenrxOrderStatusID;
+
   /**
    * Gets the products of the order.
    *
@@ -86,6 +88,7 @@ export default class TenrxOrder {
     this.orderDate = new Date();
     this.totalPrice = 0;
     this.shippingType = 0;
+    this.internalStatusID = 0;
     if (orderData) {
       this.processOrderData(orderData);
     }
@@ -97,6 +100,7 @@ export default class TenrxOrder {
     this.totalPrice = orderData.totalPrice;
     this.shippingType = orderData.shippingType;
     this.externalPharmacyAddress = orderData.externalPharmacyAddress;
+    this.internalStatusID = orderData.orderStatusId;
     if (orderData.orderProducts && orderData.orderProducts.length > 0) {
       orderData.orderProducts.forEach((orderProduct) => {
         this.internalOrderProducts.push({
@@ -130,7 +134,18 @@ export default class TenrxOrder {
    * @memberof TenrxOrder
    */
   public get status(): string {
-    return 'processing';
+    return TenrxOrderStatus[this.internalStatusID];
+  }
+
+  /**
+   * The status ID of the order
+   *
+   * @readonly
+   * @type {TenrxOrderStatusID}
+   * @memberof TenrxOrder
+   */
+  public get statusID(): TenrxOrderStatusID {
+    return this.internalStatusID;
   }
 
   /**
