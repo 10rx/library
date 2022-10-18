@@ -5,6 +5,8 @@ Testlogger.setSettings({
   type: 'pretty',
 });
 
+jest.setTimeout(60000);
+
 test('Gender Category Test Successful', async () => {
   const response = await TenrxGenderCategory.getGenderCategories(3);
   expect(response).not.toBeNull();

@@ -5,6 +5,8 @@ Testlogger.setSettings({
   type: 'pretty',
 });
 
+jest.setTimeout(60000);
+
 test('VisitTypes Test Successful', async () => {
   const response = await TenrxVisitType.getVisitTypes();
   expect(response).not.toBeNull();

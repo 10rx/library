@@ -8,6 +8,8 @@ Testlogger.setSettings({
   type: 'pretty',
 });
 
+jest.setTimeout(60000);
+
 test('Patient Orders Test Successful', async () => {
   const loginData = await authenticateTenrx('456@xyz.com', 'Password1!');
   if (loginData.status === 200) {

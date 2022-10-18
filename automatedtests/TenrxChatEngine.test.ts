@@ -15,6 +15,8 @@ Testlogger.setSettings({
   minLevel: 'info',
 });
 
+jest.setTimeout(60000);
+
 class DummyChatInterface extends TenrxChatInterface {
   public dummyNumber: string;
   private participantId: string;
@@ -32,11 +34,12 @@ class DummyChatInterface extends TenrxChatInterface {
           this.participants[participant.id] = participant;
           Testlogger.info('Adding Participant:', participant);
         });
-        if (this.chatEngine) this.participantId = this.chatEngine.addParticipant(
-          this.id,
-          `Dummy-${this.dummyNumber}`,
-          `Dummy-${this.dummyNumber}.jpg`,
-        );
+        if (this.chatEngine)
+          this.participantId = this.chatEngine.addParticipant(
+            this.id,
+            `Dummy-${this.dummyNumber}`,
+            `Dummy-${this.dummyNumber}.jpg`,
+          );
         break;
       case TenrxChatEventType.ChatParticipantJoined:
         const participantJoinedPayload = event.payload as TenrxChatParticipantJoinedPayload;

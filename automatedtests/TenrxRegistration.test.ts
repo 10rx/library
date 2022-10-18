@@ -21,6 +21,8 @@ Testlogger.setSettings({
   type: 'pretty',
 });
 
+jest.setTimeout(120000);
+
 test('CheckIfEmailExists Test Success', async () => {
   const result = await checkIfEmailExists(TEST_USERNAME_EXISTS);
   expect(result).toBe(true);
@@ -95,7 +97,7 @@ test('Guest Registration Test Success', async () => {
     address2: '',
     city: 'City',
     stateId: TenrxEnumState.Florida,
-    zip: '33309'
+    zip: '33309',
   };
   const result = await registerGuest(registrationInfo);
   expect(result).not.toBeNull();

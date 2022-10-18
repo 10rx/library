@@ -22,6 +22,8 @@ Testlogger.setSettings({
   type: 'pretty',
 });
 
+jest.setTimeout(60000);
+
 test('Questionnaire Test Successful', async () => {
   const onChatStarted = (chatInterface: TenrxPatientChatInterface, participantsList: string[]): void => {
     Testlogger.info('Chat started');
