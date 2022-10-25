@@ -10,7 +10,7 @@ import {
   TenrxQuestionnaireAnswerType,
   tenrxRoundTo,
   TenrxSendAnswersResult,
-  TenrxStripeCreditCard,
+  TenrxCreditCard,
   useTenrxApi,
   useTenrxStorage,
   TenrxUploadStagingImage,
@@ -516,7 +516,8 @@ export default class TenrxCart {
    */
   public async checkout(
     userName: string,
-    card: TenrxStripeCreditCard,
+    paymentNonce: string | null,
+    card: TenrxCreditCard,
     shippingAddress: TenrxStreetAddress,
     shipToExternalPharmacy: TenrxExternalPharmacyInformation | null = null,
     timeout = 10000,
@@ -525,36 +526,35 @@ export default class TenrxCart {
   ) {
     const body: TenrxCheckoutAPIModel = {
       userName,
-      cardId: 0,
-      stripeToken: card.cardId,
-      paymentCardDetails: {
-        cardId: card.cardId,
-        paymentMethod: card.paymentMethod,
+      paymentNonce,
+      cardDetails: {
+        paymentID: card.paymentID,
         name: card.nameOnCard,
-        addressCity: card.address.city,
-        addressCountry: 'US',
-        addressLine1: card.address.address1,
-        addressLine2: card.address.address2 ?? null,
-        addressState: TenrxStateIdToStateName[card.address.stateId],
-        addressZip: card.address.zipCode,
         brand: card.brand,
         last4: card.last4,
         exp_month: Number(card.expMonth),
         exp_year: Number(card.expYear),
+        billingAddress: {
+          addressLine1: card.address.address1,
+          addressLine2: card.address.address2 || null,
+          city: card.address.city,
+          state: TenrxStateIdToStateName[card.address.stateId],
+          zipCode: card.address.zipCode,
+          country: 'US',
+        },
       },
       status: 0,
       shippingType: this.internalShippingType,
       pharmacyType: shipToExternalPharmacy ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
       couponCode: this.coupon,
-      orderId: 0,
       shippingFees: this.shippingCost,
-      patientProducts: this.cartEntries.map((p) => ({
+      products: this.cartEntries.map((p) => ({
         productId: p.productId,
         quantity: p.quantity,
         strength: p.strength,
         refillID: p.refillID,
       })),
-      orderShippingAddress: {
+      shippingAddress: {
         addressLine1: shippingAddress.address1,
         addressLine2: shippingAddress.address2 ?? null,
         city: shippingAddress.city,
@@ -563,13 +563,12 @@ export default class TenrxCart {
         countryID: TenrxEnumCountry.US,
         phoneNumber: shippingAddress.phone ?? '',
       },
-      externalPharmacyAddress: shipToExternalPharmacy
+      otherPharmacyAddress: shipToExternalPharmacy
         ? {
-            apartmentNumber: shipToExternalPharmacy.address.aptNumber ?? null,
-            address1: shipToExternalPharmacy.address.address1,
-            address2: shipToExternalPharmacy.address.address2 ?? null,
+            addressLine1: shipToExternalPharmacy.address.address1,
+            addressLine2: shipToExternalPharmacy.address.address2 ?? null,
             city: shipToExternalPharmacy.address.city,
-            stateName: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
+            state: TenrxStateIdToStateName[shipToExternalPharmacy.address.stateId],
             zipCode: shipToExternalPharmacy.address.zipCode,
             country: 'US',
             pharmacyName: shipToExternalPharmacy.name,
@@ -586,7 +585,7 @@ export default class TenrxCart {
       patientImagesDetails: null,
     };
     try {
-      const res = await apiEngine.authSavePaymentDetails(body, timeout);
+      const res = await apiEngine.checkout(body, timeout);
       const content = res.content as {
         apiStatus: { statusCode: number; message: string };
         data: {

@@ -351,6 +351,22 @@ export default class TenrxApiEngine {
     }
   }
 
+  public async getCards(): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Getting payment cards from API');
+    try {
+      const response = await this.authGet(`/api/v1/Payment/GetCards`);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('getCards() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
   /**
    * Places an order to the current user account authenticated.
    *
@@ -504,6 +520,22 @@ export default class TenrxApiEngine {
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('AuthSavePaymentDetails() Error: ', error);
+      const response: TenrxApiResult = {
+        status: 500,
+        content: null,
+        error,
+      };
+      return response;
+    }
+  }
+
+  public async checkout(data: TenrxCheckoutAPIModel, timeout = 15000): Promise<TenrxApiResult> {
+    TenrxLibraryLogger.silly('Saving payment details to API (auth)');
+    try {
+      const response = await this.authPost(`/api/Payment/Checkout`, data, {}, {}, timeout);
+      return response;
+    } catch (error) {
+      TenrxLibraryLogger.error('checkout() Error: ', error);
       const response: TenrxApiResult = {
         status: 500,
         content: null,

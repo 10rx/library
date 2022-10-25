@@ -347,3 +347,14 @@ export const TenrxFeeCost = {
   [TenrxFeeItem.Consultation]: 45,
   [TenrxFeeItem.ConsultationFree]: 0,
 };
+
+export const TenrxCardBrands = {
+  other: 'Other',
+  jcb: 'JCB',
+  amex: 'Amex',
+  diners: 'Diners',
+  visa: 'Visa',
+  discover: 'Discover',
+  mastercard: 'MasterCard',
+  maestro: 'Maestro'
+}
