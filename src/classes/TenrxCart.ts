@@ -305,8 +305,7 @@ export default class TenrxCart {
    */
   public get tax(): number {
     return tenrxRoundTo(
-      this.cartEntries.filter((i) => !i.rx || i.taxable).reduce((a, b) => a + b.price * b.quantity, 0) *
-        this.internalTaxRate,
+      this.cartEntries.filter((i) => i.taxable).reduce((a, b) => a + b.price * b.quantity, 0) * this.internalTaxRate,
     );
   }
 
