@@ -30,7 +30,7 @@ export { default as TenrxRegistrationFormData } from './types/TenrxRegistrationF
 export { default as TenrxMedicationStrength } from './types/TenrxMedicationStrength.js';
 export { TenrxStorageScope } from './classes/TenrxStorage.js';
 export { default as TenrxCartEntry } from './types/TenrxCartEntry.js';
-export { default as TenrxStripeCreditCard } from './types/TenrxStripeCreditCard.js';
+export { default as TenrxCreditCard } from './types/TenrxCreditCard.js';
 export { default as TenrxPaymentResult } from './types/TenrxPaymentResult.js';
 export { default as TenrxStreetAddress } from './types/TenrxStreetAddress.js';
 export { default as TenrxOrderPlacementResult } from './types/TenrxOrderPlacementResult.js';
@@ -129,6 +129,7 @@ export {
   TenrxFeeItem,
   TenrxFeeNames,
   TenrxFeeCost,
+  TenrxCardBrands,
 } from './includes/TenrxEnums.js';
 
 export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';
