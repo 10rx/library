@@ -356,5 +356,5 @@ export const TenrxCardBrands = {
   visa: 'Visa',
   discover: 'Discover',
   mastercard: 'MasterCard',
-  maestro: 'Maestro'
-}
+  maestro: 'Maestro',
+};
