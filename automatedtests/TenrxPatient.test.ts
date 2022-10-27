@@ -20,7 +20,7 @@ test('Patient Test Successful', async () => {
       const patient = useTenrxPatient();
       await patient.load();
       expect(patient.wallet).not.toBeNull();
-      expect(patient.wallet.cards.length).toBeGreaterThan(0);
+      expect(patient.wallet.cards.length).toBeGreaterThanOrEqual(0);
       expect(patient.firstName).toBe(loginData.patientData.firstName);
       expect(patient.lastName).toBe(loginData.patientData.lastName);
       expect(patient.emailAddress).toBe(loginData.patientData.emailId);
