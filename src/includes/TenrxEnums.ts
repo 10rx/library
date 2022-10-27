@@ -245,11 +245,11 @@ export enum TenrxShippingType {
    * Expedited shipping speed.
    */
   Expedited,
-  
+
   /**
    * Not being shipped and instead being sent to external pharmacy
    */
-   External,
+  External,
 }
 
 export enum TenrxOrderStatusID {
