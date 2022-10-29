@@ -264,7 +264,13 @@ export default class TenrxCart {
       orderShippingAddress: address,
       couponCode: coupon,
       shippingPrice: this.shippingCost,
-      productsInCart: this.cartEntries.map((i) => ({ productId: i.productId, quantity: i.quantity, strength: i.strength, shipToExternalPharmacy: i.shipToExternalPharmacy, refillID: i.refillID })),
+      productsInCart: this.cartEntries.map((i) => ({
+        productId: i.productId,
+        quantity: i.quantity,
+        strength: i.strength,
+        shipToExternalPharmacy: i.shipToExternalPharmacy,
+        refillID: i.refillID,
+      })),
     });
     if (response.status === 200) {
       const content = response.content as TenrxAPIModel<TenrxAPIGetCartTotalResponse>;
