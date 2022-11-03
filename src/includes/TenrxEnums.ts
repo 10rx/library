@@ -245,11 +245,11 @@ export enum TenrxShippingType {
    * Expedited shipping speed.
    */
   Expedited,
-  
+
   /**
    * Not being shipped and instead being sent to external pharmacy
    */
-   External,
+  External,
 }
 
 export enum TenrxOrderStatusID {
@@ -347,4 +347,15 @@ export const TenrxFeeCost = {
   [TenrxFeeItem.DoctorPaid]: 45,
   [TenrxFeeItem.Consultation]: 45,
   [TenrxFeeItem.ConsultationFree]: 0,
+};
+
+export const TenrxCardBrands = {
+  other: 'Other',
+  jcb: 'JCB',
+  amex: 'Amex',
+  diners: 'Diners',
+  visa: 'Visa',
+  discover: 'Discover',
+  mastercard: 'MasterCard',
+  maestro: 'Maestro',
 };

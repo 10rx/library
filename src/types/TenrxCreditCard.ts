@@ -7,22 +7,30 @@ import { TenrxEnumCountry } from '../includes/TenrxEnums.js';
  * @export
  * @interface TenrxCreditCard
  */
-export default interface TenrxStripeCreditCard {
+export default interface TenrxCreditCard {
   /**
-   * The id of the credit card. This is normally the stripe token.
+   * Stripe card ID
    *
-   * @type {string}
+   * @type {string | null}
    * @memberof TenrxCreditCard
    */
-  cardId: string;
+  cardId: string | null;
 
   /**
-   * The payment method. This is usually from Stripe.
+   * Stripe payment method ID
    *
-   * @type {string}
+   * @type {string | null}
    * @memberof TenrxCreditCard
    */
-  paymentMethod: string;
+  paymentMethod: string | null;
+
+  /**
+   * Authorize.net payment ID
+   *
+   * @type {(string | null)}
+   * @memberof TenrxCreditCard
+   */
+  paymentID: string | null;
 
   /**
    * The first name on the card.

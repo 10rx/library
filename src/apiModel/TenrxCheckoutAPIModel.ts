@@ -1,33 +1,37 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 export default interface TenrxCheckoutAPIModel {
+  paymentNonce: string | null;
   userName: string;
-  cardId: number;
-  stripeToken: string;
-  paymentCardDetails: PaymentCardDetails;
   status: number;
   shippingType: number;
   pharmacyType: number;
   couponCode: string | null;
-  orderId: number;
   shippingFees: number;
-  patientProducts: PatientProduct[];
-  orderShippingAddress: OrderShippingAddress;
-  externalPharmacyAddress: ExternalPharmacyAddress | null;
+  cardDetails: CardDetails;
+  shippingAddress: ShippingAddress;
+  products: Product[];
+  otherPharmacyAddress: OtherPharmacyAddress | null;
   images: string[];
 }
 
-interface ExternalPharmacyAddress {
-  apartmentNumber: string | null;
-  address1: string;
-  address2: string | null;
+interface OtherPharmacyAddress {
+  pharmacyName: string;
+  addressLine1: string;
+  addressLine2: string | null;
   city: string;
-  stateName: string;
+  state: string;
   zipCode: string;
   country: string;
-  pharmacyName: string;
 }
 
-interface OrderShippingAddress {
+interface Product {
+  productId: number;
+  quantity: number;
+  strength: string;
+  refillID: number | null;
+}
+
+interface ShippingAddress {
   addressLine1: string;
   addressLine2: string | null;
   city: string;
@@ -37,26 +41,22 @@ interface OrderShippingAddress {
   phoneNumber: string;
 }
 
-interface PatientProduct {
-  productId: number;
-  quantity: number;
-  strength: string;
-  refillID: number | null;
-}
-
-interface PaymentCardDetails {
-  cardId: string;
-  paymentMethod: string;
+interface CardDetails {
   firstName: string;
   lastName: string;
-  addressCity: string;
-  addressCountry: string;
-  addressLine1: string;
-  addressLine2: string | null;
-  addressState: string;
-  addressZip: string;
   brand: string;
   last4: string;
   exp_month: number;
   exp_year: number;
+  paymentID: string | null;
+  billingAddress: BillingAddress;
+}
+
+interface BillingAddress {
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
 }

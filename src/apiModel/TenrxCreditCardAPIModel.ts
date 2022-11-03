@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 export default interface TenrxCreditCardAPIModel {
-  cardId: string;
-  paymentMethod: string;
+  cardId: string | null;
+  paymentMethod: string | null;
   firstName: string;
   lastName: string;
   last4: string;
@@ -14,4 +14,5 @@ export default interface TenrxCreditCardAPIModel {
   addressState: string;
   addressZip: string;
   addressCountry: string;
+  paymentID: string | null;
 }
