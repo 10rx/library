@@ -7,7 +7,8 @@ export default interface TenrxChargeAPIModel {
   paymentCardDetails: {
     cardId: number | string;
     paymentMethod: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     addressCity: string;
     addressCountry: string;
     addressLine1: string;

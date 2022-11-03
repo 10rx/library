@@ -529,7 +529,8 @@ export default class TenrxCart {
       paymentCardDetails: {
         cardId: card.cardId,
         paymentMethod: card.paymentMethod,
-        name: card.nameOnCard,
+        firstName: card.firstName,
+        lastName: card.lastName,
         addressCity: card.address.city,
         addressCountry: 'US',
         addressLine1: card.address.address1,

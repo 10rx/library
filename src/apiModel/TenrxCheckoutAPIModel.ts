@@ -47,7 +47,8 @@ interface PatientProduct {
 interface PaymentCardDetails {
   cardId: string;
   paymentMethod: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   addressCity: string;
   addressCountry: string;
   addressLine1: string;

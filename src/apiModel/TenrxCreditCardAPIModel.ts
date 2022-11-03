@@ -2,7 +2,8 @@
 export default interface TenrxCreditCardAPIModel {
   cardId: string;
   paymentMethod: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   last4: string;
   brand: string;
   exp_month: string;
