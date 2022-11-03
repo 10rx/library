@@ -42,7 +42,8 @@ interface ShippingAddress {
 }
 
 interface CardDetails {
-  name: string;
+  firstName: string;
+  lastName: string;
   brand: string;
   last4: string;
   exp_month: number;
