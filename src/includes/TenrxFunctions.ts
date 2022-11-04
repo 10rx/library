@@ -35,6 +35,7 @@ import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestP
  *
  * @param {string} businesstoken - The business token to be used when creating the instance.
  * @param {string} baseapi - The base api to be used when creating the instance.
+ * @param {string} promotionsURL - Promotion server URL
  * @param {TenrxStorage} storage - The storage to be used when creating the instance.
  * @param {(theStorage: TenrxStorage) => void} [onInit] - The callback to be called after the instance is initialized.
  * @param {ISettingsParam} [loggerSetting] - The settings for the logger.
@@ -42,12 +43,13 @@ import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestP
 export const initializeTenrx = (
   businesstoken: string,
   baseapi: string,
+  promotionsURL: string,
   storage: TenrxStorage,
   onInit?: (theStorage: TenrxStorage) => void,
   loggerSettings?: ISettingsParam,
 ): void => {
   TenrxLibraryLogger.info('Initializing Tenrx...');
-  TenrxApiEngine.initialize(businesstoken, baseapi);
+  TenrxApiEngine.initialize(businesstoken, baseapi, promotionsURL);
   // eslint-disable-next-line import/no-named-as-default-member
   bcryptjs.setRandomFallback((len: number) => {
     // eslint-disable-next-line import/no-named-as-default-member

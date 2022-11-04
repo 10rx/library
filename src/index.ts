@@ -3,6 +3,7 @@ export { TenrxLibraryLogger } from './includes/TenrxLogging.js';
 
 // Classes
 export { default as TenrxApiEngine } from './classes/TenrxApiEngine.js';
+export { default as TenrxPromotionEngine } from './classes/TenrxPromotionEngine.js';
 export { default as TenrxVisitType } from './classes/TenrxVisitType.js';
 export { default as TenrxProductCategory } from './classes/TenrxProductCategory.js';
 export { default as TenrxGenderCategory } from './classes/TenrxGenderCategory.js';
@@ -109,6 +110,9 @@ export { default as TenrxGetProductsAPIModel } from './apiModel/TenrxGetProducts
 export { default as TenrxGetProductAPIModel } from './apiModel/TenrxGetProductAPIModel.js';
 export { default as TenrxAPIGetCartTotalRequest } from './apiModel/TenrxAPIGetCartTotalRequest.js';
 export { default as TenrxAPIGetCartTotalResponse } from './apiModel/TenrxAPIGetCartTotalResponse.js';
+export { default as TenrxQuestionnaireSaveAnswersAPIModel } from './apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
+
+export { default as PromotionResponse } from './apiModel/promotions/PromotionResponse.js';
 
 // Enums
 export {
