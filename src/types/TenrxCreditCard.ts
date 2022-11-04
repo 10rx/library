@@ -33,12 +33,20 @@ export default interface TenrxCreditCard {
   paymentID: string | null;
 
   /**
-   * The name on the card.
+   * The first name on the card.
    *
    * @type {string}
    * @memberof TenrxStripeCreditCard
    */
-  nameOnCard: string;
+  firstName: string;
+
+  /**
+   * The last name on the card.
+   *
+   * @type {string}
+   * @memberof TenrxStripeCreditCard
+   */
+  lastName: string;
 
   /**
    * The last four digits of the credit card.

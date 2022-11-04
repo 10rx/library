@@ -534,7 +534,8 @@ export default class TenrxCart {
       paymentNonce,
       cardDetails: {
         paymentID: card.paymentID,
-        name: card.nameOnCard,
+        firstName: card.firstName,
+        lastName: card.lastName,
         brand: card.brand,
         last4: card.last4,
         exp_month: Number(card.expMonth),
