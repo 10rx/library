@@ -28,6 +28,7 @@ export default class TenrxPromotionEngine {
         slug: '/v1/auth/login',
         method: 'post',
         body: { token },
+        skipAuth: true,
       });
       if (response.statusCode !== 200) return response.message;
       this.token = response.data;
