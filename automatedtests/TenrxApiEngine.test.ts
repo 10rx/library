@@ -8,6 +8,7 @@ import {
   Testlogger,
   OFFER_FIFTEEN_PERCENT_OFF_COUPON_CODE,
   OFFER_WRONG_COUPON_CODE,
+  PROMOTION_URL,
 } from './includes/TexrxCommonInclude.js';
 import { TenrxApiEngine, useTenrxApi } from '../src/index.js';
 import TenrxLoginAPIModel from '../src/apiModel/TenrxLoginAPIModel.js';
@@ -40,7 +41,7 @@ test('GetVisitTypes Test Successful', async () => {
 
 test('Singleton Test', async () => {
   const ApiEngine1 = TenrxApiEngine.instance;
-  const ApiEngine2 = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL);
+  const ApiEngine2 = new TenrxApiEngine(BUSINESS_TOKEN, TEST_API_BASE_URL, PROMOTION_URL);
   expect(tenrx).not.toBeNull();
   expect(ApiEngine1).toBe(tenrx);
   expect(ApiEngine1).not.toBe(ApiEngine2);
@@ -60,7 +61,7 @@ test('Login API Test Failure', async () => {
 
 // TODO: Reenable test when security questions are ready
 // test('Login API Test Security Question', async () => {
-//   const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz'); 
+//   const result = await tenrx.login(TEST_USERNAME_EXISTS, TEST_PASSWORD_HASHED_SUCCESS, 'en', 'mu:st:fa:il:th:iz');
 //   const content = result.content as TenrxLoginAPIModel;
 //   expect(content.statusCode).toBe(200);
 //   expect(content.access_token).toBeNull();
@@ -109,7 +110,7 @@ test('Auth GET Test Successful', async () => {
     const content = logindata.content as TenrxLoginAPIModel;
     const data = content.data as any;
     const response = await tenrx.authGet(TEST_API_BASE_URL + '/api/Notification/GetAppSettings', {
-      patientId: "123",
+      patientId: '123',
     });
     Testlogger.info(response);
     expect(response.status).toBe(200);
@@ -215,7 +216,9 @@ test('GetCouponCode Test successful', async () => {
   Testlogger.info(result);
   expect(result).not.toBeNull();
   expect(result.content).not.toBeNull();
-  const content = result.content as { data: { promotionName: string; discountAmount: number; discountPercent: number } };
+  const content = result.content as {
+    data: { promotionName: string; discountAmount: number; discountPercent: number };
+  };
   expect(content.data.promotionName).toBe('15% off Order');
   expect(content.data.discountAmount).toBe(0);
   expect(content.data.discountPercent).toBe(15);
