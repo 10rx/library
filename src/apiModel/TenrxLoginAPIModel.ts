@@ -12,6 +12,7 @@ export default interface TenrxLoginAPIModel {
   patientData: TenrxLoginAPIModelPatientData | null;
   notifications: unknown;
   firstTimeLogin: boolean;
+  authenticationDetails: Authentication;
 }
 
 export interface TenrxLoginAPIModelData {
@@ -44,4 +45,9 @@ export interface TenrxLoginAPIModelPatientData {
   gender: number;
   photoPath: string;
   photoThumbnailPath: string;
+}
+
+interface Authentication {
+  token: string;
+  expiresAt: string;
 }

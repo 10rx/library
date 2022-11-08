@@ -29,6 +29,7 @@ import {
   TenrxGetProductTaxAPIModel,
   TenrxSessionDetailsAPIModel,
   TenrxCheckoutAPIModel,
+  TenrxToken,
 } from '../index.js';
 
 /**
@@ -43,6 +44,7 @@ export default class TenrxApiEngine {
   private expireDateStart: number;
   private axios: AxiosInstance;
   public promotions: TenrxPromotionEngine;
+  public grantingToken: TenrxToken | null = null;
 
   private static _instance: TenrxApiEngine | null = null;
 
@@ -830,6 +832,11 @@ export default class TenrxApiEngine {
     try {
       const response = await this.authGet(`/api/v1/Common/RefreshToken`);
       this.processLoginResponse(response, 'refreshToken()');
+      const content = response.content as TenrxAPIModel<TenrxToken>;
+      if (content.apiStatus.statusCode === 200 && content.data?.token) {
+        this.grantingToken = content.data;
+        await this.promotions.login(this.grantingToken.token);
+      }
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('RefreshToken() Error: ', error);
@@ -899,6 +906,11 @@ export default class TenrxApiEngine {
         language,
       });
       this.processLoginResponse(response, 'login()');
+      const content = response.content as TenrxLoginAPIModel;
+      if (content.statusCode === 200 && content.authenticationDetails) {
+        this.grantingToken = content.authenticationDetails;
+        await this.promotions.login(this.grantingToken.token);
+      }
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('Login() Error: ', error);

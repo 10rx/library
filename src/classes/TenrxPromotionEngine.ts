@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios, { AxiosInstance, AxiosError, Method } from 'axios';
-import { TenrxAccessTokenInvalid, PromotionResponse } from '../index.js';
-
-interface PromotionToken {
-  token: string;
-  expiresAt: Date;
-}
+import { TenrxAccessTokenInvalid, PromotionResponse, TenrxToken } from '../index.js';
 
 export default class TenrxPromotionEngine {
-  private token: PromotionToken | null = null;
+  private token: TenrxToken | null = null;
   private axios: AxiosInstance;
 
   constructor(url: string) {
@@ -19,12 +14,13 @@ export default class TenrxPromotionEngine {
 
   private checkToken() {
     if (!this.token) throw new TenrxAccessTokenInvalid('No promotion token set', undefined);
-    if (this.token.expiresAt <= new Date()) throw new TenrxAccessTokenInvalid('Promotion token is expired', undefined);
+    if (new Date(this.token.expiresAt) <= new Date())
+      throw new TenrxAccessTokenInvalid('Promotion token is expired', undefined);
   }
 
   public async login(token: string) {
     try {
-      const response = await this.request<PromotionToken>({
+      const response = await this.request<TenrxToken>({
         slug: '/v1/auth/login',
         method: 'post',
         body: { token },

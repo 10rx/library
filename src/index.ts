@@ -58,7 +58,8 @@ export {
   TenrxChatStartedPayload,
   TenrxChatMessageMetadata,
 } from './types/TenrxChatEvent.js';
-export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult';
+export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult.js';
+export { default as TenrxToken } from './types/TenrxToken.js';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
