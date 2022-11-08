@@ -66,6 +66,8 @@ export default class TenrxPromotionEngine {
 
       return response.data as PromotionResponse<T>;
     } catch (error) {
+      const err = error as AxiosError;
+      if (err.response) return err.response.data as PromotionResponse<T>;
       throw new Error((error as AxiosError).message);
     }
   }
