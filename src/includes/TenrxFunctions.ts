@@ -23,12 +23,12 @@ import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserPar
 import TenrxStorage from '../classes/TenrxStorage.js';
 import TenrxUserAccount from '../classes/TenrxUserAccount.js';
 import TenrxPatient from '../classes/TenrxPatient.js';
-import TenrxCart from '../classes/TenrxCart.js';
 import TenrxAccessToken from '../types/TenrxAccessToken.js';
 import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
 import { TenrxEnumState } from './TenrxEnums.js';
 import { TenrxStateNameToStateId } from './TenrxStates.js';
 import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
+import { TenrxCartEngine } from '../index.js';
 
 /**
  * Initialize the TenrxApiEngine single instance.
@@ -117,12 +117,12 @@ export const useTenrxPatient = (): TenrxPatient => {
 };
 
 /**
- * This functions retrieves the TenrxCart single instance. It is used when there is no need to have multiple instances of the TenrxCart.
+ * This functions retrieves the TenrxCart single instance. It is used when there is no need to have multiple instances of the TenrxCartEngine.
  *
- * @return {*}  {TenrxCart}
+ * @return {*}  {TenrxCartEngine}
  */
-export const useTenrxCart = (): TenrxCart => {
-  return TenrxCart.instance;
+export const useTenrxCart = (): TenrxCartEngine => {
+  return TenrxCartEngine.instance;
 };
 
 // This salt is used to hash the password. It should not be changed since it will force everyone to change their password.

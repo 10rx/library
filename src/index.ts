@@ -21,6 +21,7 @@ export { default as TenrxPatientChatInterface } from './classes/TenrxPatientChat
 export { default as TenrxOrder } from './classes/TenrxOrder.js';
 export { default as TenrxPromotion } from './classes/TenrxPromotion.js';
 export { default as TenrxLiveChatInterface } from './classes/TenrxLiveChatInterface.js';
+export { default as TenrxCartEngine } from './classes/TenrxCartEngine.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -114,6 +115,10 @@ export { default as TenrxAPIGetCartTotalResponse } from './apiModel/TenrxAPIGetC
 export { default as TenrxQuestionnaireSaveAnswersAPIModel } from './apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
 
 export { default as PromotionResponse } from './apiModel/promotions/PromotionResponse.js';
+export { default as CartResponse } from './apiModel/promotions/CartResponse.js';
+export { default as CartItem } from './apiModel/promotions/CartItem.js';
+export { default as CartTaxDetails } from './apiModel/promotions/CartTaxDetails.js';
+export { default as CartAddItemModel } from './apiModel/promotions/CartAddItemModel.js';
 
 // Enums
 export {
