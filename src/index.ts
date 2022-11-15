@@ -119,6 +119,8 @@ export { default as CartResponse } from './apiModel/promotions/CartResponse.js';
 export { default as CartItem } from './apiModel/promotions/CartItem.js';
 export { default as CartTaxDetails } from './apiModel/promotions/CartTaxDetails.js';
 export { default as CartAddItemModel } from './apiModel/promotions/CartAddItemModel.js';
+export { default as CartItemBasic } from './apiModel/promotions/CartItemBasic.js';
+export { default as CheckoutRequest } from './apiModel/CheckoutRequest.js';
 
 // Enums
 export {

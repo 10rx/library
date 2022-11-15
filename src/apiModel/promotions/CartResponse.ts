@@ -1,4 +1,4 @@
-import { CartItem, CartTaxDetails } from '../../index.js';
+import { CartItem, CartTaxDetails, TenrxShippingType } from '../../index.js';
 
 export default interface CartResponse {
   id?: number;
@@ -12,5 +12,6 @@ export default interface CartResponse {
   total: number;
   discount: number;
   shipping: number;
+  shippingType: TenrxShippingType;
   externalPharmacy: boolean;
 }

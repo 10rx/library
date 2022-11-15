@@ -30,6 +30,7 @@ import {
   TenrxSessionDetailsAPIModel,
   TenrxCheckoutAPIModel,
   TenrxToken,
+  CheckoutRequest,
 } from '../index.js';
 
 /**
@@ -541,7 +542,7 @@ export default class TenrxApiEngine {
     }
   }
 
-  public async checkout(data: TenrxCheckoutAPIModel, timeout = 15000): Promise<TenrxApiResult> {
+  public async checkout(data: CheckoutRequest, timeout = 15000): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving payment details to API (auth)');
     try {
       const response = await this.authPost(`/api/Payment/Checkout`, data, {}, {}, timeout);

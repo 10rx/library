@@ -2,6 +2,7 @@ export default interface CartItem {
   id: number;
   name: string;
   nameEs: string;
+  description: string | null;
   image: string | null;
   isRx: boolean;
   isFee: boolean;
