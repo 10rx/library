@@ -191,10 +191,10 @@ export default class TenrxOrder {
                   result.push({
                     doctorName,
                     startDate: DateTime.fromFormat(appointment.slotStartTime, 'MM/dd/yyyy HH:mm:ss', {
-                      zone: 'utc'
+                      zone: 'utc',
                     }).toJSDate(),
                     endDate: DateTime.fromFormat(appointment.slotEndTime, 'MM/dd/yyyy HH:mm:ss', {
-                      zone: 'utc'
+                      zone: 'utc',
                     }).toJSDate(),
                   });
                 });
