@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import TenrxAPIModel from '../apiModel/TenrxAPIModel.js';
 import TenrxGetDoctorAvailabilityForPatientAPIModel from '../apiModel/TenrxGetDoctorAvailabilityForPatientAPIModel.js';
 import TenrxOrderAPIModel from '../apiModel/TenrxOrderAPIModel.js';
@@ -189,8 +190,12 @@ export default class TenrxOrder {
                 content.data.appointmentSlots.forEach((appointment) => {
                   result.push({
                     doctorName,
-                    startDate: new Date(appointment.slotStartTime),
-                    endDate: new Date(appointment.slotEndTime),
+                    startDate: DateTime.fromFormat(appointment.slotStartTime, 'MM/dd/yyyy HH:mm:ss', {
+                      zone: 'utc'
+                    }).toJSDate(),
+                    endDate: DateTime.fromFormat(appointment.slotEndTime, 'MM/dd/yyyy HH:mm:ss', {
+                      zone: 'utc'
+                    }).toJSDate(),
                   });
                 });
               }
