@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios, { AxiosInstance, AxiosError, Method } from 'axios';
-import { TenrxAccessTokenInvalid, PromotionResponse, TenrxToken } from '../index.js';
+import { TenrxAccessTokenInvalid, PromotionResponse, TenrxToken, useTenrxCart } from '../index.js';
 
 export default class TenrxPromotionEngine {
   private token: TenrxToken | null = null;
@@ -13,9 +13,14 @@ export default class TenrxPromotionEngine {
   }
 
   private checkToken() {
-    if (!this.token) throw new TenrxAccessTokenInvalid('No promotion token set', undefined);
-    if (new Date(this.token.expiresAt) <= new Date())
+    if (!this.token) {
+      useTenrxCart().useClient = true;
+      throw new TenrxAccessTokenInvalid('No promotion token set', undefined);
+    }
+    if (new Date(this.token.expiresAt) <= new Date()) {
+      useTenrxCart().useClient = true;
       throw new TenrxAccessTokenInvalid('Promotion token is expired', undefined);
+    }
   }
 
   public async login(token: string) {
@@ -28,6 +33,7 @@ export default class TenrxPromotionEngine {
       });
       if (response.statusCode !== 200) return response.message;
       this.token = response.data;
+      await useTenrxCart().switchToServer();
       return null;
     } catch (error) {
       return (error as Error).message;

@@ -6,7 +6,6 @@ import {
   TenrxUploadStagingImage,
   TenrxAPIModel,
   TenrxRefillModel,
-  TenrxAPIGetCartTotalRequest,
   TenrxPromotionEngine,
   TenrxLibraryLogger,
   TenrxApiResult,
@@ -31,6 +30,7 @@ import {
   TenrxCheckoutAPIModel,
   TenrxToken,
   CheckoutRequest,
+  CartTaxDetails,
 } from '../index.js';
 
 /**
@@ -1362,17 +1362,17 @@ export default class TenrxApiEngine {
   }
 
   /**
-   * Get cart total
+   * Get tax rate
    *
-   * @param {TenrxAPIGetCartTotalRequest} data
+   * @param {CartTaxDetails} details
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  public async getCartTotal(data: TenrxAPIGetCartTotalRequest): Promise<TenrxApiResult> {
+  public async getTaxRate(details: CartTaxDetails): Promise<TenrxApiResult> {
     try {
-      return await this.authPost('/api/Payment/CartPriceCheck', data);
+      return await this.post(`/api/v1/server/tax`, details);
     } catch (error) {
-      TenrxLibraryLogger.error('getCartTotal() Error: ', error);
+      TenrxLibraryLogger.error('getTaxRate() Error: ', error);
       return {
         status: 0,
         content: null,

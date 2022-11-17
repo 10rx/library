@@ -10,7 +10,6 @@ export { default as TenrxGenderCategory } from './classes/TenrxGenderCategory.js
 export { default as TenrxProduct } from './classes/TenrxProduct.js';
 export { default as TenrxLogger } from './classes/TenrxLogger.js';
 export { default as TenrxStorage } from './classes/TenrxStorage.js';
-export { default as TenrxCart } from './classes/TenrxCart.js';
 export { default as TenrxPatient } from './classes/TenrxPatient.js';
 export { default as TenrxUserAccount } from './classes/TenrxUserAccount.js';
 export { default as TenrxWallet } from './classes/TenrxWallet.js';

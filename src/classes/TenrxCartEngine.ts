@@ -22,6 +22,8 @@ import {
   TenrxStateIdToStateName,
   TenrxEnumCountry,
   TenrxCartCheckoutResult,
+  tenrxRoundTo,
+  useTenrxStorage,
 } from '../index.js';
 
 import EventEmitter from 'events';
@@ -55,41 +57,65 @@ export default class TenrxCartEngine extends EventEmitter {
       city: null,
     },
   };
+  private useTemp = true;
+  private temp: CartResponse = {
+    promotionCode: null,
+    items: [],
+    taxRate: 0,
+    subtotal: 0,
+    tax: 0,
+    total: 0,
+    discount: 0,
+    shipping: 0,
+    shippingType: TenrxShippingType.Standard,
+    externalPharmacy: false,
+    taxDetails: {
+      zip: null,
+      state: null,
+      city: null,
+    },
+  };
 
   public get subtotal() {
-    return this.cart.subtotal;
+    return this.useTemp ? this.temp.subtotal : this.cart.subtotal;
   }
 
   public get total() {
-    return this.cart.total;
+    return this.useTemp ? this.temp.total : this.cart.total;
   }
 
   public get discount() {
-    return this.cart.discount;
+    return this.useTemp ? this.temp.discount : this.cart.discount;
   }
 
   public get shipping() {
-    return this.cart.shipping;
+    return this.useTemp ? (this.temp.shippingType === TenrxShippingType.Expedited ? 45 : 0) : this.cart.shipping;
   }
 
   public get tax() {
-    return this.cart.tax;
+    return this.useTemp ? this.temp.tax : this.cart.tax;
   }
 
   public get taxRate() {
-    return this.cart.taxRate;
+    return this.useTemp ? this.temp.taxRate : this.cart.taxRate;
   }
 
   public get items() {
-    return this.cart.items;
+    return this.useTemp ? this.temp.items : this.cart.items;
   }
 
   public get shippingType() {
-    return this.cart.shippingType;
+    return this.useTemp ? this.temp.shippingType : this.cart.shippingType;
   }
 
   public get count() {
-    return this.cart.items.filter((i) => !i.hidden).reduce((a, b) => a + b.quantity, 0);
+    return this.useTemp
+      ? this.temp.items.filter((i) => !i.hidden).reduce((a, b) => a + b.quantity, 0)
+      : this.cart.items.filter((i) => !i.hidden).reduce((a, b) => a + b.quantity, 0);
+  }
+
+  public get promotionCode() {
+    return (this.useTemp ? this.temp.promotionCode : this.cart.promotionCode) || null;
   }
 
   /**
@@ -100,6 +126,36 @@ export default class TenrxCartEngine extends EventEmitter {
    */
   public async refresh() {
     try {
+      if (this.useTemp) {
+        this.temp.subtotal = 0;
+        this.temp.total = 0;
+        let taxable = 0;
+
+        for (const item of this.temp.items) {
+          const price = tenrxRoundTo(item.price * item.quantity, 2);
+          if (item.isFee) {
+            this.temp.subtotal += price;
+            continue;
+          }
+          if (this.temp.externalPharmacy && item.isRx) continue;
+          this.temp.subtotal += price;
+          if (!item.isRx) taxable += price;
+        }
+        if (
+          !this.temp.taxRate &&
+          (this.temp.taxDetails.city || this.temp.taxDetails.state || this.temp.taxDetails.zip)
+        ) {
+          this.temp.taxRate = await this.getTaxRate();
+        }
+        this.temp.tax = tenrxRoundTo(taxable * this.temp.taxRate, 2);
+        this.temp.total = this.temp.subtotal + this.temp.tax + this.shipping;
+        this.emit(
+          'count',
+          this.temp.items.filter((i) => !i.hidden).reduce((a, b) => a + b.quantity, 0),
+        );
+        return;
+      }
+
       const response = await this.engine.promotions.request<CartResponse>({
         slug: '/v1/cart',
         method: 'get',
@@ -118,6 +174,18 @@ export default class TenrxCartEngine extends EventEmitter {
     } catch (error) {
       TenrxLibraryLogger.error('Error refreshing cart', error);
     }
+  }
+
+  public async getTaxRate(): Promise<number> {
+    try {
+      if (!this.useTemp) return 0;
+      const response = await this.engine.getTaxRate(this.temp.taxDetails);
+      const content = response.content as TenrxAPIModel<{ rate: number }>;
+      if (content.apiStatus.statusCode) return content.data.rate;
+    } catch {
+      //
+    }
+    return 0;
   }
 
   public async addItem({
@@ -198,16 +266,32 @@ export default class TenrxCartEngine extends EventEmitter {
 
     if (!items.length) return;
 
-    const response = await this.engine.promotions.request({
-      slug: '/v1/cart',
-      method: 'post',
-      body: {
-        items,
-        taxDetails: taxDetails || this.cart.taxDetails,
-      },
-    });
+    if (this.useTemp) {
+      for (const el of items) {
+        const existing = this.temp.items.find(
+          (i) => i.id === el.id && i.strength === el.strength && i.visitType === el.visitType,
+        );
+        if (existing) {
+          existing.quantity += el.quantity;
+          existing.images.push(...el.images);
+          existing.answers.push(...el.answers);
+        } else {
+          this.temp.items.push(el);
+        }
+      }
+      this.save();
+    } else {
+      const response = await this.engine.promotions.request({
+        slug: '/v1/cart',
+        method: 'post',
+        body: {
+          items,
+          taxDetails: taxDetails || this.cart.taxDetails,
+        },
+      });
 
-    if (response.statusCode !== 200) throw new Error(response.message);
+      if (response.statusCode !== 200) throw new Error(response.message);
+    }
 
     if (refresh !== false) await this.refresh();
   }
@@ -222,14 +306,35 @@ export default class TenrxCartEngine extends EventEmitter {
     }
   }
 
-  public async clear() {
+  public async clear(temp = false) {
     try {
-      const response = await this.engine.promotions.request({
-        slug: '/v1/cart/clear',
-        method: 'post',
-      });
+      if (this.useTemp || temp) {
+        this.temp = {
+          promotionCode: null,
+          items: [],
+          taxRate: 0,
+          subtotal: 0,
+          tax: 0,
+          total: 0,
+          discount: 0,
+          shipping: 0,
+          shippingType: TenrxShippingType.Standard,
+          externalPharmacy: false,
+          taxDetails: {
+            zip: null,
+            state: null,
+            city: null,
+          },
+        };
+        this.save();
+      } else {
+        const response = await this.engine.promotions.request({
+          slug: '/v1/cart',
+          method: 'delete',
+        });
 
-      if (response.statusCode !== 200) TenrxLibraryLogger.error('Error clearing cart', response.message);
+        if (response.statusCode !== 200) TenrxLibraryLogger.error('Error clearing cart', response.message);
+      }
       await this.refresh();
     } catch (error) {
       TenrxLibraryLogger.error('Error clearing cart', error);
@@ -265,11 +370,31 @@ export default class TenrxCartEngine extends EventEmitter {
   }
 
   public async editItems(items: CartItemBasic[], refresh = true) {
-    await this.engine.promotions.request({
-      slug: '/v1/cart/quantity',
-      method: 'post',
-      body: items,
-    });
+    if (this.useTemp) {
+      for (const item of items) {
+        const existing = this.temp.items.find(
+          (i) => i.id === item.id && i.strength === item.strength && i.visitType === item.visitType,
+        );
+        if (!existing) continue;
+
+        existing.quantity += item.quantity;
+
+        if (existing.quantity < 1)
+          this.temp.items.splice(
+            this.items.findIndex(
+              (i) => i.id === item.id && i.strength === item.strength && i.visitType === item.visitType,
+            ),
+            1,
+          );
+      }
+      this.save();
+    } else
+      await this.engine.promotions.request({
+        slug: '/v1/cart',
+        method: 'patch',
+        body: items,
+      });
+
     if (refresh) await this.refresh();
   }
 
@@ -282,18 +407,24 @@ export default class TenrxCartEngine extends EventEmitter {
     external?: boolean;
     refresh?: boolean;
   }) {
-    await this.engine.promotions.request({
-      slug: '/v1/cart/shipping',
-      method: 'post',
-      body: {
-        externalPharmacy: external ?? this.cart.externalPharmacy,
-        shippingType: shippingType ?? this.cart.shippingType,
-      },
-    });
+    if (this.useTemp) {
+      this.temp.externalPharmacy = external ?? this.temp.externalPharmacy;
+      this.temp.shippingType = shippingType ?? this.temp.shippingType;
+      this.save();
+    } else
+      await this.engine.promotions.request({
+        slug: '/v1/cart/shipping',
+        method: 'post',
+        body: {
+          externalPharmacy: external ?? this.cart.externalPharmacy,
+          shippingType: shippingType ?? this.cart.shippingType,
+        },
+      });
     if (refresh) await this.refresh();
   }
 
-  public async setPromotion(code: string | null) {
+  public async setPromotion(code: string | null): Promise<boolean> {
+    if (this.useTemp) return false;
     const response = await this.engine.promotions.request({
       slug: '/v1/cart/promotion',
       method: 'post',
@@ -323,7 +454,7 @@ export default class TenrxCartEngine extends EventEmitter {
       paymentNonce,
       shippingType: this.shippingType,
       pharmacyType: pharmacyInfo ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
-      couponCode: this.cart.promotionCode || null,
+      couponCode: this.promotionCode,
       shippingFees: this.shipping,
       cardDetails: {
         paymentID: card.paymentID,
@@ -398,7 +529,10 @@ export default class TenrxCartEngine extends EventEmitter {
         orderPlacementSuccessful: content.apiStatus.statusCode === 200,
         invoiceNumber: content.data.orderNumber ?? '',
       };
-      if (result.orderDetails.invoiceNumber) result.checkoutSuccessful = true;
+      if (result.orderDetails.invoiceNumber) {
+        result.checkoutSuccessful = true;
+        await this.clear();
+      }
     } catch (error) {
       TenrxLibraryLogger.error('cart.checkout():', error);
     }
@@ -406,9 +540,50 @@ export default class TenrxCartEngine extends EventEmitter {
     return result;
   }
 
+  public async switchToServer() {
+    this.useTemp = false;
+    if (!this.temp.items.length) return await this.refresh();
+    const response = await this.engine.promotions.request({
+      slug: '/v1/cart',
+      method: 'post',
+      body: {
+        items: this.temp.items,
+        taxDetails: this.temp.taxDetails,
+      },
+    });
+
+    if (response.statusCode !== 200) throw new Error(response.message);
+
+    await this.setShipping({
+      shippingType: this.temp.shippingType,
+      external: this.temp.externalPharmacy,
+      refresh: false,
+    });
+    await this.clear(true);
+  }
+
+  public set useClient(value: boolean) {
+    this.useTemp = value;
+  }
+
+  private save() {
+    if (!this.useTemp) return;
+    const storage = useTenrxStorage();
+    storage.saveSync('session', 'cartEngine', this.temp);
+  }
+
+  private load() {
+    if (!this.useTemp) return;
+    const storage = useTenrxStorage();
+    const data: CartResponse = storage.loadSync('session', 'cartEngine');
+    if (data) this.temp = data;
+    void this.refresh();
+  }
+
   private constructor(engine = useTenrxApi()) {
     super();
     this.engine = engine;
+    this.load();
   }
 
   public static get instance(): TenrxCartEngine {
