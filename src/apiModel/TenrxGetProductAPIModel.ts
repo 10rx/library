@@ -13,6 +13,7 @@ export default interface TenrxGetProductAPIModel {
   precautions: string;
   precautionsEs: string;
   variants: Variant[];
+  slug: string | null;
 }
 
 interface Variant {

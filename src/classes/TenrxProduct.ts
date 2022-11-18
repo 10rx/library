@@ -150,6 +150,14 @@ export default class TenrxProduct {
   questionnaireID: number | null;
 
   /**
+   * Slug used for navigation
+   *
+   * @type {(string | null)}
+   * @memberof TenrxProduct
+   */
+  slug: string | null = null;
+
+  /**
    * Creates an instance of TenrxProduct.
    *
    * @param {TenrxTreatmentProductListAPIModel} data - The data to be used to create the instance.
@@ -176,6 +184,7 @@ export default class TenrxProduct {
       this.photoPaths = data.photoPaths.filter((img) => img.length);
       this.defaultPrice = this.sellingPrice = Number(data.defaultPrice);
       this.questionnaireID = data.questionnaireID;
+      this.slug = data.slug || null;
     } else {
       this.id = 0;
       this.categoryId = 0;
@@ -218,7 +227,7 @@ export default class TenrxProduct {
     if (!this.loaded) {
       TenrxLibraryLogger.info('Loading product with id: ' + String(this.id));
       try {
-        const response = await apiEngine.getProduct(this.id);
+        const response = await apiEngine.getProduct(this.slug || this.id);
         if (response.status === 200) {
           const content = response.content as {
             apiStatus: {
@@ -237,6 +246,7 @@ export default class TenrxProduct {
                 // ? If product has no variants than default is strength null
                 const defaultVariant = data.variants.find((v) => !v.strength);
 
+                this.id = data.id;
                 this.name = language === 'es' ? data.nameEs : data.name;
                 this.description = language === 'es' ? data.descriptionEs : data.description;
                 this.precautions = language === 'es' ? data.precautionsEs : data.precautions;
@@ -261,6 +271,7 @@ export default class TenrxProduct {
 
                 this.questionnaireID = data.questionnaireID;
                 this.loaded = true;
+                this.slug = data.slug;
               } else {
                 TenrxLibraryLogger.error(`Error while loading product with id: ${this.id}: No data.`);
                 throw new TenrxLoadError(
@@ -311,19 +322,21 @@ export default class TenrxProduct {
    * Gets an instance of a {TenrxProduct} with the given id.
    *
    * @static
-   * @param {number} id
+   * @param {string | numbernumber} id
    * @param {string} [language='en']
    * @param {*} [apiEngine=useTenrxApi()]
    * @return {*}  {(Promise<TenrxProduct | null>)}
    * @memberof TenrxProduct
    */
   public static async getProductByID(
-    id: number,
+    id: string | number,
     language = 'en',
     apiEngine = useTenrxApi(),
   ): Promise<TenrxProduct | null> {
     const product = new TenrxProduct(null, language, false, apiEngine);
-    product.id = id;
+    if (typeof id === 'number') {
+      product.id = id;
+    } else product.slug = id;
     try {
       await product.load(language, apiEngine);
       return product;
