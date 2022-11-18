@@ -16,4 +16,5 @@ export default interface TenrxTreatmentProductListAPIModel {
   categoryId: number;
   genderId: number;
   questionnaireID: number | null;
+  slug?: string | null;
 }

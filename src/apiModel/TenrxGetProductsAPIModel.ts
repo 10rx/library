@@ -7,4 +7,5 @@ export default interface TenrxGetProductsAPIModel {
   isRx: boolean;
   gender: number;
   images: string[];
+  slug: string | null;
 }
