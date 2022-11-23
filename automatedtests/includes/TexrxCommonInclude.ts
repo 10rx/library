@@ -1,7 +1,7 @@
 import {
   initializeTenrx,
   TenrxApiEngine,
-  TenrxCart,
+  TenrxCartEngine,
   TenrxEnumState,
   TenrxLibraryLogger,
   TenrxProduct,
@@ -54,8 +54,8 @@ export const MakeRandomString = (length: number): string => {
   return result;
 };
 
-export const getSampleFullCart = (product: TenrxProduct): TenrxCart => {
+export const getSampleFullCart = (product: TenrxProduct): TenrxCartEngine => {
   const cart = useTenrxCart();
-  cart.addItem(product, 1);
+  cart.addItem({ item: product, quantity: 1 });
   return cart;
 };
