@@ -3,13 +3,13 @@ export { TenrxLibraryLogger } from './includes/TenrxLogging.js';
 
 // Classes
 export { default as TenrxApiEngine } from './classes/TenrxApiEngine.js';
+export { default as TenrxPromotionEngine } from './classes/TenrxPromotionEngine.js';
 export { default as TenrxVisitType } from './classes/TenrxVisitType.js';
 export { default as TenrxProductCategory } from './classes/TenrxProductCategory.js';
 export { default as TenrxGenderCategory } from './classes/TenrxGenderCategory.js';
 export { default as TenrxProduct } from './classes/TenrxProduct.js';
 export { default as TenrxLogger } from './classes/TenrxLogger.js';
 export { default as TenrxStorage } from './classes/TenrxStorage.js';
-export { default as TenrxCart } from './classes/TenrxCart.js';
 export { default as TenrxPatient } from './classes/TenrxPatient.js';
 export { default as TenrxUserAccount } from './classes/TenrxUserAccount.js';
 export { default as TenrxWallet } from './classes/TenrxWallet.js';
@@ -20,6 +20,7 @@ export { default as TenrxPatientChatInterface } from './classes/TenrxPatientChat
 export { default as TenrxOrder } from './classes/TenrxOrder.js';
 export { default as TenrxPromotion } from './classes/TenrxPromotion.js';
 export { default as TenrxLiveChatInterface } from './classes/TenrxLiveChatInterface.js';
+export { default as TenrxCartEngine } from './classes/TenrxCartEngine.js';
 
 // Types
 export { default as TenrxApiResult } from './types/TenrxApiResult.js';
@@ -57,7 +58,8 @@ export {
   TenrxChatStartedPayload,
   TenrxChatMessageMetadata,
 } from './types/TenrxChatEvent.js';
-export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult';
+export { default as TenrxOrderDetailsResult } from './types/TenrxOrderDetailsResult.js';
+export { default as TenrxToken } from './types/TenrxToken.js';
 
 // Exceptions
 export { default as TenrxServerError } from './exceptions/TenrxServerError.js';
@@ -109,6 +111,15 @@ export { default as TenrxGetProductsAPIModel } from './apiModel/TenrxGetProducts
 export { default as TenrxGetProductAPIModel } from './apiModel/TenrxGetProductAPIModel.js';
 export { default as TenrxAPIGetCartTotalRequest } from './apiModel/TenrxAPIGetCartTotalRequest.js';
 export { default as TenrxAPIGetCartTotalResponse } from './apiModel/TenrxAPIGetCartTotalResponse.js';
+export { default as TenrxQuestionnaireSaveAnswersAPIModel } from './apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
+
+export { default as PromotionResponse } from './apiModel/promotions/PromotionResponse.js';
+export { default as CartResponse } from './apiModel/promotions/CartResponse.js';
+export { default as CartItem } from './apiModel/promotions/CartItem.js';
+export { default as CartTaxDetails } from './apiModel/promotions/CartTaxDetails.js';
+export { default as CartAddItemModel } from './apiModel/promotions/CartAddItemModel.js';
+export { default as CartItemBasic } from './apiModel/promotions/CartItemBasic.js';
+export { default as CheckoutRequest } from './apiModel/CheckoutRequest.js';
 
 // Enums
 export {

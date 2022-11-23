@@ -15,11 +15,8 @@ publish:
     - npm config set unsafe-perm true
     - npm ci
     - npm publish
-    - npm run docs
   only:
     - tags
-  except:
-    - branches
 
 lint:
   stage: lint

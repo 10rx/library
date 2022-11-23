@@ -12,6 +12,7 @@ import TenrxFileStorage from './TenrxFileStorage.js';
 
 export const BUSINESS_TOKEN = '6dhzpW7t3Upa/mhuU52Iig==';
 export const TEST_API_BASE_URL = 'https://10rxapi.csscloudservices.com';
+export const PROMOTION_URL = 'https://10rxpromotion.csscloudservices.com';
 
 export const TEST_USERNAME_EXISTS = '456@xyz.com';
 export const TEST_USERNAME_NOT_EXISTS = 'nonexistingtest@test.com';
@@ -30,15 +31,16 @@ export const TEST_ADDRESS: TenrxStreetAddress = {
   address1: '123 Main St',
   city: 'Fort Lauderdale',
   stateId: TenrxEnumState.Florida,
-  zipCode: '33309'
-}
+  zipCode: '33309',
+};
 
 TenrxLibraryLogger.setSettings({
   type: 'pretty',
   minLevel: 'warn',
 });
 
-if (!TenrxApiEngine.isInstanceInitialized()) initializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL, new TenrxFileStorage());
+if (!TenrxApiEngine.isInstanceInitialized())
+  initializeTenrx(BUSINESS_TOKEN, TEST_API_BASE_URL, PROMOTION_URL, new TenrxFileStorage());
 
 export const Testlogger = TenrxLibraryLogger;
 
