@@ -1,28 +1,37 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { TenrxLibraryLogger } from '../includes/TenrxLogging.js';
-import TenrxApiResult from '../types/TenrxApiResult.js';
-import TenrxNotInitialized from '../exceptions/TenrxNotInitialized.js';
-import TenrxAccessTokenInvalid from '../exceptions/TenrxAccessTokenInvalid.js';
-import TenrxAccessTokenExpired from '../exceptions/TenrxAccessTokenExpired.js';
-import TenrxLoginAPIModel from '../apiModel/TenrxLoginAPIModel.js';
-import TenrxSaveUserSecurityQuestionAPIModel from '../apiModel/TenrxSaveUserSecurityQuestionAPIModel.js';
-import TenrxRegisterUserParameterAPIModel from '../apiModel/TenrxRegisterUserParameterAPIModel.js';
-import TenrxUpdatePatientDetailsAPIModel from '../apiModel/TenrxUpdatePatientDetailsAPIModel.js';
-import TenrxChargeAPIModel from '../apiModel/TenrxChargeAPIModel.js';
-import TenrxSaveProductAPIModel from '../apiModel/TenrxSaveProductAPIModel.js';
-import TenrxGuestAddProductAPIModel from '../apiModel/TenrxGuestAddProductAPIModel.js';
-import TenrxQuestionnaireSaveAnswersAPIModel from '../apiModel/TenrxQuestionnaireSaveAnswersAPIModel.js';
-import TenrxQuestionnaireSurveyResponseAPIModel from '../apiModel/TenrxQuestionnaireSurveyResponsesAPIModel.js';
-import TenrxAccessTokenExpirationInformation from '../types/TenrxAccessTokenExpirationInformation.js';
-import TenrxUpdatePatientInfoAPIModel from '../apiModel/TenrxUpdatePatientInfoAPIModel.js';
-import TenrxUploadPatientAffectedImagesAPIModel from '../apiModel/TenrxUploadPatientAffectedImagesAPIModel.js';
 import { DateTime } from 'luxon';
-import TenrxRegisterGuestParameterAPIModel from '../apiModel/TenrxRegisterGuestParameterAPIModel.js';
-import TenrxGetProductTaxAPIModel from '../apiModel/TenrxGetProductTaxAPIModel.js';
-import TenrxSessionDetailsAPIModel from '../apiModel/TenrxSessionDetailsAPIModel.js';
-import TenrxCheckoutAPIModel from '../apiModel/TenrxCheckoutAPIModel.js';
-import { TenrxUploadStagingImage, TenrxAPIModel, TenrxRefillModel, TenrxAPIGetCartTotalRequest } from '../index.js';
+
+import {
+  TenrxUploadStagingImage,
+  TenrxAPIModel,
+  TenrxRefillModel,
+  TenrxPromotionEngine,
+  TenrxLibraryLogger,
+  TenrxApiResult,
+  TenrxNotInitialized,
+  TenrxAccessTokenInvalid,
+  TenrxAccessTokenExpired,
+  TenrxLoginAPIModel,
+  TenrxSaveUserSecurityQuestionAPIModel,
+  TenrxRegisterUserParameterAPIModel,
+  TenrxUpdatePatientDetailsAPIModel,
+  TenrxChargeAPIModel,
+  TenrxSaveProductAPIModel,
+  TenrxGuestAddProductAPIModel,
+  TenrxQuestionnaireSaveAnswersAPIModel,
+  TenrxQuestionnaireSurveyResponsesAPIModel,
+  TenrxAccessTokenExpirationInformation,
+  TenrxUpdatePatientInfoAPIModel,
+  TenrxUploadPatientAffectedImagesAPIModel,
+  TenrxRegisterGuestParameterAPIModel,
+  TenrxGetProductTaxAPIModel,
+  TenrxSessionDetailsAPIModel,
+  TenrxCheckoutAPIModel,
+  TenrxToken,
+  CheckoutRequest,
+  CartTaxDetails,
+} from '../index.js';
 
 /**
  * Represents a Tenrx API engine.
@@ -35,6 +44,8 @@ export default class TenrxApiEngine {
   private expiresIn: number;
   private expireDateStart: number;
   private axios: AxiosInstance;
+  public promotions: TenrxPromotionEngine;
+  public grantingToken: TenrxToken | null = null;
 
   private static _instance: TenrxApiEngine | null = null;
 
@@ -43,9 +54,10 @@ export default class TenrxApiEngine {
    *
    * @param {string} businesstoken - The business token to use for the API engine
    * @param {string} baseapi - The base api url to use for the API engine
+   * @param {string} promotionsURL - Url for the promotions server
    * @memberof TenrxApiEngine
    */
-  constructor(businesstoken: string, baseapi: string) {
+  constructor(businesstoken: string, baseapi: string, promotionsURL: string) {
     TenrxLibraryLogger.silly('Creating a new TenrxApiEngine: ', { businesstoken, baseapi });
     this.accesstoken = '';
     this.expiresIn = -1;
@@ -56,6 +68,7 @@ export default class TenrxApiEngine {
         businessToken: businesstoken,
       },
     });
+    this.promotions = new TenrxPromotionEngine(promotionsURL);
   }
 
   /**
@@ -242,7 +255,7 @@ export default class TenrxApiEngine {
    * @param {string} orderNumber - The order number to save the answers for
    * @param {string} patientComment - The comment that the patient has made
    * @param {boolean} paymentStatus - The payment status of the order. True if paid, false if not.
-   * @param {TenrxQuestionnaireSurveyResponseAPIModel[]} surveyResponses
+   * @param {TenrxQuestionnaireSurveyResponsesAPIModel[]} surveyResponses
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
@@ -250,7 +263,7 @@ export default class TenrxApiEngine {
     orderNumber: string,
     patientComment: string,
     paymentStatus: boolean,
-    surveyAnswers: TenrxQuestionnaireSurveyResponseAPIModel[],
+    surveyAnswers: TenrxQuestionnaireSurveyResponsesAPIModel[],
   ): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving answers to API');
     const answers: TenrxQuestionnaireSaveAnswersAPIModel = {
@@ -529,7 +542,7 @@ export default class TenrxApiEngine {
     }
   }
 
-  public async checkout(data: TenrxCheckoutAPIModel, timeout = 15000): Promise<TenrxApiResult> {
+  public async checkout(data: CheckoutRequest, timeout = 15000): Promise<TenrxApiResult> {
     TenrxLibraryLogger.silly('Saving payment details to API (auth)');
     try {
       const response = await this.authPost(`/api/Payment/Checkout`, data, {}, {}, timeout);
@@ -820,6 +833,11 @@ export default class TenrxApiEngine {
     try {
       const response = await this.authGet(`/api/v1/Common/RefreshToken`);
       this.processLoginResponse(response, 'refreshToken()');
+      const content = response.content as TenrxAPIModel<TenrxToken>;
+      if (content.apiStatus.statusCode === 200 && content.data?.token) {
+        this.grantingToken = content.data;
+        await this.promotions.login(this.grantingToken.token);
+      }
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('RefreshToken() Error: ', error);
@@ -889,6 +907,11 @@ export default class TenrxApiEngine {
         language,
       });
       this.processLoginResponse(response, 'login()');
+      const content = response.content as TenrxLoginAPIModel;
+      if (content.statusCode === 200 && content.authenticationDetails) {
+        this.grantingToken = content.authenticationDetails;
+        await this.promotions.login(this.grantingToken.token);
+      }
       return response;
     } catch (error) {
       TenrxLibraryLogger.error('Login() Error: ', error);
@@ -1339,17 +1362,17 @@ export default class TenrxApiEngine {
   }
 
   /**
-   * Get cart total
+   * Get tax rate
    *
-   * @param {TenrxAPIGetCartTotalRequest} data
+   * @param {CartTaxDetails} details
    * @return {*}  {Promise<TenrxApiResult>}
    * @memberof TenrxApiEngine
    */
-  public async getCartTotal(data: TenrxAPIGetCartTotalRequest): Promise<TenrxApiResult> {
+  public async getTaxRate(details: CartTaxDetails): Promise<TenrxApiResult> {
     try {
-      return await this.authPost('/api/Payment/CartPriceCheck', data);
+      return await this.post(`/api/v1/server/tax`, details);
     } catch (error) {
-      TenrxLibraryLogger.error('getCartTotal() Error: ', error);
+      TenrxLibraryLogger.error('getTaxRate() Error: ', error);
       return {
         status: 0,
         content: null,
@@ -1656,6 +1679,7 @@ export default class TenrxApiEngine {
    * @static
    * @param {string} businesstoken - The business token to use for the API engine
    * @param {string} baseapi - The base api url to use for the API engine
+   * @param {string} promotionsURL - Promotion server URL
    * @param {string} [accessToken] - The access token to use for the API engine
    * @param {number} [expireDateStart] - The expire date start of the token to use for the API engine
    * @param {number} [expiresIn] - The expires in date time in seconds of the token.
@@ -1665,6 +1689,7 @@ export default class TenrxApiEngine {
   public static initialize(
     businesstoken: string,
     baseapi: string,
+    promotionsURL: string,
     accessToken?: string,
     expireDateStart?: number,
     expiresIn?: number,
@@ -1675,7 +1700,7 @@ export default class TenrxApiEngine {
       return;
     }
     // eslint-disable-next-line no-underscore-dangle
-    TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi);
+    TenrxApiEngine._instance = new TenrxApiEngine(businesstoken, baseapi, promotionsURL);
     // eslint-disable-next-line no-underscore-dangle
     TenrxApiEngine._instance.accesstoken = accessToken ? accessToken : '';
     // eslint-disable-next-line no-underscore-dangle
