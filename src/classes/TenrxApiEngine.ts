@@ -1650,6 +1650,58 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Send a delete request
+   *
+   * @param {string} url
+   * @param {object} [body={}]
+   * @param {object} [headers={}]
+   * @param {Record<string, string>} [queryparams={}]
+   * @param {(number | undefined)} [timeout=undefined]
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async authDelete(
+    url: string,
+    body: object = {},
+    headers: object = {},
+    queryparams: Record<string, string> = {},
+    timeout: number | undefined = undefined,
+  ): Promise<TenrxApiResult> {
+    this.ensureValidAccessToken();
+    TenrxLibraryLogger.debug('Executing Delete WebCall: ', { url, body, headers, queryparams });
+    const returnvalue: TenrxApiResult = {
+      status: 0,
+      content: null,
+      error: null,
+    };
+    try {
+      const response = await this.axios({
+        url,
+        method: 'DELETE',
+        headers: {
+          ...headers,
+          Authorization: this.accesstoken,
+        },
+        params: queryparams,
+        data: body,
+        timeout,
+      });
+      TenrxLibraryLogger.silly('Delete WebCall Response: ', response);
+      returnvalue.status = response.status;
+      returnvalue.content = response.data;
+    } catch (error) {
+      const err = error as AxiosError;
+      returnvalue.error = err.message;
+      if (err.response) {
+        returnvalue.status = err.response.status;
+        returnvalue.content = err.response.data;
+      }
+      TenrxLibraryLogger.silly('Delete WebCall Error: ', error);
+    }
+    return returnvalue;
+  }
+
+  /**
    * Gets the TenrxApiEngine instance
    *
    * @readonly
