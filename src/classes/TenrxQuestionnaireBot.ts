@@ -1,10 +1,3 @@
-import TenrxQuestionnaireQuestionAPIModel from '../apiModel/TenrxQuestionnaireQuestionAPIModel.js';
-import {
-  TenrxChatEventType,
-  TenrxChatStatus,
-  TenrxQuestionnaireAnswerType,
-  TenrxQuestionnaireBotStatus,
-} from '../includes/TenrxEnums.js';
 import {
   Answer,
   TenrxChatEvent,
@@ -14,15 +7,16 @@ import {
   TenrxChatStartedPayload,
   TenrxLibraryLogger,
   TenrxQuestionnaire,
-  TenrxQuestionnaireAnswerOption,
   TenrxQuestionnaireError,
   TenrxQuestionnairePossibleAnswers,
-  TenrxQuestionnaireQuestion,
   QuestionEnd,
-  useTenrxApi,
+  TenrxChatEventType,
+  TenrxChatStatus,
+  TenrxQuestionnaireAnswerType,
+  TenrxQuestionnaireBotStatus,
+  TenrxQuestionnaireAnswer,
+  TenrxChatInterface,
 } from '../index.js';
-import TenrxQuestionnaireAnswer from '../types/TenrxQuestionnaireAnswer.js';
-import TenrxChatInterface from './TenrxChatInterface.js';
 
 const defaultWelcomeMessage = 'Welcome to 10rx!';
 const defaultEndMessage = 'Thank you for your time!';
@@ -52,6 +46,10 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
    */
   public get answers(): Answer[] {
     return this.questionnaire.answers;
+  }
+
+  public get totalQuestions() {
+    return this.questionnaire.totalQuestions;
   }
 
   /**
@@ -144,6 +142,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
       const data: TenrxQuestionnairePossibleAnswers = {
         questionID: question.id,
         questionType: question.type,
+        questionNumber: this.questionnaire.index + 1,
         possibleAnswers: question.options.map((o) => ({
           id: o.id,
           option: this.questionnaireBotOptions.language === 'es' ? o.spanish : o.english,

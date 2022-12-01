@@ -26,6 +26,14 @@ export default interface TenrxQuestionnairePossibleAnswers {
   questionType: QuestionType;
 
   /**
+   * The number of the question
+   *
+   * @type {number}
+   * @memberof TenrxQuestionnairePossibleAnswers
+   */
+  questionNumber: number;
+
+  /**
    * The actual possible answers to a question.
    *
    * @type {(TenrxQuestionnaireAnswerOption[] | null)}

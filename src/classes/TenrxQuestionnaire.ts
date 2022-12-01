@@ -24,6 +24,10 @@ export default class TenrxQuestionnaire {
     this.language = language || 'en';
   }
 
+  private get filteredQuestions() {
+    return this.questions.filter((q) => !this.sideQuestions.has(q.id));
+  }
+
   public async load(engine = useTenrxApi()) {
     if (!this.questionnaireID && !this.visitType) throw new Error('No questionnaire ID or visit type set');
     const response = await engine.getQuestionnaire(
@@ -97,7 +101,7 @@ export default class TenrxQuestionnaire {
     } else throw new Error('Answer does not fit the question');
 
     // ? No more questions
-    if (!next && this.index + 1 === this.questions.length) {
+    if (!next && this.index + 1 === this.filteredQuestions.length) {
       end = QuestionEnd.Success;
     }
 
@@ -113,18 +117,21 @@ export default class TenrxQuestionnaire {
       if (question) return question;
     }
 
+    const questions = this.filteredQuestions;
+
     this.index++;
 
     // ? No more questions left
-    if (this.index === this.questions.length) return null;
+    if (this.index === questions.length) return null;
 
-    for (this.index; this.index < this.questions.length; this.index++) {
-      question = this.questions[this.index];
-      if (!this.sideQuestions.has(question.id)) break;
-    }
+    question = questions[this.index];
 
     // ? This should never happen
     if (!question) throw new Error('Unable to get next question');
     return question;
+  }
+
+  public get totalQuestions() {
+    return this.filteredQuestions.length;
   }
 }
