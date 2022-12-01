@@ -1,5 +1,6 @@
 import { TenrxQuestionnaireAnswerType } from '../includes/TenrxEnums.js';
 import TenrxQuestionnaireAnswerOption from './TenrxQuestionnaireAnswerOption.js';
+import { QuestionType } from '../index.js';
 
 /**
  * Represents the possible answers to a specific question determined by questionId.
@@ -14,23 +15,15 @@ export default interface TenrxQuestionnairePossibleAnswers {
    * @type {number}
    * @memberof TenrxQuestionnairePossibleAnswers
    */
-  questionId: number;
+  questionID: number;
 
   /**
    * The id of the type of the question.
    *
-   * @type {number}
+   * @type {QuestionType}
    * @memberof TenrxQuestionnairePossibleAnswers
    */
-  questionTypeId: number;
-
-  /**
-   * The type of answers it can be.
-   *
-   * @type {TenrxQuestionnaireAnswerType}
-   * @memberof TenrxQuestionnairePossibleAnswers
-   */
-  answerType: TenrxQuestionnaireAnswerType;
+  questionType: QuestionType;
 
   /**
    * The actual possible answers to a question.
