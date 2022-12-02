@@ -60,12 +60,12 @@ export default class TenrxQuestionnaire {
     let next: number | null = null;
     let end: QuestionEnd = QuestionEnd.No;
 
-    const existingAnswer = this.answers.find((a) => a.id === question.id);
+    const existingAnswer = this.answers.find((a) => a.questionID === question.id);
 
     if (question.type === QuestionType.Text && answer) {
       if (existingAnswer) {
         existingAnswer.answer = answer;
-      } else this.answers.push({ id: question.id, answer });
+      } else this.answers.push({ questionID: question.id, questionnaireID: question.questionnaireID, answer });
     } else if (question.type === QuestionType.Choice && options?.length) {
       const selectedOption = question.options.find((o) => o.id === options[0]);
       if (!selectedOption) throw new Error('Option not found');
@@ -76,7 +76,8 @@ export default class TenrxQuestionnaire {
         existingAnswer.answer = str;
       } else
         this.answers.push({
-          id: question.id,
+          questionID: question.id,
+          questionnaireID: question.questionnaireID,
           answer: str,
         });
 
@@ -95,7 +96,8 @@ export default class TenrxQuestionnaire {
         existingAnswer.answer = str;
       } else
         this.answers.push({
-          id: questionID,
+          questionID: question.id,
+          questionnaireID: question.questionnaireID,
           answer: str,
         });
     } else throw new Error('Answer does not fit the question');

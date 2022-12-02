@@ -1,4 +1,5 @@
 export interface Answer {
-  id: number;
+  questionID: number;
+  questionnaireID: number;
   answer: string;
 }
