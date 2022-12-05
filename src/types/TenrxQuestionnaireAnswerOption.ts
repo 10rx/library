@@ -14,5 +14,4 @@ export default interface TenrxQuestionnaireAnswerOption {
   id: number;
 
   option: string;
-
 }
