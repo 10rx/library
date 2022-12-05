@@ -121,6 +121,10 @@ export { default as CartAddItemModel } from './apiModel/promotions/CartAddItemMo
 export { default as CartItemBasic } from './apiModel/promotions/CartItemBasic.js';
 export { default as CheckoutRequest } from './apiModel/CheckoutRequest.js';
 
+export { Question, QuestionOption } from './apiModel/questionnaire/Question.js';
+export { Answer } from './apiModel/questionnaire/Answer.js';
+export { default as TenrxQuestionnaire } from './classes/TenrxQuestionnaire.js';
+
 // Enums
 export {
   TenrxEnumGender,
@@ -141,6 +145,8 @@ export {
   TenrxFeeNames,
   TenrxFeeCost,
   TenrxCardBrands,
+  QuestionType,
+  QuestionEnd,
 } from './includes/TenrxEnums.js';
 
 export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';
