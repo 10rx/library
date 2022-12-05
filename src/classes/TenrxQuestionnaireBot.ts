@@ -20,6 +20,7 @@ import {
 
 const defaultWelcomeMessage = 'Welcome to 10rx!';
 const defaultEndMessage = 'Thank you for your time!';
+const defaultFailMessage = "Unfortunately you can't proceed with this questionnaire.";
 const defaultUnableToUnderstandMessage = "I'm sorry, I didn't understand that.";
 const defaultCouldYouRepeatThatMessage = "I'm sorry. Could you repeat that?";
 const defaultTypingDelay = 1000;
@@ -153,17 +154,19 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
         data,
       });
     } else {
-      this.end();
+      this.end(QuestionEnd.Success);
     }
   }
 
-  // TODO: Make a failure option
-  private end() {
+  private end(data: QuestionEnd) {
     this.internalState = TenrxQuestionnaireBotStatus.COMPLETED;
-    this.sendMessage(
-      this.questionnaireBotOptions.endMessage ? this.questionnaireBotOptions.endMessage : defaultEndMessage,
-      { kind: 'QuestionnaireEnd', data: null },
-    );
+    let endMessage = this.questionnaireBotOptions.endMessage
+      ? this.questionnaireBotOptions.endMessage
+      : defaultEndMessage;
+
+    if (data === QuestionEnd.Fail) endMessage = defaultFailMessage;
+
+    this.sendMessage(endMessage, { kind: 'QuestionnaireEnd', data });
   }
 
   private sendMessage(message: string, metadata: TenrxChatMessageMetadata): void {
@@ -216,7 +219,7 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
         if (next.end === QuestionEnd.No) {
           this.askQuestion(next.next || undefined);
         } else {
-          this.end();
+          this.end(next.end);
         }
       } else {
         this.sendMessage(

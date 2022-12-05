@@ -566,6 +566,12 @@ export default class TenrxCartEngine extends EventEmitter {
     this.useTemp = value;
   }
 
+  public checkQuestionnaire(id: number) {
+    return !!(this.useTemp ? this.temp : this.cart).items.filter(
+      (i) => !!i.answers.filter((a) => a.questionnaireID === id).length,
+    ).length;
+  }
+
   private save() {
     if (!this.useTemp) return;
     const storage = useTenrxStorage();
