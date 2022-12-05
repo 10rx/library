@@ -256,8 +256,8 @@ export default class TenrxCartEngine extends EventEmitter {
           price: TenrxFeeCost[feeID],
           quantity: 1,
           visitType: visitType as number,
-          images: !item && images?.length ? images : [],
-          answers: !item && answers?.length ? answers : [],
+          images: isConsultation && images?.length ? images : [],
+          answers: isConsultation && answers?.length ? answers : [],
           hidden: !isConsultation,
           refillID: null,
         });
