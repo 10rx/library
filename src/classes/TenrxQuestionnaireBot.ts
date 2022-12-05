@@ -1,28 +1,26 @@
-import TenrxQuestionnaireQuestionAPIModel from '../apiModel/TenrxQuestionnaireQuestionAPIModel.js';
 import {
-  TenrxChatEventType,
-  TenrxChatStatus,
-  TenrxQuestionnaireAnswerType,
-  TenrxQuestionnaireBotStatus,
-} from '../includes/TenrxEnums.js';
-import {
+  Answer,
   TenrxChatEvent,
   TenrxChatMessageMetadata,
   TenrxChatMessagePayload,
   TenrxChatParticipantJoinedPayload,
   TenrxChatStartedPayload,
   TenrxLibraryLogger,
-  TenrxQuestionnaireAnswerOption,
+  TenrxQuestionnaire,
   TenrxQuestionnaireError,
   TenrxQuestionnairePossibleAnswers,
-  TenrxQuestionnaireQuestion,
-  useTenrxApi,
+  QuestionEnd,
+  TenrxChatEventType,
+  TenrxChatStatus,
+  TenrxQuestionnaireAnswerType,
+  TenrxQuestionnaireBotStatus,
+  TenrxQuestionnaireAnswer,
+  TenrxChatInterface,
 } from '../index.js';
-import TenrxQuestionnaireAnswer from '../types/TenrxQuestionnaireAnswer.js';
-import TenrxChatInterface from './TenrxChatInterface.js';
 
 const defaultWelcomeMessage = 'Welcome to 10rx!';
 const defaultEndMessage = 'Thank you for your time!';
+const defaultFailMessage = "Unfortunately you can't proceed with this questionnaire.";
 const defaultUnableToUnderstandMessage = "I'm sorry, I didn't understand that.";
 const defaultCouldYouRepeatThatMessage = "I'm sorry. Could you repeat that?";
 const defaultTypingDelay = 1000;
@@ -33,23 +31,26 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
   public currentQuestion: number;
 
   private internalState: TenrxQuestionnaireBotStatus;
-  private internalQuestions: TenrxQuestionnaireQuestion[];
 
   private participants: Record<string, TenrxChatParticipantJoinedPayload>;
 
   private internalParticipantId: string;
 
-  private internalAnswers: TenrxQuestionnaireAnswer[];
+  private questionnaire: TenrxQuestionnaire;
 
   /**
    * Gets all the answers currently submitted to the bot.
    *
    * @readonly
-   * @type {TenrxQuestionnaireAnswer[]}
+   * @type {Answer[]}
    * @memberof TenrxQuestionnaireBot
    */
-  public get answers(): TenrxQuestionnaireAnswer[] {
-    return this.internalAnswers;
+  public get answers(): Answer[] {
+    return this.questionnaire.answers;
+  }
+
+  public get totalQuestions() {
+    return this.questionnaire.totalQuestions;
   }
 
   /**
@@ -136,27 +137,36 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     }
   }
 
-  private askQuestion(index: number): void {
-    TenrxLibraryLogger.debug('Asking question: ' + index.toString());
-    if (index < this.internalQuestions.length) {
-      const question = this.internalQuestions[index];
+  private askQuestion(index?: number): void {
+    const question = this.questionnaire.nextQuestion(index);
+    if (question) {
       const data: TenrxQuestionnairePossibleAnswers = {
-        questionId: question.questionId,
-        questionTypeId: question.questionTypeId,
-        answerType: question.answerType,
-        possibleAnswers: question.possibleAnswers,
+        questionID: question.id,
+        questionType: question.type,
+        questionNumber: this.questionnaire.index + 1,
+        possibleAnswers: question.options.map((o) => ({
+          id: o.id,
+          option: this.questionnaireBotOptions.language === 'es' ? o.spanish : o.english,
+        })),
       };
-      this.sendMessage(question.question, {
+      this.sendMessage(this.questionnaireBotOptions.language === 'es' ? question.spanish : question.english, {
         kind: 'QuestionnairePossibleAnswers',
         data,
       });
     } else {
-      this.internalState = TenrxQuestionnaireBotStatus.COMPLETED;
-      this.sendMessage(
-        this.questionnaireBotOptions.endMessage ? this.questionnaireBotOptions.endMessage : defaultEndMessage,
-        { kind: 'QuestionnaireEnd', data: null },
-      );
+      this.end(QuestionEnd.Success);
     }
+  }
+
+  private end(data: QuestionEnd) {
+    this.internalState = TenrxQuestionnaireBotStatus.COMPLETED;
+    let endMessage = this.questionnaireBotOptions.endMessage
+      ? this.questionnaireBotOptions.endMessage
+      : defaultEndMessage;
+
+    if (data === QuestionEnd.Fail) endMessage = defaultFailMessage;
+
+    this.sendMessage(endMessage, { kind: 'QuestionnaireEnd', data });
   }
 
   private sendMessage(message: string, metadata: TenrxChatMessageMetadata): void {
@@ -200,9 +210,17 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
     TenrxLibraryLogger.debug(`${participant.nickName} (${timestamp.toString()}): ${messagePayload.message}`);
     if (messagePayload.metadata != null) {
       if (messagePayload.metadata.kind === 'QuestionnaireAnswer') {
-        this.internalAnswers.push(messagePayload.metadata.data as TenrxQuestionnaireAnswer);
-        this.currentQuestion++;
-        this.askQuestion(this.currentQuestion);
+        const data = messagePayload.metadata.data as TenrxQuestionnaireAnswer;
+        const next = this.questionnaire.saveAnswer({
+          questionID: data.questionID,
+          options: data.options ? data.options.map((o) => o.id) : undefined,
+          answer: data.answer,
+        });
+        if (next.end === QuestionEnd.No) {
+          this.askQuestion(next.next || undefined);
+        } else {
+          this.end(next.end);
+        }
       } else {
         this.sendMessage(
           this.questionnaireBotOptions.couldYouRepeatThatMessage
@@ -218,15 +236,21 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
           : defaultUnableToUnderstandMessage,
         null,
       );
-      this.askQuestion(this.currentQuestion);
+      this.askQuestion(this.questionnaire.index);
     }
   }
 
   public updateAnswer(data: TenrxQuestionnaireAnswer) {
-    const index = this.internalAnswers.findIndex((answer) => answer.questionId === data.questionId);
-    if (index === -1) return false;
-    this.internalAnswers[index] = data;
-    return true;
+    try {
+      this.questionnaire.saveAnswer({
+        questionID: data.questionID,
+        options: data.options ? data.options.map((o) => o.id) : undefined,
+        answer: data.answer,
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
@@ -242,13 +266,13 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
   constructor(
     nickName: string,
     avatar: string,
-    visitTypeId: number,
+    questionnaireID: number,
+    isVisitType: boolean,
     options?: TenrxQuestionnaireBotOptions,
     id?: string,
   ) {
     super(id);
     this.internalState = TenrxQuestionnaireBotStatus.NOTREADY;
-    this.internalQuestions = [];
     this.currentQuestion = -1;
     this.internalParticipantId = '';
     this.participants = {};
@@ -261,9 +285,20 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
       ...options,
       nickName,
       avatar,
-      visitTypeId,
+      questionnaireID,
+      isVisitType,
+      language: options?.language || 'en',
     };
-    this.internalAnswers = [];
+    if (isVisitType) {
+      this.questionnaire = new TenrxQuestionnaire({
+        visitType: questionnaireID,
+        language: this.questionnaireBotOptions.language,
+      });
+    } else
+      this.questionnaire = new TenrxQuestionnaire({
+        questionnaireID,
+        language: this.questionnaireBotOptions.language,
+      });
   }
 
   /**
@@ -299,92 +334,11 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
    * @return {*}  {Promise<boolean>}
    * @memberof TenrxQuestionnaireBot
    */
-  public async start(language = 'en', engine = useTenrxApi()): Promise<boolean> {
+  public async start(): Promise<boolean> {
     if (this.internalState !== TenrxQuestionnaireBotStatus.READY) {
       try {
-        const visitTypeId = this.questionnaireBotOptions.visitTypeId ? this.questionnaireBotOptions.visitTypeId : 0;
-        const response = await engine.getQuestionList([{ visitTypeId }]);
-        if (response) {
-          if (response.content) {
-            const content = response.content as {
-              data: { questionnaireTemplateList: { questionLists: TenrxQuestionnaireQuestionAPIModel[] }[] }[];
-            };
-            const data = content.data;
-            if (data) {
-              if (data.length > 0) {
-                const questionnaireTemplateList = data[0].questionnaireTemplateList;
-                if (questionnaireTemplateList) {
-                  if (questionnaireTemplateList.length > 0) {
-                    if (questionnaireTemplateList[0].questionLists) {
-                      if (questionnaireTemplateList[0].questionLists.length > 0) {
-                        for (const question of questionnaireTemplateList[0].questionLists) {
-                          const possibleAnswers: TenrxQuestionnaireAnswerOption[] = [];
-                          if (question.answers) {
-                            for (const answer of question.answers) {
-                              possibleAnswers.push({
-                                id: answer.questionnaireOptionsID,
-                                questionnaireMasterId: question.questionnaireMasterID,
-                                optionValue:
-                                  language === 'en'
-                                    ? answer.optionValue
-                                    : language === 'es'
-                                    ? answer.optionValueEs
-                                    : answer.optionValue,
-                                optionInfo:
-                                  language === 'en'
-                                    ? answer.optionInfo
-                                    : language === 'es'
-                                    ? answer.optionInfoEs
-                                    : answer.optionInfo,
-                                numericValue: answer.numericValue,
-                                displayOrder: answer.displayOrder,
-                              });
-                            }
-                          }
-                          this.internalQuestions.push({
-                            questionId: question.questionnaireMasterID,
-                            questionTypeId: question.questionTypeID,
-                            question:
-                              language === 'en'
-                                ? question.question
-                                : language === 'es'
-                                ? question.questionEs
-                                : question.question,
-                            answerType: this.translateQuestionTypeCodeToAnswerType(question.questionTypeCode),
-                            answerValue: '',
-                            possibleAnswers,
-                            conditionValue1: question.conditionValue1 ? question.conditionValue1 : '',
-                            conditionValue2: question.conditionValue2 ? question.conditionValue2 : '',
-                            conditionValue3: question.conditionValue3 ? question.conditionValue3 : '',
-                          });
-                        }
-                        this.internalState = TenrxQuestionnaireBotStatus.READY;
-                      } else {
-                        throw new TenrxQuestionnaireError(
-                          'No questions found: Questionnaire question list length is 0.',
-                        );
-                      }
-                    } else {
-                      throw new TenrxQuestionnaireError('No questions found: Questionnaire question list is null.');
-                    }
-                  } else {
-                    throw new TenrxQuestionnaireError('No questions found: Questionnaire template length is 0.');
-                  }
-                } else {
-                  throw new TenrxQuestionnaireError('No questions found: Questionnaire template list is null.');
-                }
-              } else {
-                throw new TenrxQuestionnaireError('No questions found: data length is 0');
-              }
-            } else {
-              throw new TenrxQuestionnaireError('No questions found: data is null');
-            }
-          } else {
-            throw new TenrxQuestionnaireError('No questions found: content is null');
-          }
-        } else {
-          throw new TenrxQuestionnaireError('No questions found: response is null');
-        }
+        await this.questionnaire.load();
+        this.internalState = TenrxQuestionnaireBotStatus.READY;
       } catch (error) {
         TenrxLibraryLogger.error('Error getting question list', error);
         throw new TenrxQuestionnaireError('Error getting question list', error);
@@ -408,10 +362,12 @@ export default class TenrxQuestionnaireBot extends TenrxChatInterface {
 export type TenrxQuestionnaireBotOptions = {
   nickName?: string;
   avatar?: string;
-  visitTypeId?: number;
+  questionnaireID: number;
+  isVisitType: boolean;
   welcomeMessage?: string;
   endMessage?: string;
   unableToUnderstandMessage?: string;
   couldYouRepeatThatMessage?: string;
   delayTyping?: number;
+  language: 'en' | 'es';
 };

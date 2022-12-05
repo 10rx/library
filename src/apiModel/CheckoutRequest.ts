@@ -33,7 +33,8 @@ interface Product {
 }
 
 interface Answer {
-  id: number;
+  questionID: number;
+  questionnaireID: number;
   answer: string;
 }
 
