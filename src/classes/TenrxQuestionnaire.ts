@@ -103,7 +103,7 @@ export default class TenrxQuestionnaire {
     } else throw new Error('Answer does not fit the question');
 
     // ? No more questions
-    if (!next && this.index + 1 === this.filteredQuestions.length) {
+    if (!next && !end && this.index + 1 === this.filteredQuestions.length) {
       end = QuestionEnd.Success;
     }
 

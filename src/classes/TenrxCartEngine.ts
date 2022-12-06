@@ -279,6 +279,7 @@ export default class TenrxCartEngine extends EventEmitter {
           this.temp.items.push(el);
         }
       }
+      if (taxDetails) this.temp.taxDetails = taxDetails;
       this.save();
     } else {
       const response = await this.engine.promotions.request({
