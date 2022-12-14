@@ -31,4 +31,5 @@ export default interface TenrxRegisterUserParameterAPIModel {
   userId: number;
   customerId: string;
   isFaceImage: boolean;
+  optOut: boolean;
 }

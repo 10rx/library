@@ -188,6 +188,7 @@ test('RegisterUser Test Success', async () => {
     userId: 0,
     customerId: '',
     isFaceImage: false,
+    optOut: false,
   });
   expect(result).not.toBeNull();
 });
