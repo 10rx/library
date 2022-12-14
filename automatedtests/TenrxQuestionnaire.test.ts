@@ -74,10 +74,10 @@ test('Questionnaire Test Successful', async () => {
   human.onTypingStarted = onChatTypingStarted;
   human.onParticipantJoined = onChatParticipantJoined;
   human.onParticipantLeft = onChatParticipantLeft;
-  const questionnaireBot = new TenrxQuestionnaireBot('Questionnaire Bot', '', 1, false, {
+  const questionnaireBot = new TenrxQuestionnaireBot('Questionnaire Bot', '', 7, true, {
     delayTyping: 0,
-    questionnaireID: 1,
-    isVisitType: false,
+    questionnaireID: 7,
+    isVisitType: true,
     language: 'en',
   });
   try {
