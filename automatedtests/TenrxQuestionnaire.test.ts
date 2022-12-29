@@ -44,21 +44,8 @@ test('Questionnaire Test Successful', async () => {
       if (metadata && metadata.kind === 'QuestionnairePossibleAnswers') {
         const possibleAnswers = metadata.data as TenrxQuestionnairePossibleAnswers;
         const answer: TenrxQuestionnaireAnswer = {
-          questionId: possibleAnswers.questionId,
-          questionTypeId: possibleAnswers.questionTypeId,
-          questionType: possibleAnswers.answerType,
-          answers: [
-            possibleAnswers.possibleAnswers
-              ? possibleAnswers.possibleAnswers[0]
-              : {
-                  id: 0,
-                  questionnaireMasterId: 0,
-                  optionValue: 'random response here',
-                  optionInfo: '',
-                  numericValue: 1,
-                  displayOrder: 0,
-                },
-          ],
+          questionID: possibleAnswers.questionID,
+          options: possibleAnswers.possibleAnswers || [{ id: 0, option: 'answer' }],
         };
         chatInterface.sendMessage('', {
           kind: 'QuestionnaireAnswer',
@@ -87,7 +74,12 @@ test('Questionnaire Test Successful', async () => {
   human.onTypingStarted = onChatTypingStarted;
   human.onParticipantJoined = onChatParticipantJoined;
   human.onParticipantLeft = onChatParticipantLeft;
-  const questionnaireBot = new TenrxQuestionnaireBot('Questionnaire Bot', '', 2, { delayTyping: 0 });
+  const questionnaireBot = new TenrxQuestionnaireBot('Questionnaire Bot', '', 7, true, {
+    delayTyping: 0,
+    questionnaireID: 7,
+    isVisitType: true,
+    language: 'en',
+  });
   try {
     const ready = await questionnaireBot.start();
     expect(ready).toBe(true);

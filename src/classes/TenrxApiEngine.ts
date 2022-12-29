@@ -1382,6 +1382,27 @@ export default class TenrxApiEngine {
   }
 
   /**
+   * Get questionnaire questions
+   *
+   * @param {number} id``
+   * @param {boolean} visitType
+   * @return {*}  {Promise<TenrxApiResult>}
+   * @memberof TenrxApiEngine
+   */
+  public async getQuestionnaire(id: number, visitType: boolean): Promise<TenrxApiResult> {
+    try {
+      return await this.get(`/api/v1/questionnaires/${id}?visitType=${visitType ? 'true' : 'false'}`);
+    } catch (error) {
+      TenrxLibraryLogger.error('getQuestionnaire() Error: ', error);
+      return {
+        status: 0,
+        content: null,
+        error,
+      };
+    }
+  }
+
+  /**
    * Performs an authenticated GET request to the specified url.
    *
    * @param {string} url - The url to perform the GET request to.

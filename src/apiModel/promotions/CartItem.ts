@@ -17,6 +17,7 @@ export default interface CartItem {
 }
 
 interface Answer {
-  id: number;
+  questionID: number;
+  questionnaireID: number;
   answer: string;
 }

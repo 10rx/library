@@ -256,8 +256,8 @@ export default class TenrxCartEngine extends EventEmitter {
           price: TenrxFeeCost[feeID],
           quantity: 1,
           visitType: visitType as number,
-          images: !item && images?.length ? images : [],
-          answers: !item && answers?.length ? answers : [],
+          images: isConsultation && images?.length ? images : [],
+          answers: isConsultation && answers?.length ? answers : [],
           hidden: !isConsultation,
           refillID: null,
         });
@@ -279,6 +279,7 @@ export default class TenrxCartEngine extends EventEmitter {
           this.temp.items.push(el);
         }
       }
+      if (taxDetails) this.temp.taxDetails = taxDetails;
       this.save();
     } else {
       const response = await this.engine.promotions.request({
@@ -564,6 +565,12 @@ export default class TenrxCartEngine extends EventEmitter {
 
   public set useClient(value: boolean) {
     this.useTemp = value;
+  }
+
+  public checkQuestionnaire(id: number) {
+    return !!(this.useTemp ? this.temp : this.cart).items.filter(
+      (i) => !!i.answers.filter((a) => a.questionnaireID === id).length,
+    ).length;
   }
 
   private save() {

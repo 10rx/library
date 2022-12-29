@@ -548,6 +548,7 @@ export const registerUser = async (
     userId: 0,
     customerId: '',
     isFaceImage: false,
+    optOut: false,
   };
   TenrxLibraryLogger.debug('Registering user with data: ', registerAPIData);
   const result = await apiengine.registerUser(registerAPIData);

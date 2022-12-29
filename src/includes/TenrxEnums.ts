@@ -359,3 +359,15 @@ export const TenrxCardBrands = {
   mastercard: 'MasterCard',
   maestro: 'Maestro',
 };
+
+export enum QuestionType {
+  Text,
+  Choice,
+  Multiple,
+}
+
+export enum QuestionEnd {
+  No,
+  Fail,
+  Success,
+}
