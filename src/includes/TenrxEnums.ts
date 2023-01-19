@@ -371,3 +371,8 @@ export enum QuestionEnd {
   Fail,
   Success,
 }
+
+export enum CardType {
+  CreditCard,
+  GiftCard,
+}
