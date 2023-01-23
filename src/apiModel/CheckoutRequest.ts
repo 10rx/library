@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { TenrxPharmacyType, TenrxShippingType } from '../index.js';
+import { CardType, TenrxPharmacyType, TenrxShippingType } from '../index.js';
 
 export default interface CheckoutRequest {
   paymentNonce: string | null;
@@ -49,14 +49,16 @@ interface ShippingAddress {
 }
 
 interface CardDetails {
-  firstName: string;
-  lastName: string;
-  brand: string;
-  last4: string;
-  exp_month: number;
-  exp_year: number;
-  paymentID: string | null;
-  billingAddress: BillingAddress;
+  type: CardType;
+  code?: string;
+  firstName?: string;
+  lastName?: string;
+  brand?: string;
+  last4?: string;
+  exp_month?: number;
+  exp_year?: number;
+  paymentID?: string | null;
+  billingAddress?: BillingAddress;
 }
 
 interface BillingAddress {

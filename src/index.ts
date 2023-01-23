@@ -147,6 +147,7 @@ export {
   TenrxCardBrands,
   QuestionType,
   QuestionEnd,
+  CardType,
 } from './includes/TenrxEnums.js';
 
 export { TenrxStateIdToStateName, TenrxStateNameToStateId } from './includes/TenrxStates.js';
