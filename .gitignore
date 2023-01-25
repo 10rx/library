@@ -4,3 +4,4 @@ node_modules
 persistent.testasync
 persistent.testsync
 /.VSCodeCounter
+.DS_Store

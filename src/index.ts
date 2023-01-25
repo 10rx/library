@@ -121,6 +121,9 @@ export { default as CartAddItemModel } from './apiModel/promotions/CartAddItemMo
 export { default as CartItemBasic } from './apiModel/promotions/CartItemBasic.js';
 export { default as CheckoutRequest } from './apiModel/CheckoutRequest.js';
 
+export { default as Consultation, ConsultationOption, Language } from './apiModel/consultations/Consultation.js';
+export { default as TenrxConsultation } from './classes/TenrxConsultation.js';
+
 export { Question, QuestionOption } from './apiModel/questionnaire/Question.js';
 export { Answer } from './apiModel/questionnaire/Answer.js';
 export { default as TenrxQuestionnaire } from './classes/TenrxQuestionnaire.js';
