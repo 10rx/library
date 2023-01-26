@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Consultation, ConsultationOption, Language, TenrxLoadError, TenrxProduct } from '../index.js';
-import { useTenrxApi } from '../includes/TenrxFunctions';
+import { Consultation, ConsultationOption, Language, TenrxLoadError, TenrxProduct, useTenrxApi } from '../index.js';
 
 export default class TenrxConsultation {
   readonly ID: number;
