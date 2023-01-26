@@ -4,11 +4,19 @@ import { Consultation, ConsultationOption, Language, TenrxLoadError, TenrxProduc
 
 export default class TenrxConsultation {
   readonly ID: number;
+  readonly category: Language;
+  readonly categoryID: number;
+  readonly price: number;
+  readonly image: string;
   readonly options: TenrxConsultationOption[];
   selected: number | null = null;
 
   constructor(data: Consultation) {
     this.ID = data.id;
+    this.category = data.category;
+    this.categoryID = data.categoryID;
+    this.price = data.price;
+    this.image = data.image;
     this.options = data.options.map((option) => new TenrxConsultationOption(option));
   }
 
