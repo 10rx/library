@@ -31,6 +31,7 @@ import {
   TenrxToken,
   CheckoutRequest,
   CartTaxDetails,
+  Consultation,
 } from '../index.js';
 
 /**
@@ -1398,6 +1399,60 @@ export default class TenrxApiEngine {
         status: 0,
         content: null,
         error,
+      };
+    }
+  }
+
+  /**
+   * Get all consultations
+   *
+   * @return {*}  {Promise<TenrxAPIModel<Consultation[]>>}
+   * @memberof TenrxApiEngine
+   */
+  public async getConsultations(): Promise<TenrxAPIModel<Consultation[]>> {
+    try {
+      const response = await this.get('/api/v1/consultations');
+      const content = response.content as TenrxAPIModel<Consultation[]>;
+      return {
+        apiStatus: content.apiStatus,
+        data: content.data,
+      };
+    } catch (error) {
+      TenrxLibraryLogger.error('getConsultations() Error: ', error);
+      return {
+        apiStatus: {
+          statusCode: 0,
+          message: error as string,
+          appError: '',
+        },
+        data: [],
+      };
+    }
+  }
+
+  /**
+   * Get a consultation
+   *
+   * @return {*}  {Promise<TenrxAPIModel<Consultation>>}
+   * @memberof TenrxApiEngine
+   */
+  public async getConsultation(ID: number): Promise<TenrxAPIModel<Consultation | null>> {
+    try {
+      const response = await this.get(`/api/v1/consultations/${ID}`);
+      const content = response.content as TenrxAPIModel<Consultation>;
+      return {
+        apiStatus: content.apiStatus,
+        data: content.data,
+      };
+    } catch (error) {
+      TenrxLibraryLogger.error('getConsultation() Error: ', error);
+      return {
+        apiStatus: {
+          statusCode: 0,
+          message: error as string,
+          appError: '',
+        },
+        data: null,
       };
     }
   }

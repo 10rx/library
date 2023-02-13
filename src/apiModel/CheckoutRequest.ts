@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { CardType, TenrxPharmacyType, TenrxShippingType } from '../index.js';
+import TenrxSubscriptionInfo from '../types/TenrxSubscriptionInfo.js';
 
 export default interface CheckoutRequest {
   paymentNonce: string | null;
@@ -11,6 +12,7 @@ export default interface CheckoutRequest {
   shippingAddress: ShippingAddress;
   products: Product[];
   otherPharmacyAddress: OtherPharmacyAddress | null;
+  subscriptionInfo: TenrxSubscriptionInfo | null;
 }
 
 interface OtherPharmacyAddress {

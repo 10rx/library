@@ -376,3 +376,10 @@ export enum CardType {
   CreditCard,
   GiftCard,
 }
+
+
+
+export enum TenrxSubscriptionUnitType {
+Months = 'months',
+Days = 'days',
+}
