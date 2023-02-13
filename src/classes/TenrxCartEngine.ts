@@ -453,7 +453,7 @@ export default class TenrxCartEngine extends EventEmitter {
     shippingAddress: TenrxStreetAddress;
     pharmacyInfo: TenrxExternalPharmacyInformation | null;
     timeout?: number;
-    subscriptionInfo: TenrxSubscriptionInfo | null;
+    subscriptionInfo?: TenrxSubscriptionInfo | null;
   }) {
     const request: CheckoutRequest = {
       paymentNonce,

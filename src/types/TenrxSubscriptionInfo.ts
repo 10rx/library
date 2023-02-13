@@ -14,7 +14,7 @@ export default interface TenrxSubscriptionInfo {
    * @type {number}
    * @memberof TenrxSubscriptionInfo
    */
-  subscriptionProductId: number;
+  subscriptionProductId: number | undefined;
 
   /**
    * The id of the strength of the product to be subscribed to.
@@ -22,7 +22,7 @@ export default interface TenrxSubscriptionInfo {
    * @type {number}
    * @memberof TenrxSubscriptionInfo
    */
-  subscriptionStrenghtId: number;
+  subscriptionStrenghtId: number | undefined;
 
   /**
    * The number of days or months between subscription orders
@@ -30,7 +30,7 @@ export default interface TenrxSubscriptionInfo {
    * @type {string}
    * @memberof TenrxSubscriptionInfo
    */
-  length: string;
+  length: string| undefined;
 
 
   /**
@@ -47,7 +47,7 @@ export default interface TenrxSubscriptionInfo {
    * @type {string}
    * @memberof TenrxSubscriptionInfo
    */
-  startDate: DateTime;
+  startDate: DateTime | null;
 
   /**
    * Represents how many orders for the subscription.
@@ -65,7 +65,7 @@ export default interface TenrxSubscriptionInfo {
    */
 
   trialOcurrences?: string;
-  
+
   /**
    * 
    *
