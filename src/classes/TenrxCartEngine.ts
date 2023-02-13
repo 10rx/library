@@ -446,7 +446,7 @@ export default class TenrxCartEngine extends EventEmitter {
     shippingAddress,
     pharmacyInfo,
     timeout,
-    subscriptionInfo
+    subscriptionInfo,
   }: {
     paymentNonce: string | null;
     card: TenrxCreditCard | string;
@@ -461,29 +461,30 @@ export default class TenrxCartEngine extends EventEmitter {
       pharmacyType: pharmacyInfo ? TenrxPharmacyType.External : TenrxPharmacyType.Internal,
       couponCode: this.promotionCode,
       shippingFees: this.shipping,
-      cardDetails: typeof card === 'string'
-        ? {
-          type: CardType.GiftCard,
-          code: card,
-        }
-        : {
-          type: CardType.CreditCard,
-          paymentID: card.paymentID,
-          firstName: card.firstName,
-          lastName: card.lastName,
-          brand: card.brand,
-          last4: card.last4,
-          exp_month: Number(card.expMonth),
-          exp_year: Number(card.expYear),
-          billingAddress: {
-            addressLine1: card.address.address1,
-            addressLine2: card.address.address2 || null,
-            city: card.address.city,
-            state: TenrxStateIdToStateName[card.address.stateId],
-            zipCode: card.address.zipCode,
-            country: 'US',
-          },
-        },
+      cardDetails:
+        typeof card === 'string'
+          ? {
+              type: CardType.GiftCard,
+              code: card,
+            }
+          : {
+              type: CardType.CreditCard,
+              paymentID: card.paymentID,
+              firstName: card.firstName,
+              lastName: card.lastName,
+              brand: card.brand,
+              last4: card.last4,
+              exp_month: Number(card.expMonth),
+              exp_year: Number(card.expYear),
+              billingAddress: {
+                addressLine1: card.address.address1,
+                addressLine2: card.address.address2 || null,
+                city: card.address.city,
+                state: TenrxStateIdToStateName[card.address.stateId],
+                zipCode: card.address.zipCode,
+                country: 'US',
+              },
+            },
       shippingAddress: {
         addressLine1: shippingAddress.address1,
         addressLine2: shippingAddress.address2 ?? null,
@@ -495,14 +496,14 @@ export default class TenrxCartEngine extends EventEmitter {
       },
       otherPharmacyAddress: pharmacyInfo
         ? {
-          addressLine1: pharmacyInfo.address.address1,
-          addressLine2: pharmacyInfo.address.address2 ?? null,
-          city: pharmacyInfo.address.city,
-          state: TenrxStateIdToStateName[pharmacyInfo.address.stateId],
-          zipCode: pharmacyInfo.address.zipCode,
-          country: 'US',
-          pharmacyName: pharmacyInfo.name,
-        }
+            addressLine1: pharmacyInfo.address.address1,
+            addressLine2: pharmacyInfo.address.address2 ?? null,
+            city: pharmacyInfo.address.city,
+            state: TenrxStateIdToStateName[pharmacyInfo.address.stateId],
+            zipCode: pharmacyInfo.address.zipCode,
+            country: 'US',
+            pharmacyName: pharmacyInfo.name,
+          }
         : null,
       products: this.items.map((item) => ({
         productId: item.id,
@@ -513,17 +514,17 @@ export default class TenrxCartEngine extends EventEmitter {
         answers: item.answers,
       })),
       subscriptionInfo: subscriptionInfo
-      ? {
-        subscriptionProductId: subscriptionInfo.subscriptionProductId,
-        subscriptionStrenghtId: subscriptionInfo.subscriptionStrenghtId,
-        length: subscriptionInfo.length,
-        unit: subscriptionInfo.unit,
-        startDate: subscriptionInfo.startDate,
-        totalOcurrences: subscriptionInfo.totalOcurrences,
-        trialOcurrences: subscriptionInfo.trialOcurrences,
-        trialPrice: subscriptionInfo.trialPrice
-      }
-      : null
+        ? {
+            subscriptionProductId: subscriptionInfo.subscriptionProductId,
+            subscriptionStrenghtId: subscriptionInfo.subscriptionStrenghtId,
+            length: subscriptionInfo.length,
+            unit: subscriptionInfo.unit,
+            startDate: subscriptionInfo.startDate,
+            totalOcurrences: subscriptionInfo.totalOcurrences,
+            trialOcurrences: subscriptionInfo.trialOcurrences,
+            trialPrice: subscriptionInfo.trialPrice,
+          }
+        : null,
     };
     const result: TenrxCartCheckoutResult = {
       checkoutSuccessful: false,

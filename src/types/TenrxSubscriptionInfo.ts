@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { TenrxSubscriptionUnitType } from "../includes/TenrxEnums.js";
+import { TenrxSubscriptionUnitType } from '../includes/TenrxEnums.js';
 
 /**
  * Represents a Subscription Information.
@@ -30,8 +30,7 @@ export default interface TenrxSubscriptionInfo {
    * @type {string}
    * @memberof TenrxSubscriptionInfo
    */
-  length: string| undefined;
-
+  length: string | undefined;
 
   /**
    * Represents the unit in days or months.
@@ -58,7 +57,7 @@ export default interface TenrxSubscriptionInfo {
   totalOcurrences?: string;
 
   /**
-   * 
+   *
    *
    * @type {string}
    * @memberof TenrxSubscriptionInfo
@@ -67,7 +66,7 @@ export default interface TenrxSubscriptionInfo {
   trialOcurrences?: string;
 
   /**
-   * 
+   *
    *
    * @type {string}
    * @memberof TenrxSubscriptionInfo
